@@ -98,6 +98,12 @@ const village = {
     width: 120,
     height: 100
 };
+
+const river = {
+    x: window.innerWidth / 2 - 50,
+    width: 100
+};
+    
 const trees = [];
 
 for(let x=120; x<canvas.width-120; x+=80){
@@ -183,16 +189,71 @@ player.y = Math.max(
 );
 }
 
+function drawMountains(ctxObj, width, height){
+
+    ctxObj.fillStyle = "#6b6b6b";
+
+    // Top ridge
+    for(let x=0; x<width; x+=80){
+
+        ctxObj.beginPath();
+        ctxObj.moveTo(x,50);
+        ctxObj.lineTo(x+40,0);
+        ctxObj.lineTo(x+80,50);
+        ctxObj.fill();
+    }
+
+    // Bottom ridge
+    for(let x=0; x<width; x+=80){
+
+        ctxObj.beginPath();
+        ctxObj.moveTo(x,height-50);
+        ctxObj.lineTo(x+40,height-100);
+        ctxObj.lineTo(x+80,height-50);
+        ctxObj.fill();
+    }
+
+    // Left ridge
+    for(let y=0; y<height; y+=80){
+
+        ctxObj.beginPath();
+        ctxObj.moveTo(50,y);
+        ctxObj.lineTo(0,y+40);
+        ctxObj.lineTo(50,y+80);
+        ctxObj.fill();
+    }
+
+    // Right ridge
+    for(let y=0; y<height; y+=80){
+
+        ctxObj.beginPath();
+        ctxObj.moveTo(width-50,y);
+        ctxObj.lineTo(width,y+40);
+        ctxObj.lineTo(width-50,y+80);
+        ctxObj.fill();
+    }
+}
+    
 function drawForest(){
 
     // Grass
     ctx.fillStyle = "#2d6a2d";
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    // Mountains
-    ctx.fillStyle = "#777";
-
-    for(let x=0;x<canvas.width;x+=50){
+    // River
+ctx.fillStyle = "#3498db";
+ctx.fillRect(
+    river.x,
+    0,
+    river.width,
+    canvas.height
+);
+    
+drawMountains(
+    ctx,
+    canvas.width,
+    canvas.height
+);
 
         // Top
         ctx.beginPath();
@@ -225,43 +286,7 @@ function drawForest(){
         ctx.lineTo(canvas.width-50,y+50);
         ctx.fill();
     }
-// Top mountains
-ctx.fillStyle = "#777";
 
-for(let x=0;x<canvas.width;x+=40){
-    ctx.beginPath();
-    ctx.moveTo(x,60);
-    ctx.lineTo(x+20,0);
-    ctx.lineTo(x+40,60);
-    ctx.fill();
-}
-
-// Bottom mountains
-for(let x=0;x<canvas.width;x+=40){
-    ctx.beginPath();
-    ctx.moveTo(x,canvas.height-60);
-    ctx.lineTo(x+20,canvas.height-120);
-    ctx.lineTo(x+40,canvas.height-60);
-    ctx.fill();
-}
-
-// Left mountains
-for(let y=0;y<canvas.height;y+=40){
-    ctx.beginPath();
-    ctx.moveTo(60,y);
-    ctx.lineTo(0,y+20);
-    ctx.lineTo(60,y+40);
-    ctx.fill();
-}
-
-// Right mountains
-for(let y=0;y<canvas.height;y+=40){
-    ctx.beginPath();
-    ctx.moveTo(canvas.width-60,y);
-    ctx.lineTo(canvas.width,y+20);
-    ctx.lineTo(canvas.width-60,y+40);
-    ctx.fill();
-}
     // Trees
     // Draw trees
 for(const tree of trees){
@@ -384,8 +409,29 @@ function drawMap(){
         mapCanvas.height - 160
     );
 
-    // Mountains around edge
-    mapCtx.fillStyle = "#777";
+    mapCtx.fillStyle = "#3498db";
+
+const riverMapX =
+    80 +
+    (river.x / canvas.width) *
+    (mapCanvas.width - 160);
+
+const riverMapWidth =
+    (river.width / canvas.width) *
+    (mapCanvas.width - 160);
+
+mapCtx.fillRect(
+    riverMapX,
+    80,
+    riverMapWidth,
+    mapCanvas.height - 160
+);
+
+    drawMountains(
+    mapCtx,
+    mapCanvas.width,
+    mapCanvas.height
+);
 
     // Top
     for(let x=0;x<mapCanvas.width;x+=40){
