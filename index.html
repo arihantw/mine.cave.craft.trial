@@ -125,21 +125,24 @@ const player = {
     maxHealth: 100, health: 100
 };
 
-// We calculate the river FIRST so we can use its position for the land features
-const river = { x: window.innerWidth / 2 - 50, width: 100 };
+// DYNAMIC POSITIONS: By using "get x()", these objects constantly read the live canvas size,
+// making it mathematically impossible for the cave to ever overlap the river.
 
-// Cave is placed safely 100px to the right of the river
+const river = { 
+    get x() { return canvas.width / 2 - 50; }, 
+    width: 100 
+};
+
 const cave = {
-    x: river.x + river.width + 100,
-    y: 300 - 20,
+    get x() { return river.x + river.width + 120; }, // Forces the cave exactly 120px to the right of the river
+    y: 280,
     width: 120, height: 100,
     entranceW: 60, entranceH: 65,
     get cx() { return this.x + this.width / 2; }
 };
 
-// Village is placed 80px to the right of the cave
 const village = { 
-    x: cave.x + cave.width + 80, 
+    get x() { return cave.x + cave.width + 80; }, // Forces the village exactly 80px to the right of the cave
     y: 300, 
     width: 120, 
     height: 100 
@@ -352,26 +355,20 @@ function drawHealthBar() {
     const y = 20;
     const healthPct = player.health / player.maxHealth;
 
-    // Background
     ctx.fillStyle = "rgba(0,0,0,0.5)";
     ctx.fillRect(x - 10, y - 8, barW + 20, barH + 16);
-
-    // Empty bar
     ctx.fillStyle = "#555";
     ctx.fillRect(x, y, barW, barH);
 
-    // Health fill — green → yellow → red
     const r = Math.floor(255 * (1 - healthPct));
     const g = Math.floor(255 * healthPct);
     ctx.fillStyle = `rgb(${r},${g},0)`;
     ctx.fillRect(x, y, barW * healthPct, barH);
 
-    // Border
     ctx.strokeStyle = "white";
     ctx.lineWidth = 1.5;
     ctx.strokeRect(x, y, barW, barH);
 
-    // Label
     ctx.fillStyle = "white";
     ctx.font = "bold 13px Arial";
     ctx.textAlign = "right";
@@ -398,7 +395,6 @@ function drawInventory() {
         }
     }
 
-    // HUD
     ctx.fillStyle = "rgba(0,0,0,0.5)";
     ctx.fillRect(10, 10, 200, 105);
     ctx.fillStyle = "white"; ctx.font = "18px Arial";
