@@ -125,23 +125,25 @@ const player = {
     maxHealth: 100, health: 100
 };
 
+// We calculate the river FIRST so we can use its position for the land features
+const river = { x: window.innerWidth / 2 - 50, width: 100 };
+
+// Cave is placed safely 100px to the right of the river
 const cave = {
-    x: 700,
+    x: river.x + river.width + 100,
     y: 300 - 20,
     width: 120, height: 100,
     entranceW: 60, entranceH: 65,
     get cx() { return this.x + this.width / 2; }
 };
 
-// MODIFIED: Village is now pushed significantly further to the right
+// Village is placed 80px to the right of the cave
 const village = { 
-    x: cave.x + cave.width + 400, 
+    x: cave.x + cave.width + 80, 
     y: 300, 
     width: 120, 
     height: 100 
 };
-
-const river = { x: window.innerWidth / 2 - 50, width: 100 };
 
 const trees = [];
 for (let x = 120; x < 2000; x += 80)
@@ -428,7 +430,6 @@ function drawMap() {
         mapCtx.fillStyle="#145214"; mapCtx.beginPath(); mapCtx.arc(tx,ty-2,8,0,Math.PI*2); mapCtx.fill();
     }
 
-    // Map calculates village positions dynamically
     const vmx = 80+(village.x/canvas.width)*(mapCanvas.width-160);
     const vmy = 80+(village.y/canvas.height)*(mapCanvas.height-160);
     mapCtx.fillStyle="#c2a878"; mapCtx.fillRect(vmx,vmy,80,55);
