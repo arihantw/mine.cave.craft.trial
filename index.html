@@ -37,6 +37,44 @@ button {
     display: none;
     z-index: 10;
 }
+#noteOverlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 30;
+    background: rgba(0,0,0,0.7);
+}
+#noteBox {
+    background: #f5e6c8;
+    border: 4px solid #8b6914;
+    border-radius: 8px;
+    padding: 40px 50px;
+    max-width: 520px;
+    color: #2a1a00;
+    font-family: 'Georgia', serif;
+    font-size: 17px;
+    line-height: 1.8;
+    box-shadow: 0 0 40px rgba(0,0,0,0.8);
+    position: relative;
+}
+#noteBox h2 {
+    margin-top: 0;
+    font-size: 22px;
+    text-align: center;
+    border-bottom: 2px solid #8b6914;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+#noteClose {
+    margin-top: 24px;
+    display: block;
+    text-align: center;
+    font-size: 14px;
+    color: #8b6914;
+}
 </style>
 </head>
 <body>
@@ -50,11 +88,24 @@ button {
 <canvas id="game"></canvas>
 <canvas id="mapScreen"></canvas>
 
+<div id="noteOverlay">
+    <div id="noteBox">
+        <h2>📜 Note</h2>
+        Your memory has been wiped.<br><br>
+        In the cave, there is treasure to take, along with a key to get out of this place which you have been trapped in.<br><br>
+        However, be aware of the dangers in the cave. Get a sword before going in.<br><br>
+        Get an axe and pickaxe from the village to get the resources to make a sword.<br><br>
+        Good luck... you will need it.
+        <span id="noteClose">[Press N to close]</span>
+    </div>
+</div>
+
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const mapCanvas = document.getElementById("mapScreen");
 const mapCtx = mapCanvas.getContext("2d");
+const noteOverlay = document.getElementById("noteOverlay");
 
 function resizeCanvas() {
     canvas.width = window.innerWidth;
@@ -67,18 +118,20 @@ window.addEventListener("resize", resizeCanvas);
 
 let gameStarted = false;
 let showMap = false;
+let showNote = false;
 
-const player = { x: 500, y: 300, size: 30, color: "blue", speed: 4 };
+const player = {
+    x: 500, y: 300, size: 30, color: "blue", speed: 4,
+    maxHealth: 100, health: 100
+};
 
 const village = { x: 700, y: 300, width: 120, height: 100 };
 
 const cave = {
     x: village.x + village.width + 60,
     y: village.y - 20,
-    width: 120,
-    height: 100,
-    entranceW: 60,
-    entranceH: 65,
+    width: 120, height: 100,
+    entranceW: 60, entranceH: 65,
     get cx() { return this.x + this.width / 2; }
 };
 
@@ -89,7 +142,7 @@ for (let x = 120; x < 2000; x += 80)
     for (let y = 120; y < 1200; y += 80)
         trees.push({ x, y });
 
-const inventory = ["Map", "", "", "", "", "", "", "", "", ""];
+const inventory = ["Map", "Note", "", "", "", "", "", "", "", ""];
 const keys = {};
 
 function startGame(gender) {
@@ -103,13 +156,20 @@ document.addEventListener("keydown", e => {
     const key = e.key.toLowerCase();
     keys[key] = true;
 
-    if (key === "m") {
+    if (key === "m" && !showNote) {
         showMap = !showMap;
         mapCanvas.style.display = showMap ? "block" : "none";
         if (showMap) drawMap();
     }
 
-    if (key === "e") {
+    if (key === "n") {
+        showNote = !showNote;
+        noteOverlay.style.display = showNote ? "flex" : "none";
+        if (showNote) showMap = false;
+        mapCanvas.style.display = "none";
+    }
+
+    if (key === "e" && !showNote && !showMap) {
         const nearVillage =
             player.x > village.x - 50 && player.x < village.x + village.width + 50 &&
             player.y > village.y - 50 && player.y < village.y + village.height + 50;
@@ -125,7 +185,7 @@ document.addEventListener("keydown", e => {
 document.addEventListener("keyup", e => { keys[e.key.toLowerCase()] = false; });
 
 function movePlayer() {
-    if (showMap) return;
+    if (showMap || showNote) return;
     if (keys["w"]) player.y -= player.speed;
     if (keys["s"]) player.y += player.speed;
     if (keys["a"]) player.x -= player.speed;
@@ -139,7 +199,7 @@ function drawMountains(ctxObj, width, height) {
     ctxObj.fillStyle = "#6b6b6b";
 
     ctxObj.save();
-    ctxObj.beginPath(); ctxObj.rect(mSize, 0, width - mSize*2, mSize+10); ctxObj.clip();
+    ctxObj.beginPath(); ctxObj.rect(mSize, 0, width-mSize*2, mSize+10); ctxObj.clip();
     for (let x = mSize; x < width-mSize; x += step) {
         ctxObj.beginPath(); ctxObj.moveTo(x,mSize); ctxObj.lineTo(x+step/2,0); ctxObj.lineTo(x+step,mSize); ctxObj.fill();
     }
@@ -176,12 +236,9 @@ function drawMountains(ctxObj, width, height) {
 function drawForest() {
     ctx.fillStyle = "#2d6a2d";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     ctx.fillStyle = "#3498db";
     ctx.fillRect(river.x, 0, river.width, canvas.height);
-
     drawMountains(ctx, canvas.width, canvas.height);
-
     for (const tree of trees) {
         ctx.fillStyle = "#5c3b1e";
         ctx.fillRect(tree.x-5, tree.y, 10, 20);
@@ -195,7 +252,6 @@ function drawForest() {
 function drawCave() {
     const { x, y, width, height, entranceW, entranceH, cx } = cave;
 
-    // Rocky mound
     ctx.fillStyle = "#4a4a4a";
     ctx.beginPath();
     ctx.moveTo(x-10, y+height);
@@ -204,13 +260,11 @@ function drawCave() {
     ctx.closePath();
     ctx.fill();
 
-    // Rocky highlights
     ctx.fillStyle = "#5e5e5e";
     ctx.beginPath(); ctx.ellipse(cx-18, y+15, 14, 9, -0.3, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(cx+22, y+25, 10, 7, 0.4, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(cx, y-10, 12, 8, 0, 0, Math.PI*2); ctx.fill();
 
-    // Cave entrance arch
     const ex = cx - entranceW/2;
     const ey = y + height - entranceH;
     ctx.fillStyle = "#111";
@@ -222,7 +276,6 @@ function drawCave() {
     ctx.closePath();
     ctx.fill();
 
-    // Shadow gradient inside entrance
     const grad = ctx.createRadialGradient(cx, y+height-10, 4, cx, y+height-15, entranceW*0.8);
     grad.addColorStop(0, "rgba(0,0,0,0.9)");
     grad.addColorStop(1, "rgba(0,0,0,0)");
@@ -235,10 +288,9 @@ function drawCave() {
     ctx.closePath();
     ctx.fill();
 
-    // Stalactites
     ctx.fillStyle = "#3a3a3a";
     for (let i = 0; i < 5; i++) {
-        const sx = ex + 6 + i * (entranceW-12)/4;
+        const sx = ex + 6 + i*(entranceW-12)/4;
         const sh = 8 + (i%2)*6;
         ctx.beginPath();
         ctx.moveTo(sx-4, ey+10+i%3*3);
@@ -248,14 +300,12 @@ function drawCave() {
         ctx.fill();
     }
 
-    // Label
     ctx.fillStyle = "white";
     ctx.font = "16px Arial";
     ctx.textAlign = "center";
     ctx.fillText("Cave", cx, y-35);
     ctx.textAlign = "left";
 
-    // Proximity glow
     const dist = Math.hypot(player.x - cx, player.y - (y+height));
     if (dist < 100) {
         ctx.strokeStyle = "rgba(255,200,50,0.6)";
@@ -287,6 +337,40 @@ function drawPlayer() {
     ctx.stroke();
 }
 
+function drawHealthBar() {
+    const barW = 200;
+    const barH = 20;
+    const x = canvas.width - barW - 20;
+    const y = 20;
+    const healthPct = player.health / player.maxHealth;
+
+    // Background
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillRect(x - 10, y - 8, barW + 20, barH + 16);
+
+    // Empty bar
+    ctx.fillStyle = "#555";
+    ctx.fillRect(x, y, barW, barH);
+
+    // Health fill — green → yellow → red
+    const r = Math.floor(255 * (1 - healthPct));
+    const g = Math.floor(255 * healthPct);
+    ctx.fillStyle = `rgb(${r},${g},0)`;
+    ctx.fillRect(x, y, barW * healthPct, barH);
+
+    // Border
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(x, y, barW, barH);
+
+    // Label
+    ctx.fillStyle = "white";
+    ctx.font = "bold 13px Arial";
+    ctx.textAlign = "right";
+    ctx.fillText(`HP  ${player.health} / ${player.maxHealth}`, x + barW, y - 4);
+    ctx.textAlign = "left";
+}
+
 function drawInventory() {
     const slots=10, size=60, spacing=8;
     const totalWidth = slots*(size+spacing);
@@ -294,7 +378,10 @@ function drawInventory() {
     const y = canvas.height-90;
 
     for (let i = 0; i < slots; i++) {
-        ctx.fillStyle = "rgba(68,68,68,0.85)";
+        // Highlight note slot softly
+        ctx.fillStyle = inventory[i] === "Note"
+            ? "rgba(180,140,40,0.85)"
+            : "rgba(68,68,68,0.85)";
         ctx.fillRect(startX+i*(size+spacing), y, size, size);
         ctx.strokeStyle = "white"; ctx.lineWidth = 1;
         ctx.strokeRect(startX+i*(size+spacing), y, size, size);
@@ -304,12 +391,14 @@ function drawInventory() {
         }
     }
 
+    // HUD
     ctx.fillStyle = "rgba(0,0,0,0.5)";
-    ctx.fillRect(10, 10, 180, 85);
+    ctx.fillRect(10, 10, 200, 105);
     ctx.fillStyle = "white"; ctx.font = "18px Arial";
     ctx.fillText("WASD = Move", 20, 35);
     ctx.fillText("M = Map", 20, 58);
     ctx.fillText("E = Interact", 20, 81);
+    ctx.fillText("N = Read Note", 20, 104);
 }
 
 function drawMap() {
@@ -317,12 +406,11 @@ function drawMap() {
 
     mapCtx.fillStyle = "#87ceeb";
     mapCtx.fillRect(0, 0, mapCanvas.width, mapCanvas.height);
-
     mapCtx.fillStyle = "#0f5f0f";
     mapCtx.fillRect(80, 80, mapCanvas.width-160, mapCanvas.height-160);
 
     mapCtx.fillStyle = "#3498db";
-    const riverMapX = 80 + (river.x/canvas.width)*(mapCanvas.width-160);
+    const riverMapX = 80+(river.x/canvas.width)*(mapCanvas.width-160);
     const riverMapW = (river.width/canvas.width)*(mapCanvas.width-160);
     mapCtx.fillRect(riverMapX, 80, riverMapW, mapCanvas.height-160);
 
@@ -346,9 +434,9 @@ function drawMap() {
     const cmx = 80+(cave.x/canvas.width)*(mapCanvas.width-160);
     const cmy = 80+(cave.y/canvas.height)*(mapCanvas.height-160);
     mapCtx.fillStyle="#4a4a4a";
-    mapCtx.beginPath(); mapCtx.arc(cmx+20, cmy+15, 18, 0, Math.PI*2); mapCtx.fill();
+    mapCtx.beginPath(); mapCtx.arc(cmx+20,cmy+15,18,0,Math.PI*2); mapCtx.fill();
     mapCtx.fillStyle="#111";
-    mapCtx.beginPath(); mapCtx.arc(cmx+20, cmy+20, 9, 0, Math.PI); mapCtx.fill();
+    mapCtx.beginPath(); mapCtx.arc(cmx+20,cmy+20,9,0,Math.PI); mapCtx.fill();
     mapCtx.fillStyle="white"; mapCtx.font="16px Arial";
     mapCtx.fillText("Cave", cmx+2, cmy-5);
 
@@ -359,7 +447,6 @@ function drawMap() {
 
     mapCtx.fillStyle="rgba(0,0,0,0.6)"; mapCtx.fillRect(10,10,100,40);
     mapCtx.fillStyle="white"; mapCtx.font="28px Arial"; mapCtx.fillText("MAP",20,40);
-
     mapCtx.fillStyle="rgba(0,0,0,0.6)"; mapCtx.fillRect(mapCanvas.width-160,10,150,35);
     mapCtx.fillStyle="white"; mapCtx.font="18px Arial";
     mapCtx.fillText("M = Close Map", mapCanvas.width-155, 33);
@@ -372,6 +459,7 @@ function gameLoop() {
     drawVillage();
     drawCave();
     drawPlayer();
+    drawHealthBar();
     drawInventory();
     if (showMap) drawMap();
     requestAnimationFrame(gameLoop);
