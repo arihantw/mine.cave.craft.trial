@@ -98,7 +98,13 @@ const village = {
     width: 120,
     height: 100
 };
+const trees = [];
 
+for(let x=120; x<canvas.width-120; x+=80){
+    for(let y=120; y<canvas.height-120; y+=80){
+        trees.push({x,y});
+    }
+}
 const inventory = [
     "Map",
     "",
@@ -166,14 +172,14 @@ function movePlayer(){
     if(keys["a"]) player.x -= player.speed;
     if(keys["d"]) player.x += player.speed;
 
-    player.x = Math.max(
-    60,
-    Math.min(canvas.width - 60, player.x)
+player.x = Math.max(
+    70,
+    Math.min(canvas.width-70, player.x)
 );
 
 player.y = Math.max(
-    60,
-    Math.min(canvas.height - 60, player.y)
+    70,
+    Math.min(canvas.height-70, player.y)
 );
 }
 
@@ -219,20 +225,55 @@ function drawForest(){
         ctx.lineTo(canvas.width-50,y+50);
         ctx.fill();
     }
+// Top mountains
+ctx.fillStyle = "#777";
 
+for(let x=0;x<canvas.width;x+=40){
+    ctx.beginPath();
+    ctx.moveTo(x,60);
+    ctx.lineTo(x+20,0);
+    ctx.lineTo(x+40,60);
+    ctx.fill();
+}
+
+// Bottom mountains
+for(let x=0;x<canvas.width;x+=40){
+    ctx.beginPath();
+    ctx.moveTo(x,canvas.height-60);
+    ctx.lineTo(x+20,canvas.height-120);
+    ctx.lineTo(x+40,canvas.height-60);
+    ctx.fill();
+}
+
+// Left mountains
+for(let y=0;y<canvas.height;y+=40){
+    ctx.beginPath();
+    ctx.moveTo(60,y);
+    ctx.lineTo(0,y+20);
+    ctx.lineTo(60,y+40);
+    ctx.fill();
+}
+
+// Right mountains
+for(let y=0;y<canvas.height;y+=40){
+    ctx.beginPath();
+    ctx.moveTo(canvas.width-60,y);
+    ctx.lineTo(canvas.width,y+20);
+    ctx.lineTo(canvas.width-60,y+40);
+    ctx.fill();
+}
     // Trees
-    for(let x=80;x<canvas.width;x+=80){
-        for(let y=80;y<canvas.height;y+=80){
+    // Draw trees
+for(const tree of trees){
 
-            ctx.fillStyle = "#5c3b1e";
-            ctx.fillRect(x+15,y+20,10,20);
+    ctx.fillStyle = "#5c3b1e";
+    ctx.fillRect(tree.x-5, tree.y, 10, 20);
 
-            ctx.fillStyle = "#1f4d1f";
-            ctx.beginPath();
-            ctx.arc(x+20,y+15,18,0,Math.PI*2);
-            ctx.fill();
-        }
-    }
+    ctx.fillStyle = "#145214";
+    ctx.beginPath();
+    ctx.arc(tree.x, tree.y-5, 18, 0, Math.PI*2);
+    ctx.fill();
+}
 }
 
 function drawVillage(){
@@ -383,17 +424,26 @@ function drawMap(){
     }
 
     // Trees on map
-    for(let x=120;x<mapCanvas.width-120;x+=90){
-        for(let y=120;y<mapCanvas.height-120;y+=90){
+    for(const tree of trees){
 
-            mapCtx.fillStyle = "#5c3b1e";
-            mapCtx.fillRect(x-4,y,8,14);
+    const tx =
+        80 +
+        (tree.x / canvas.width) *
+        (mapCanvas.width - 160);
 
-            mapCtx.fillStyle = "#145214";
-            mapCtx.beginPath();
-            mapCtx.arc(x,y,12,0,Math.PI*2);
-            mapCtx.fill();
-        }
+    const ty =
+        80 +
+        (tree.y / canvas.height) *
+        (mapCanvas.height - 160);
+
+    mapCtx.fillStyle = "#5c3b1e";
+    mapCtx.fillRect(tx-2, ty, 4, 8);
+
+    mapCtx.fillStyle = "#145214";
+    mapCtx.beginPath();
+    mapCtx.arc(tx, ty-2, 8, 0, Math.PI*2);
+    mapCtx.fill();
+}
     }
 
     // Village
