@@ -91,6 +91,15 @@ const village = {
     height: 100
 };
 
+const cave = {
+    x: village.x + village.width + 80,
+    y: village.y + 10,
+    width: 90,
+    height: 70,
+    entranceW: 44,
+    entranceH: 50
+};
+
 const river = {
     x: window.innerWidth / 2 - 50,
     width: 100
@@ -129,8 +138,16 @@ document.addEventListener("keydown", e => {
             player.x < village.x + village.width + 50 &&
             player.y > village.y - 50 &&
             player.y < village.y + village.height + 50;
+        const nearCave =
+            player.x > cave.x - 50 &&
+            player.x < cave.x + cave.width + 50 &&
+            player.y > cave.y - 50 &&
+            player.y < cave.y + cave.height + 50;
+
         if (nearVillage) {
             alert("Welcome to the Village!");
+        } else if (nearCave) {
+            alert("A dark cave looms before you...\n[Cave interior coming soon!]");
         }
     }
 });
@@ -245,6 +262,87 @@ function drawForest() {
     }
 }
 
+function drawCave() {
+    const { x, y, width, height, entranceW, entranceH } = cave;
+    const cx = x + width / 2;
+
+    // Rocky hill / mound — dark gray irregular shape
+    ctx.fillStyle = "#4a4a4a";
+    ctx.beginPath();
+    ctx.moveTo(x - 10, y + height);
+    ctx.bezierCurveTo(x - 10, y + 10, x + 10, y - 20, cx, y - 30);
+    ctx.bezierCurveTo(x + width - 10, y - 20, x + width + 10, y + 10, x + width + 10, y + height);
+    ctx.closePath();
+    ctx.fill();
+
+    // Rocky texture — lighter patches
+    ctx.fillStyle = "#5e5e5e";
+    ctx.beginPath();
+    ctx.ellipse(cx - 18, y + 15, 14, 9, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(cx + 22, y + 25, 10, 7, 0.4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(cx, y - 10, 12, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Dark cave entrance arch
+    const ex = cx - entranceW / 2;
+    const ey = y + height - entranceH;
+    ctx.fillStyle = "#111";
+    ctx.beginPath();
+    ctx.moveTo(ex, y + height);
+    ctx.lineTo(ex, ey + 12);
+    ctx.quadraticCurveTo(cx, ey - 10, ex + entranceW, ey + 12);
+    ctx.lineTo(ex + entranceW, y + height);
+    ctx.closePath();
+    ctx.fill();
+
+    // Entrance shadow gradient
+    const grad = ctx.createRadialGradient(cx, y + height - 10, 4, cx, y + height - 15, entranceW * 0.8);
+    grad.addColorStop(0, "rgba(0,0,0,0.9)");
+    grad.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(ex, y + height);
+    ctx.lineTo(ex, ey + 12);
+    ctx.quadraticCurveTo(cx, ey - 10, ex + entranceW, ey + 12);
+    ctx.lineTo(ex + entranceW, y + height);
+    ctx.closePath();
+    ctx.fill();
+
+    // Stalactites hanging from arch top
+    ctx.fillStyle = "#3a3a3a";
+    for (let i = 0; i < 5; i++) {
+        const sx = ex + 6 + i * (entranceW - 12) / 4;
+        const sh = 8 + (i % 2) * 6;
+        ctx.beginPath();
+        ctx.moveTo(sx - 4, ey + 10 + i % 3 * 3);
+        ctx.lineTo(sx + 4, ey + 10 + i % 3 * 3);
+        ctx.lineTo(sx, ey + 10 + i % 3 * 3 + sh);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    // Label
+    ctx.fillStyle = "white";
+    ctx.font = "16px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("Cave", cx, y - 35);
+    ctx.textAlign = "left";
+
+    // Proximity glow hint when player is near
+    const dist = Math.hypot(player.x - cx, player.y - (y + height));
+    if (dist < 100) {
+        ctx.strokeStyle = "rgba(255,200,50,0.6)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(cx, y + height - 10, 28, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+}
+
 function drawVillage() {
     ctx.fillStyle = "#c2a878";
     ctx.fillRect(village.x, village.y, village.width, village.height);
@@ -354,6 +452,21 @@ function drawMap() {
     mapCtx.font = "20px Arial";
     mapCtx.fillText("Village", villageMapX - 5, villageMapY - 8);
 
+    // Cave on map
+    const caveMapX = 80 + (cave.x / canvas.width) * (mapCanvas.width - 160);
+    const caveMapY = 80 + (cave.y / canvas.height) * (mapCanvas.height - 160);
+    mapCtx.fillStyle = "#4a4a4a";
+    mapCtx.beginPath();
+    mapCtx.arc(caveMapX + 20, caveMapY + 15, 18, 0, Math.PI * 2);
+    mapCtx.fill();
+    mapCtx.fillStyle = "#111";
+    mapCtx.beginPath();
+    mapCtx.arc(caveMapX + 20, caveMapY + 20, 9, 0, Math.PI);
+    mapCtx.fill();
+    mapCtx.fillStyle = "white";
+    mapCtx.font = "16px Arial";
+    mapCtx.fillText("Cave", caveMapX + 2, caveMapY - 5);
+
     // Player dot on map
     const px = 80 + (player.x / canvas.width) * (mapCanvas.width - 160);
     const py = 80 + (player.y / canvas.height) * (mapCanvas.height - 160);
@@ -384,6 +497,7 @@ function gameLoop() {
     movePlayer();
     drawForest();
     drawVillage();
+    drawCave();
     drawPlayer();
     drawInventory();
 
