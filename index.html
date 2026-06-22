@@ -125,28 +125,27 @@ const player = {
     maxHealth: 100, health: 100
 };
 
-// River
+// DYNAMIC POSITIONS: By using "get x()", these objects constantly read the live canvas size,
+// making it mathematically impossible for the cave to ever overlap the river.
+
 const river = { 
     get x() { return canvas.width / 2 - 50; }, 
     width: 100 
 };
 
-// ✅ UPDATED ORDER: River → Village → Cave
+const cave = {
+    get x() { return river.x + river.width + 120; }, // Forces the cave exactly 120px to the right of the river
+    y: 280,
+    width: 120, height: 100,
+    entranceW: 60, entranceH: 65,
+    get cx() { return this.x + this.width / 2; }
+};
+
 const village = { 
-    get x() { return river.x + river.width + 120; },
+    get x() { return cave.x + cave.width + 80; }, // Forces the village exactly 80px to the right of the cave
     y: 300, 
     width: 120, 
     height: 100 
-};
-
-const cave = {
-    get x() { return village.x + village.width + 80; },
-    y: 280,
-    width: 120,
-    height: 100,
-    entranceW: 60,
-    entranceH: 65,
-    get cx() { return this.x + this.width / 2; }
 };
 
 const trees = [];
@@ -206,12 +205,51 @@ function movePlayer() {
     player.y = Math.max(70, Math.min(canvas.height - 70, player.y));
 }
 
+function drawMountains(ctxObj, width, height) {
+    const mSize = 50, step = 80;
+    ctxObj.fillStyle = "#6b6b6b";
+
+    ctxObj.save();
+    ctxObj.beginPath(); ctxObj.rect(mSize, 0, width-mSize*2, mSize+10); ctxObj.clip();
+    for (let x = mSize; x < width-mSize; x += step) {
+        ctxObj.beginPath(); ctxObj.moveTo(x,mSize); ctxObj.lineTo(x+step/2,0); ctxObj.lineTo(x+step,mSize); ctxObj.fill();
+    }
+    ctxObj.restore();
+
+    ctxObj.save();
+    ctxObj.beginPath(); ctxObj.rect(mSize, height-mSize-10, width-mSize*2, mSize+10); ctxObj.clip();
+    for (let x = mSize; x < width-mSize; x += step) {
+        ctxObj.beginPath(); ctxObj.moveTo(x,height-mSize); ctxObj.lineTo(x+step/2,height); ctxObj.lineTo(x+step,height-mSize); ctxObj.fill();
+    }
+    ctxObj.restore();
+
+    ctxObj.save();
+    ctxObj.beginPath(); ctxObj.rect(0, mSize, mSize+10, height-mSize*2); ctxObj.clip();
+    for (let y = mSize; y < height-mSize; y += step) {
+        ctxObj.beginPath(); ctxObj.moveTo(mSize,y); ctxObj.lineTo(0,y+step/2); ctxObj.lineTo(mSize,y+step); ctxObj.fill();
+    }
+    ctxObj.restore();
+
+    ctxObj.save();
+    ctxObj.beginPath(); ctxObj.rect(width-mSize-10, mSize, mSize+10, height-mSize*2); ctxObj.clip();
+    for (let y = mSize; y < height-mSize; y += step) {
+        ctxObj.beginPath(); ctxObj.moveTo(width-mSize,y); ctxObj.lineTo(width,y+step/2); ctxObj.lineTo(width-mSize,y+step); ctxObj.fill();
+    }
+    ctxObj.restore();
+
+    ctxObj.fillStyle = "#6b6b6b";
+    ctxObj.fillRect(0,0,mSize,mSize);
+    ctxObj.fillRect(width-mSize,0,mSize,mSize);
+    ctxObj.fillRect(0,height-mSize,mSize,mSize);
+    ctxObj.fillRect(width-mSize,height-mSize,mSize,mSize);
+}
+
 function drawForest() {
     ctx.fillStyle = "#2d6a2d";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#3498db";
     ctx.fillRect(river.x, 0, river.width, canvas.height);
-
+    drawMountains(ctx, canvas.width, canvas.height);
     for (const tree of trees) {
         ctx.fillStyle = "#5c3b1e";
         ctx.fillRect(tree.x-5, tree.y, 10, 20);
@@ -219,6 +257,73 @@ function drawForest() {
         ctx.beginPath();
         ctx.arc(tree.x, tree.y-5, 18, 0, Math.PI*2);
         ctx.fill();
+    }
+}
+
+function drawCave() {
+    const { x, y, width, height, entranceW, entranceH, cx } = cave;
+
+    ctx.fillStyle = "#4a4a4a";
+    ctx.beginPath();
+    ctx.moveTo(x-10, y+height);
+    ctx.bezierCurveTo(x-10, y+10, x+10, y-20, cx, y-30);
+    ctx.bezierCurveTo(x+width-10, y-20, x+width+10, y+10, x+width+10, y+height);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "#5e5e5e";
+    ctx.beginPath(); ctx.ellipse(cx-18, y+15, 14, 9, -0.3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+22, y+25, 10, 7, 0.4, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx, y-10, 12, 8, 0, 0, Math.PI*2); ctx.fill();
+
+    const ex = cx - entranceW/2;
+    const ey = y + height - entranceH;
+    ctx.fillStyle = "#111";
+    ctx.beginPath();
+    ctx.moveTo(ex, y+height);
+    ctx.lineTo(ex, ey+12);
+    ctx.quadraticCurveTo(cx, ey-10, ex+entranceW, ey+12);
+    ctx.lineTo(ex+entranceW, y+height);
+    ctx.closePath();
+    ctx.fill();
+
+    const grad = ctx.createRadialGradient(cx, y+height-10, 4, cx, y+height-15, entranceW*0.8);
+    grad.addColorStop(0, "rgba(0,0,0,0.9)");
+    grad.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(ex, y+height);
+    ctx.lineTo(ex, ey+12);
+    ctx.quadraticCurveTo(cx, ey-10, ex+entranceW, ey+12);
+    ctx.lineTo(ex+entranceW, y+height);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "#3a3a3a";
+    for (let i = 0; i < 5; i++) {
+        const sx = ex + 6 + i*(entranceW-12)/4;
+        const sh = 8 + (i%2)*6;
+        ctx.beginPath();
+        ctx.moveTo(sx-4, ey+10+i%3*3);
+        ctx.lineTo(sx+4, ey+10+i%3*3);
+        ctx.lineTo(sx, ey+10+i%3*3+sh);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    ctx.fillStyle = "white";
+    ctx.font = "16px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("Cave", cx, y-35);
+    ctx.textAlign = "left";
+
+    const dist = Math.hypot(player.x - cx, player.y - (y+height));
+    if (dist < 100) {
+        ctx.strokeStyle = "rgba(255,200,50,0.6)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(cx, y+height-10, 28, 0, Math.PI*2);
+        ctx.stroke();
     }
 }
 
@@ -233,38 +338,121 @@ function drawVillage() {
     ctx.fillText("Village", village.x+20, village.y-10);
 }
 
-function drawCave() {
-    const { x, y, width, height, entranceW, entranceH, cx } = cave;
-
-    ctx.fillStyle = "#4a4a4a";
-    ctx.beginPath();
-    ctx.moveTo(x-10, y+height);
-    ctx.bezierCurveTo(x-10, y+10, x+10, y-20, cx, y-30);
-    ctx.bezierCurveTo(x+width-10, y-20, x+width+10, y+10, x+width+10, y+height);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = "#111";
-    const ex = cx - entranceW/2;
-    const ey = y + height - entranceH;
-    ctx.beginPath();
-    ctx.moveTo(ex, y+height);
-    ctx.lineTo(ex, ey+12);
-    ctx.quadraticCurveTo(cx, ey-10, ex+entranceW, ey+12);
-    ctx.lineTo(ex+entranceW, y+height);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = "white";
-    ctx.font = "16px Arial";
-    ctx.fillText("Cave", cx, y-35);
-}
-
 function drawPlayer() {
     ctx.fillStyle = player.color;
     ctx.beginPath();
     ctx.arc(player.x, player.y, player.size/2, 0, Math.PI*2);
     ctx.fill();
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+function drawHealthBar() {
+    const barW = 200;
+    const barH = 20;
+    const x = canvas.width - barW - 20;
+    const y = 20;
+    const healthPct = player.health / player.maxHealth;
+
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillRect(x - 10, y - 8, barW + 20, barH + 16);
+    ctx.fillStyle = "#555";
+    ctx.fillRect(x, y, barW, barH);
+
+    const r = Math.floor(255 * (1 - healthPct));
+    const g = Math.floor(255 * healthPct);
+    ctx.fillStyle = `rgb(${r},${g},0)`;
+    ctx.fillRect(x, y, barW * healthPct, barH);
+
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(x, y, barW, barH);
+
+    ctx.fillStyle = "white";
+    ctx.font = "bold 13px Arial";
+    ctx.textAlign = "right";
+    ctx.fillText(`HP  ${player.health} / ${player.maxHealth}`, x + barW, y - 4);
+    ctx.textAlign = "left";
+}
+
+function drawInventory() {
+    const slots=10, size=60, spacing=8;
+    const totalWidth = slots*(size+spacing);
+    const startX = (canvas.width-totalWidth)/2;
+    const y = canvas.height-90;
+
+    for (let i = 0; i < slots; i++) {
+        ctx.fillStyle = inventory[i] === "Note"
+            ? "rgba(180,140,40,0.85)"
+            : "rgba(68,68,68,0.85)";
+        ctx.fillRect(startX+i*(size+spacing), y, size, size);
+        ctx.strokeStyle = "white"; ctx.lineWidth = 1;
+        ctx.strokeRect(startX+i*(size+spacing), y, size, size);
+        if (inventory[i]) {
+            ctx.fillStyle = "white"; ctx.font = "12px Arial";
+            ctx.fillText(inventory[i], startX+i*(size+spacing)+8, y+35);
+        }
+    }
+
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillRect(10, 10, 200, 105);
+    ctx.fillStyle = "white"; ctx.font = "18px Arial";
+    ctx.fillText("WASD = Move", 20, 35);
+    ctx.fillText("M = Map", 20, 58);
+    ctx.fillText("E = Interact", 20, 81);
+    ctx.fillText("N = Read Note", 20, 104);
+}
+
+function drawMap() {
+    mapCtx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+
+    mapCtx.fillStyle = "#87ceeb";
+    mapCtx.fillRect(0, 0, mapCanvas.width, mapCanvas.height);
+    mapCtx.fillStyle = "#0f5f0f";
+    mapCtx.fillRect(80, 80, mapCanvas.width-160, mapCanvas.height-160);
+
+    mapCtx.fillStyle = "#3498db";
+    const riverMapX = 80+(river.x/canvas.width)*(mapCanvas.width-160);
+    const riverMapW = (river.width/canvas.width)*(mapCanvas.width-160);
+    mapCtx.fillRect(riverMapX, 80, riverMapW, mapCanvas.height-160);
+
+    drawMountains(mapCtx, mapCanvas.width, mapCanvas.height);
+
+    for (const tree of trees) {
+        const tx = 80+(tree.x/canvas.width)*(mapCanvas.width-160);
+        const ty = 80+(tree.y/canvas.height)*(mapCanvas.height-160);
+        mapCtx.fillStyle="#5c3b1e"; mapCtx.fillRect(tx-2,ty,4,8);
+        mapCtx.fillStyle="#145214"; mapCtx.beginPath(); mapCtx.arc(tx,ty-2,8,0,Math.PI*2); mapCtx.fill();
+    }
+
+    const vmx = 80+(village.x/canvas.width)*(mapCanvas.width-160);
+    const vmy = 80+(village.y/canvas.height)*(mapCanvas.height-160);
+    mapCtx.fillStyle="#c2a878"; mapCtx.fillRect(vmx,vmy,80,55);
+    mapCtx.fillStyle="#8b4513";
+    for (let i=0;i<3;i++) mapCtx.fillRect(vmx+8+i*24,vmy+12,16,16);
+    mapCtx.fillStyle="white"; mapCtx.font="20px Arial";
+    mapCtx.fillText("Village", vmx-5, vmy-8);
+
+    const cmx = 80+(cave.x/canvas.width)*(mapCanvas.width-160);
+    const cmy = 80+(cave.y/canvas.height)*(mapCanvas.height-160);
+    mapCtx.fillStyle="#4a4a4a";
+    mapCtx.beginPath(); mapCtx.arc(cmx+20,cmy+15,18,0,Math.PI*2); mapCtx.fill();
+    mapCtx.fillStyle="#111";
+    mapCtx.beginPath(); mapCtx.arc(cmx+20,cmy+20,9,0,Math.PI); mapCtx.fill();
+    mapCtx.fillStyle="white"; mapCtx.font="16px Arial";
+    mapCtx.fillText("Cave", cmx+2, cmy-5);
+
+    const px = 80+(player.x/canvas.width)*(mapCanvas.width-160);
+    const py = 80+(player.y/canvas.height)*(mapCanvas.height-160);
+    mapCtx.fillStyle="red";
+    mapCtx.beginPath(); mapCtx.arc(px,py,8,0,Math.PI*2); mapCtx.fill();
+
+    mapCtx.fillStyle="rgba(0,0,0,0.6)"; mapCtx.fillRect(10,10,100,40);
+    mapCtx.fillStyle="white"; mapCtx.font="28px Arial"; mapCtx.fillText("MAP",20,40);
+    mapCtx.fillStyle="rgba(0,0,0,0.6)"; mapCtx.fillRect(mapCanvas.width-160,10,150,35);
+    mapCtx.fillStyle="white"; mapCtx.font="18px Arial";
+    mapCtx.fillText("M = Close Map", mapCanvas.width-155, 33);
 }
 
 function gameLoop() {
@@ -274,6 +462,9 @@ function gameLoop() {
     drawVillage();
     drawCave();
     drawPlayer();
+    drawHealthBar();
+    drawInventory();
+    if (showMap) drawMap();
     requestAnimationFrame(gameLoop);
 }
 </script>
