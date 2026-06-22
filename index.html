@@ -125,14 +125,19 @@ const player = {
     maxHealth: 100, health: 100
 };
 
-const village = { x: 700, y: 300, width: 120, height: 100 };
-
 const cave = {
-    x: village.x + village.width + 60,
-    y: village.y - 20,
+    x: 700,
+    y: 300 - 20,
     width: 120, height: 100,
     entranceW: 60, entranceH: 65,
     get cx() { return this.x + this.width / 2; }
+};
+
+const village = { 
+    x: cave.x + cave.width + 60, 
+    y: 300, 
+    width: 120, 
+    height: 100 
 };
 
 const river = { x: window.innerWidth / 2 - 50, width: 100 };
@@ -378,7 +383,6 @@ function drawInventory() {
     const y = canvas.height-90;
 
     for (let i = 0; i < slots; i++) {
-        // Highlight note slot softly
         ctx.fillStyle = inventory[i] === "Note"
             ? "rgba(180,140,40,0.85)"
             : "rgba(68,68,68,0.85)";
