@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Minetrials of caves and crafts</title>
+<style>
+body{
+    margin:0;
+    overflow:hidden;
+    background:black;
+    font-family:Arial,sans-serif;
+}
+
+#menu{
+    position:absolute;
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    background:#111;
+    color:white;
+}
+
+button{
+    padding:10px 25px;
+    margin:10px;
+    font-size:20px;
+    cursor:pointer;
+}
+
+#mapScreen{
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:black;
+    display:none;
+}
+</style>
+</head>
+<body>
+
+<div id="menu">
+    <h1>Choose Your Gender</h1>
+    <button onclick="startGame('male')">Male</button>
+    <button onclick="startGame('female')">Female</button>
+</div>
+
+<canvas id="game"></canvas>
+<canvas id="mapScreen"></canvas>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const mapCanvas = document.getElementById("mapScreen");
+const mapCtx = mapCanvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+mapCanvas.width = window.innerWidth;
+mapCanvas.height = window.innerHeight;
+
+let gameStarted = false;
+let showMap = false;
+
+const player = {
+    x: 500,
+    y: 300,
+    size: 30,
+    color: "blue",
+    speed: 4
+};
+
+const inventory = [
+    "Map",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+];
+
+const keys = {};
+
+function startGame(gender){
+    document.getElementById("menu").style.display = "none";
+
+    if(gender === "male"){
+        player.color = "#3498db";
+    } else {
+        player.color = "#ff69b4";
+    }
+
+    gameStarted = true;
+    gameLoop();
+}
+
+document.addEventListener("keydown", e=>{
+    keys[e.key.toLowerCase()] = true;
+
+    if(e.key.toLowerCase() === "m"){
+        showMap = !showMap;
+        mapCanvas.style.display = showMap ? "block" : "none";
+        if(showMap) drawMap();
+    }
+});
+
+document.addEventListener("keyup", e=>{
+    keys[e.key.toLowerCase()] = false;
+});
+
+function movePlayer(){
+    if(keys["w"]) player.y -= player.speed;
+    if(keys["s"]) player.y += player.speed;
+    if(keys["a"]) player.x -= player.speed;
+    if(keys["d"]) player.x += player.speed;
+}
+
+function drawForest(){
+    ctx.fillStyle = "#2d6a2d";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    for(let x=0;x<canvas.width;x+=80){
+        for(let y=0;y<canvas.height;y+=80){
+            ctx.fillStyle = "#1f4d1f";
+            ctx.beginPath();
+            ctx.arc(x+20,y+20,18,0,Math.PI*2);
+            ctx.fill();
+
+            ctx.fillStyle = "#5c3b1e";
+            ctx.fillRect(x+15,y+20,10,20);
+        }
+    }
+}
+
+function drawPlayer(){
+    ctx.fillStyle = player.color;
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.size/2, 0, Math.PI*2);
+    ctx.fill();
+}
+
+function drawInventory(){
+    const slots = 10;
+    const size = 60;
+    const spacing = 8;
+
+    const totalWidth = slots*(size+spacing);
+    const startX = (canvas.width-totalWidth)/2;
+    const y = canvas.height-90;
+
+    for(let i=0;i<slots;i++){
+        ctx.fillStyle = "#444";
+        ctx.fillRect(startX+i*(size+spacing),y,size,size);
+
+        ctx.strokeStyle = "white";
+        ctx.strokeRect(startX+i*(size+spacing),y,size,size);
+
+        if(inventory[i]){
+            ctx.fillStyle = "white";
+            ctx.font = "12px Arial";
+            ctx.fillText(
+                inventory[i],
+                startX+i*(size+spacing)+8,
+                y+35
+            );
+        }
+    }
+
+    ctx.fillStyle = "white";
+    ctx.font = "18px Arial";
+    ctx.fillText("Press M to view map",20,30);
+}
+
+function drawMap(){
+    mapCtx.clearRect(0,0,mapCanvas.width,mapCanvas.height);
+
+    // black background
+    mapCtx.fillStyle = "black";
+    mapCtx.fillRect(0,0,mapCanvas.width,mapCanvas.height);
+
+    // forest area
+    mapCtx.fillStyle = "#0f5f0f";
+    mapCtx.fillRect(
+        80,
+        80,
+        mapCanvas.width-160,
+        mapCanvas.height-160
+    );
+
+    // mountains around edge
+    mapCtx.fillStyle = "gray";
+
+    mapCtx.fillRect(0,0,mapCanvas.width,70); // top
+    mapCtx.fillRect(0,mapCanvas.height-70,mapCanvas.width,70); // bottom
+    mapCtx.fillRect(0,0,70,mapCanvas.height); // left
+    mapCtx.fillRect(mapCanvas.width-70,0,70,mapCanvas.height); // right
+
+    // village on right
+    const villageX = mapCanvas.width - 220;
+    const villageY = mapCanvas.height/2 - 80;
+
+    mapCtx.fillStyle = "#c2a878";
+    mapCtx.fillRect(villageX,villageY,140,100);
+
+    mapCtx.fillStyle = "#8b4513";
+
+    for(let i=0;i<3;i++){
+        mapCtx.fillRect(
+            villageX+15+i*40,
+            villageY+20,
+            25,
+            25
+        );
+    }
+
+    mapCtx.fillStyle = "white";
+    mapCtx.font = "28px Arial";
+    mapCtx.fillText("Village", villageX-10, villageY-20);
+
+    mapCtx.fillText("MAP",30,50);
+}
+
+function gameLoop(){
+    if(!gameStarted) return;
+
+    movePlayer();
+
+    drawForest();
+    drawPlayer();
+    drawInventory();
+
+    requestAnimationFrame(gameLoop);
+}
+</script>
+
+</body>
+</html>
