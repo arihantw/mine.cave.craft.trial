@@ -133,8 +133,9 @@ const cave = {
     get cx() { return this.x + this.width / 2; }
 };
 
+// MODIFIED: Village is now explicitly positioned 100px to the right of the cave
 const village = { 
-    x: cave.x + cave.width + 60, 
+    x: cave.x + cave.width + 100, 
     y: 300, 
     width: 120, 
     height: 100 
@@ -427,6 +428,7 @@ function drawMap() {
         mapCtx.fillStyle="#145214"; mapCtx.beginPath(); mapCtx.arc(tx,ty-2,8,0,Math.PI*2); mapCtx.fill();
     }
 
+    // MODIFIED: Map now calculates village positions dynamically using the scaled village variables
     const vmx = 80+(village.x/canvas.width)*(mapCanvas.width-160);
     const vmy = 80+(village.y/canvas.height)*(mapCanvas.height-160);
     mapCtx.fillStyle="#c2a878"; mapCtx.fillRect(vmx,vmy,80,55);
