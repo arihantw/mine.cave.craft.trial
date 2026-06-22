@@ -255,37 +255,8 @@ drawMountains(
     canvas.height
 );
 
-        // Top
-        ctx.beginPath();
-        ctx.moveTo(x,50);
-        ctx.lineTo(x+25,0);
-        ctx.lineTo(x+50,50);
-        ctx.fill();
-
-        // Bottom
-        ctx.beginPath();
-        ctx.moveTo(x,canvas.height-50);
-        ctx.lineTo(x+25,canvas.height);
-        ctx.lineTo(x+50,canvas.height-50);
-        ctx.fill();
-    }
-
-    for(let y=0;y<canvas.height;y+=50){
-
-        // Left
-        ctx.beginPath();
-        ctx.moveTo(50,y);
-        ctx.lineTo(0,y+25);
-        ctx.lineTo(50,y+50);
-        ctx.fill();
-
-        // Right
-        ctx.beginPath();
-        ctx.moveTo(canvas.width-50,y);
-        ctx.lineTo(canvas.width,y+25);
-        ctx.lineTo(canvas.width-50,y+50);
-        ctx.fill();
-    }
+        
+    
 
     // Trees
     // Draw trees
@@ -432,42 +403,6 @@ mapCtx.fillRect(
     mapCanvas.width,
     mapCanvas.height
 );
-
-    // Top
-    for(let x=0;x<mapCanvas.width;x+=40){
-        mapCtx.beginPath();
-        mapCtx.moveTo(x,70);
-        mapCtx.lineTo(x+20,10);
-        mapCtx.lineTo(x+40,70);
-        mapCtx.fill();
-    }
-
-    // Bottom
-    for(let x=0;x<mapCanvas.width;x+=40){
-        mapCtx.beginPath();
-        mapCtx.moveTo(x,mapCanvas.height-70);
-        mapCtx.lineTo(x+20,mapCanvas.height-130);
-        mapCtx.lineTo(x+40,mapCanvas.height-70);
-        mapCtx.fill();
-    }
-
-    // Left
-    for(let y=0;y<mapCanvas.height;y+=40){
-        mapCtx.beginPath();
-        mapCtx.moveTo(70,y);
-        mapCtx.lineTo(10,y+20);
-        mapCtx.lineTo(70,y+40);
-        mapCtx.fill();
-    }
-
-    // Right
-    for(let y=0;y<mapCanvas.height;y+=40){
-        mapCtx.beginPath();
-        mapCtx.moveTo(mapCanvas.width-70,y);
-        mapCtx.lineTo(mapCanvas.width-10,y+20);
-        mapCtx.lineTo(mapCanvas.width-70,y+40);
-        mapCtx.fill();
-    }
 
     // Trees on map
     for(const tree of trees){
