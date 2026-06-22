@@ -1,8 +1,10 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Minetrials of caves and crafts</title>
+<title>Minetrials of Caves and Crafts</title>
+
 <style>
 body{
     margin:0;
@@ -21,6 +23,7 @@ body{
     align-items:center;
     background:#111;
     color:white;
+    z-index:20;
 }
 
 button{
@@ -30,12 +33,21 @@ button{
     cursor:pointer;
 }
 
+#game{
+    position:absolute;
+    top:0;
+    left:0;
+}
+
 #mapScreen{
     position:absolute;
+    top:0;
+    left:0;
     width:100%;
     height:100%;
     background:black;
     display:none;
+    z-index:10;
 }
 </style>
 </head>
@@ -57,11 +69,17 @@ const ctx = canvas.getContext("2d");
 const mapCanvas = document.getElementById("mapScreen");
 const mapCtx = mapCanvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+function resizeCanvas(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-mapCanvas.width = window.innerWidth;
-mapCanvas.height = window.innerHeight;
+    mapCanvas.width = window.innerWidth;
+    mapCanvas.height = window.innerHeight;
+}
+
+resizeCanvas();
+
+window.addEventListener("resize", resizeCanvas);
 
 let gameStarted = false;
 let showMap = false;
@@ -72,6 +90,13 @@ const player = {
     size: 30,
     color: "blue",
     speed: 4
+};
+
+const village = {
+    x: 900,
+    y: 300,
+    width: 120,
+    height: 100
 };
 
 const inventory = [
@@ -94,7 +119,7 @@ function startGame(gender){
 
     if(gender === "male"){
         player.color = "#3498db";
-    } else {
+    }else{
         player.color = "#ff69b4";
     }
 
@@ -103,12 +128,28 @@ function startGame(gender){
 }
 
 document.addEventListener("keydown", e=>{
-    keys[e.key.toLowerCase()] = true;
+    const key = e.key.toLowerCase();
+    keys[key] = true;
 
-    if(e.key.toLowerCase() === "m"){
+    if(key === "m"){
         showMap = !showMap;
         mapCanvas.style.display = showMap ? "block" : "none";
-        if(showMap) drawMap();
+
+        if(showMap){
+            drawMap();
+        }
+    }
+
+    if(key === "e"){
+        const nearVillage =
+            player.x > village.x - 50 &&
+            player.x < village.x + village.width + 50 &&
+            player.y > village.y - 50 &&
+            player.y < village.y + village.height + 50;
+
+        if(nearVillage){
+            alert("Welcome to the Village!");
+        }
     }
 });
 
@@ -117,10 +158,23 @@ document.addEventListener("keyup", e=>{
 });
 
 function movePlayer(){
+
+    if(showMap) return;
+
     if(keys["w"]) player.y -= player.speed;
     if(keys["s"]) player.y += player.speed;
     if(keys["a"]) player.x -= player.speed;
     if(keys["d"]) player.x += player.speed;
+
+    player.x = Math.max(
+        player.size/2,
+        Math.min(canvas.width-player.size/2, player.x)
+    );
+
+    player.y = Math.max(
+        player.size/2,
+        Math.min(canvas.height-player.size/2, player.y)
+    );
 }
 
 function drawForest(){
@@ -129,6 +183,7 @@ function drawForest(){
 
     for(let x=0;x<canvas.width;x+=80){
         for(let y=0;y<canvas.height;y+=80){
+
             ctx.fillStyle = "#1f4d1f";
             ctx.beginPath();
             ctx.arc(x+20,y+20,18,0,Math.PI*2);
@@ -140,82 +195,169 @@ function drawForest(){
     }
 }
 
+function drawVillage(){
+
+    ctx.fillStyle = "#c2a878";
+    ctx.fillRect(
+        village.x,
+        village.y,
+        village.width,
+        village.height
+    );
+
+    ctx.fillStyle = "#8b4513";
+
+    for(let i=0;i<3;i++){
+        ctx.fillRect(
+            village.x + 15 + (i * 35),
+            village.y + 20,
+            25,
+            25
+        );
+    }
+
+    ctx.fillStyle = "white";
+    ctx.font = "18px Arial";
+    ctx.fillText(
+        "Village",
+        village.x + 20,
+        village.y - 10
+    );
+}
+
 function drawPlayer(){
     ctx.fillStyle = player.color;
+
     ctx.beginPath();
-    ctx.arc(player.x, player.y, player.size/2, 0, Math.PI*2);
+    ctx.arc(
+        player.x,
+        player.y,
+        player.size/2,
+        0,
+        Math.PI*2
+    );
     ctx.fill();
 }
 
 function drawInventory(){
+
     const slots = 10;
     const size = 60;
     const spacing = 8;
 
-    const totalWidth = slots*(size+spacing);
-    const startX = (canvas.width-totalWidth)/2;
-    const y = canvas.height-90;
+    const totalWidth = slots * (size + spacing);
+    const startX = (canvas.width - totalWidth) / 2;
+    const y = canvas.height - 90;
 
     for(let i=0;i<slots;i++){
+
         ctx.fillStyle = "#444";
-        ctx.fillRect(startX+i*(size+spacing),y,size,size);
+        ctx.fillRect(
+            startX + i*(size+spacing),
+            y,
+            size,
+            size
+        );
 
         ctx.strokeStyle = "white";
-        ctx.strokeRect(startX+i*(size+spacing),y,size,size);
+        ctx.strokeRect(
+            startX + i*(size+spacing),
+            y,
+            size,
+            size
+        );
 
         if(inventory[i]){
             ctx.fillStyle = "white";
             ctx.font = "12px Arial";
+
             ctx.fillText(
                 inventory[i],
-                startX+i*(size+spacing)+8,
-                y+35
+                startX + i*(size+spacing) + 8,
+                y + 35
             );
         }
     }
 
     ctx.fillStyle = "white";
     ctx.font = "18px Arial";
-    ctx.fillText("Press M to view map",20,30);
+    ctx.fillText("WASD = Move",20,30);
+    ctx.fillText("M = Map",20,55);
+    ctx.fillText("E = Interact",20,80);
 }
 
 function drawMap(){
-    mapCtx.clearRect(0,0,mapCanvas.width,mapCanvas.height);
 
-    // black background
+    mapCtx.clearRect(
+        0,
+        0,
+        mapCanvas.width,
+        mapCanvas.height
+    );
+
     mapCtx.fillStyle = "black";
-    mapCtx.fillRect(0,0,mapCanvas.width,mapCanvas.height);
+    mapCtx.fillRect(
+        0,
+        0,
+        mapCanvas.width,
+        mapCanvas.height
+    );
 
-    // forest area
     mapCtx.fillStyle = "#0f5f0f";
     mapCtx.fillRect(
         80,
         80,
-        mapCanvas.width-160,
-        mapCanvas.height-160
+        mapCanvas.width - 160,
+        mapCanvas.height - 160
     );
 
-    // mountains around edge
     mapCtx.fillStyle = "gray";
 
-    mapCtx.fillRect(0,0,mapCanvas.width,70); // top
-    mapCtx.fillRect(0,mapCanvas.height-70,mapCanvas.width,70); // bottom
-    mapCtx.fillRect(0,0,70,mapCanvas.height); // left
-    mapCtx.fillRect(mapCanvas.width-70,0,70,mapCanvas.height); // right
+    mapCtx.fillRect(
+        0,
+        0,
+        mapCanvas.width,
+        70
+    );
 
-    // village on right
+    mapCtx.fillRect(
+        0,
+        mapCanvas.height - 70,
+        mapCanvas.width,
+        70
+    );
+
+    mapCtx.fillRect(
+        0,
+        0,
+        70,
+        mapCanvas.height
+    );
+
+    mapCtx.fillRect(
+        mapCanvas.width - 70,
+        0,
+        70,
+        mapCanvas.height
+    );
+
     const villageX = mapCanvas.width - 220;
-    const villageY = mapCanvas.height/2 - 80;
+    const villageY = mapCanvas.height / 2 - 80;
 
     mapCtx.fillStyle = "#c2a878";
-    mapCtx.fillRect(villageX,villageY,140,100);
+    mapCtx.fillRect(
+        villageX,
+        villageY,
+        140,
+        100
+    );
 
     mapCtx.fillStyle = "#8b4513";
 
     for(let i=0;i<3;i++){
         mapCtx.fillRect(
-            villageX+15+i*40,
-            villageY+20,
+            villageX + 15 + i*40,
+            villageY + 20,
             25,
             25
         );
@@ -223,19 +365,47 @@ function drawMap(){
 
     mapCtx.fillStyle = "white";
     mapCtx.font = "28px Arial";
-    mapCtx.fillText("Village", villageX-10, villageY-20);
 
+    mapCtx.fillText(
+        "Village",
+        villageX - 10,
+        villageY - 20
+    );
+
+    const px =
+        80 +
+        (player.x / canvas.width) *
+        (mapCanvas.width - 160);
+
+    const py =
+        80 +
+        (player.y / canvas.height) *
+        (mapCanvas.height - 160);
+
+    mapCtx.fillStyle = "red";
+
+    mapCtx.beginPath();
+    mapCtx.arc(px, py, 8, 0, Math.PI * 2);
+    mapCtx.fill();
+
+    mapCtx.fillStyle = "white";
     mapCtx.fillText("MAP",30,50);
 }
 
 function gameLoop(){
+
     if(!gameStarted) return;
 
     movePlayer();
 
     drawForest();
+    drawVillage();
     drawPlayer();
     drawInventory();
+
+    if(showMap){
+        drawMap();
+    }
 
     requestAnimationFrame(gameLoop);
 }
@@ -243,3 +413,4 @@ function gameLoop(){
 
 </body>
 </html>
+```
