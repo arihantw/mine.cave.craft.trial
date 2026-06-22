@@ -138,6 +138,7 @@ document.addEventListener("keydown", e => {
             player.x < village.x + village.width + 50 &&
             player.y > village.y - 50 &&
             player.y < village.y + village.height + 50;
+
         const nearCave =
             player.x > cave.x - 50 &&
             player.x < cave.x + cave.width + 50 &&
@@ -167,14 +168,12 @@ function movePlayer() {
     player.y = Math.max(70, Math.min(canvas.height - 70, player.y));
 }
 
-// Draw mountains only along edges, clipped to avoid corner overlap
 function drawMountains(ctxObj, width, height) {
-    const mSize = 50; // how far mountains protrude inward
+    const mSize = 50;
     const step = 80;
 
     ctxObj.fillStyle = "#6b6b6b";
 
-    // Top edge — save/restore to clip to top strip only
     ctxObj.save();
     ctxObj.beginPath();
     ctxObj.rect(mSize, 0, width - mSize * 2, mSize + 10);
@@ -188,7 +187,6 @@ function drawMountains(ctxObj, width, height) {
     }
     ctxObj.restore();
 
-    // Bottom edge
     ctxObj.save();
     ctxObj.beginPath();
     ctxObj.rect(mSize, height - mSize - 10, width - mSize * 2, mSize + 10);
@@ -202,7 +200,6 @@ function drawMountains(ctxObj, width, height) {
     }
     ctxObj.restore();
 
-    // Left edge
     ctxObj.save();
     ctxObj.beginPath();
     ctxObj.rect(0, mSize, mSize + 10, height - mSize * 2);
@@ -216,7 +213,6 @@ function drawMountains(ctxObj, width, height) {
     }
     ctxObj.restore();
 
-    // Right edge
     ctxObj.save();
     ctxObj.beginPath();
     ctxObj.rect(width - mSize - 10, mSize, mSize + 10, height - mSize * 2);
@@ -230,7 +226,6 @@ function drawMountains(ctxObj, width, height) {
     }
     ctxObj.restore();
 
-    // Fill the 4 corners solid gray so no gaps
     ctxObj.fillStyle = "#6b6b6b";
     ctxObj.fillRect(0, 0, mSize, mSize);
     ctxObj.fillRect(width - mSize, 0, mSize, mSize);
@@ -239,22 +234,17 @@ function drawMountains(ctxObj, width, height) {
 }
 
 function drawForest() {
-    // Grass background
     ctx.fillStyle = "#2d6a2d";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // River
     ctx.fillStyle = "#3498db";
     ctx.fillRect(river.x, 0, river.width, canvas.height);
 
-    // Mountains (on top so they cover the river at edges)
     drawMountains(ctx, canvas.width, canvas.height);
 
-    // Trees
     for (const tree of trees) {
         ctx.fillStyle = "#5c3b1e";
         ctx.fillRect(tree.x - 5, tree.y, 10, 20);
-
         ctx.fillStyle = "#145214";
         ctx.beginPath();
         ctx.arc(tree.x, tree.y - 5, 18, 0, Math.PI * 2);
@@ -266,7 +256,6 @@ function drawCave() {
     const { x, y, width, height, entranceW, entranceH } = cave;
     const cx = x + width / 2;
 
-    // Rocky hill / mound — dark gray irregular shape
     ctx.fillStyle = "#4a4a4a";
     ctx.beginPath();
     ctx.moveTo(x - 10, y + height);
@@ -275,7 +264,6 @@ function drawCave() {
     ctx.closePath();
     ctx.fill();
 
-    // Rocky texture — lighter patches
     ctx.fillStyle = "#5e5e5e";
     ctx.beginPath();
     ctx.ellipse(cx - 18, y + 15, 14, 9, -0.3, 0, Math.PI * 2);
@@ -287,7 +275,6 @@ function drawCave() {
     ctx.ellipse(cx, y - 10, 12, 8, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Dark cave entrance arch
     const ex = cx - entranceW / 2;
     const ey = y + height - entranceH;
     ctx.fillStyle = "#111";
@@ -299,7 +286,6 @@ function drawCave() {
     ctx.closePath();
     ctx.fill();
 
-    // Entrance shadow gradient
     const grad = ctx.createRadialGradient(cx, y + height - 10, 4, cx, y + height - 15, entranceW * 0.8);
     grad.addColorStop(0, "rgba(0,0,0,0.9)");
     grad.addColorStop(1, "rgba(0,0,0,0)");
@@ -312,7 +298,6 @@ function drawCave() {
     ctx.closePath();
     ctx.fill();
 
-    // Stalactites hanging from arch top
     ctx.fillStyle = "#3a3a3a";
     for (let i = 0; i < 5; i++) {
         const sx = ex + 6 + i * (entranceW - 12) / 4;
@@ -325,14 +310,12 @@ function drawCave() {
         ctx.fill();
     }
 
-    // Label
     ctx.fillStyle = "white";
     ctx.font = "16px Arial";
     ctx.textAlign = "center";
     ctx.fillText("Cave", cx, y - 35);
     ctx.textAlign = "left";
 
-    // Proximity glow hint when player is near
     const dist = Math.hypot(player.x - cx, player.y - (y + height));
     if (dist < 100) {
         ctx.strokeStyle = "rgba(255,200,50,0.6)";
@@ -363,7 +346,6 @@ function drawPlayer() {
     ctx.arc(player.x, player.y, player.size / 2, 0, Math.PI * 2);
     ctx.fill();
 
-    // Outline so player is always visible
     ctx.strokeStyle = "white";
     ctx.lineWidth = 2;
     ctx.stroke();
@@ -392,7 +374,6 @@ function drawInventory() {
         }
     }
 
-    // HUD instructions — always visible
     ctx.fillStyle = "rgba(0,0,0,0.5)";
     ctx.fillRect(10, 10, 180, 85);
     ctx.fillStyle = "white";
@@ -405,24 +386,19 @@ function drawInventory() {
 function drawMap() {
     mapCtx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
 
-    // Sky background
     mapCtx.fillStyle = "#87ceeb";
     mapCtx.fillRect(0, 0, mapCanvas.width, mapCanvas.height);
 
-    // Forest land area
     mapCtx.fillStyle = "#0f5f0f";
     mapCtx.fillRect(80, 80, mapCanvas.width - 160, mapCanvas.height - 160);
 
-    // River on map
     mapCtx.fillStyle = "#3498db";
     const riverMapX = 80 + (river.x / canvas.width) * (mapCanvas.width - 160);
     const riverMapWidth = (river.width / canvas.width) * (mapCanvas.width - 160);
     mapCtx.fillRect(riverMapX, 80, riverMapWidth, mapCanvas.height - 160);
 
-    // Mountains on map
     drawMountains(mapCtx, mapCanvas.width, mapCanvas.height);
 
-    // Trees on map
     for (const tree of trees) {
         const tx = 80 + (tree.x / canvas.width) * (mapCanvas.width - 160);
         const ty = 80 + (tree.y / canvas.height) * (mapCanvas.height - 160);
@@ -436,7 +412,6 @@ function drawMap() {
         mapCtx.fill();
     }
 
-    // Village on map
     const villageMapX = 80 + (village.x / canvas.width) * (mapCanvas.width - 160);
     const villageMapY = 80 + (village.y / canvas.height) * (mapCanvas.height - 160);
 
@@ -452,7 +427,6 @@ function drawMap() {
     mapCtx.font = "20px Arial";
     mapCtx.fillText("Village", villageMapX - 5, villageMapY - 8);
 
-    // Cave on map
     const caveMapX = 80 + (cave.x / canvas.width) * (mapCanvas.width - 160);
     const caveMapY = 80 + (cave.y / canvas.height) * (mapCanvas.height - 160);
     mapCtx.fillStyle = "#4a4a4a";
@@ -467,7 +441,6 @@ function drawMap() {
     mapCtx.font = "16px Arial";
     mapCtx.fillText("Cave", caveMapX + 2, caveMapY - 5);
 
-    // Player dot on map
     const px = 80 + (player.x / canvas.width) * (mapCanvas.width - 160);
     const py = 80 + (player.y / canvas.height) * (mapCanvas.height - 160);
 
@@ -476,14 +449,12 @@ function drawMap() {
     mapCtx.arc(px, py, 8, 0, Math.PI * 2);
     mapCtx.fill();
 
-    // Map title
     mapCtx.fillStyle = "rgba(0,0,0,0.6)";
     mapCtx.fillRect(10, 10, 100, 40);
     mapCtx.fillStyle = "white";
     mapCtx.font = "28px Arial";
     mapCtx.fillText("MAP", 20, 40);
 
-    // Close hint
     mapCtx.fillStyle = "rgba(0,0,0,0.6)";
     mapCtx.fillRect(mapCanvas.width - 160, 10, 150, 35);
     mapCtx.fillStyle = "white";
