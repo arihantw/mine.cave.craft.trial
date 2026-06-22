@@ -128,7 +128,7 @@ const village = {
     height: 100
 };
 
-// 🕳️ Cave (right of village)
+// 🕳️ Cave
 const cave = {
     get x() { return village.x + village.width + 80; },
     y: 280,
@@ -139,16 +139,22 @@ const cave = {
 
 const keys = {};
 
-function startGame(gender) {
+// =========================
+// ✅ FIX: GLOBAL START GAME
+// =========================
+window.startGame = function(gender) {
     document.getElementById("menu").style.display = "none";
+
     player.color = gender === "male" ? "deepskyblue" : "hotpink";
     gameStarted = true;
 
     window.focus();
     loop();
-}
+};
 
-// ✅ INPUT (fixed for Vercel)
+// =========================
+// INPUT CONTROLS
+// =========================
 window.addEventListener("keydown", (e) => {
     const key = e.key.toLowerCase();
     keys[key] = true;
@@ -181,6 +187,9 @@ function movePlayer() {
     player.y = Math.max(50, Math.min(canvas.height - 50, player.y));
 }
 
+// =========================
+// DRAW WORLD
+// =========================
 function drawWorld() {
     ctx.fillStyle = "#2d6a2d";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -188,21 +197,21 @@ function drawWorld() {
     ctx.fillStyle = "#3498db";
     ctx.fillRect(river.x, 0, river.width, canvas.height);
 
-    // village
     ctx.fillStyle = "#c2a878";
     ctx.fillRect(village.x, village.y, village.width, village.height);
 
-    // cave
     ctx.fillStyle = "#444";
     ctx.fillRect(cave.x, cave.y, cave.width, cave.height);
 
-    // player
     ctx.fillStyle = player.color;
     ctx.beginPath();
     ctx.arc(player.x, player.y, player.size/2, 0, Math.PI*2);
     ctx.fill();
 }
 
+// =========================
+// MAP
+// =========================
 function drawMap() {
     mapCtx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
 
@@ -224,6 +233,9 @@ function drawMap() {
     mapCtx.fill();
 }
 
+// =========================
+// GAME LOOP
+// =========================
 function loop() {
     if (!gameStarted) return;
 
