@@ -1,53 +1,47 @@
-```html
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>Minetrials of Caves and Crafts</title>
-
 <style>
-body{
-    margin:0;
-    overflow:hidden;
-    background:black;
-    font-family:Arial,sans-serif;
+body {
+    margin: 0;
+    overflow: hidden;
+    background: black;
+    font-family: Arial, sans-serif;
 }
-
-#menu{
-    position:absolute;
-    width:100%;
-    height:100%;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    background:#111;
-    color:white;
-    z-index:20;
+#menu {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #111;
+    color: white;
+    z-index: 20;
 }
-
-button{
-    padding:10px 25px;
-    margin:10px;
-    font-size:20px;
-    cursor:pointer;
+button {
+    padding: 10px 25px;
+    margin: 10px;
+    font-size: 20px;
+    cursor: pointer;
 }
-
-#game{
-    position:absolute;
-    top:0;
-    left:0;
+#game {
+    position: absolute;
+    top: 0;
+    left: 0;
 }
-
-#mapScreen{
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:black;
-    display:none;
-    z-index:10;
+#mapScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    display: none;
+    z-index: 10;
 }
 </style>
 </head>
@@ -69,16 +63,14 @@ const ctx = canvas.getContext("2d");
 const mapCanvas = document.getElementById("mapScreen");
 const mapCtx = mapCanvas.getContext("2d");
 
-function resizeCanvas(){
+function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-
     mapCanvas.width = window.innerWidth;
     mapCanvas.height = window.innerHeight;
 }
 
 resizeCanvas();
-
 window.addEventListener("resize", resizeCanvas);
 
 let gameStarted = false;
@@ -103,401 +95,302 @@ const river = {
     x: window.innerWidth / 2 - 50,
     width: 100
 };
-    
-const trees = [];
 
-for(let x=120; x<canvas.width-120; x+=80){
-    for(let y=120; y<canvas.height-120; y+=80){
-        trees.push({x,y});
+const trees = [];
+for (let x = 120; x < 2000; x += 80) {
+    for (let y = 120; y < 1200; y += 80) {
+        trees.push({ x, y });
     }
 }
-const inventory = [
-    "Map",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    ""
-];
 
+const inventory = ["Map", "", "", "", "", "", "", "", "", ""];
 const keys = {};
 
-function startGame(gender){
+function startGame(gender) {
     document.getElementById("menu").style.display = "none";
-
-    if(gender === "male"){
-        player.color = "#3498db";
-    }else{
-        player.color = "#ff69b4";
-    }
-
+    player.color = gender === "male" ? "#3498db" : "#ff69b4";
     gameStarted = true;
     gameLoop();
 }
 
-document.addEventListener("keydown", e=>{
+document.addEventListener("keydown", e => {
     const key = e.key.toLowerCase();
     keys[key] = true;
 
-    if(key === "m"){
+    if (key === "m") {
         showMap = !showMap;
         mapCanvas.style.display = showMap ? "block" : "none";
-
-        if(showMap){
-            drawMap();
-        }
+        if (showMap) drawMap();
     }
 
-    if(key === "e"){
+    if (key === "e") {
         const nearVillage =
             player.x > village.x - 50 &&
             player.x < village.x + village.width + 50 &&
             player.y > village.y - 50 &&
             player.y < village.y + village.height + 50;
-
-        if(nearVillage){
+        if (nearVillage) {
             alert("Welcome to the Village!");
         }
     }
 });
 
-document.addEventListener("keyup", e=>{
+document.addEventListener("keyup", e => {
     keys[e.key.toLowerCase()] = false;
 });
 
-function movePlayer(){
+function movePlayer() {
+    if (showMap) return;
+    if (keys["w"]) player.y -= player.speed;
+    if (keys["s"]) player.y += player.speed;
+    if (keys["a"]) player.x -= player.speed;
+    if (keys["d"]) player.x += player.speed;
 
-    if(showMap) return;
-
-    if(keys["w"]) player.y -= player.speed;
-    if(keys["s"]) player.y += player.speed;
-    if(keys["a"]) player.x -= player.speed;
-    if(keys["d"]) player.x += player.speed;
-
-player.x = Math.max(
-    70,
-    Math.min(canvas.width-70, player.x)
-);
-
-player.y = Math.max(
-    70,
-    Math.min(canvas.height-70, player.y)
-);
+    player.x = Math.max(70, Math.min(canvas.width - 70, player.x));
+    player.y = Math.max(70, Math.min(canvas.height - 70, player.y));
 }
 
-function drawMountains(ctxObj, width, height){
+// Draw mountains only along edges, clipped to avoid corner overlap
+function drawMountains(ctxObj, width, height) {
+    const mSize = 50; // how far mountains protrude inward
+    const step = 80;
 
     ctxObj.fillStyle = "#6b6b6b";
 
-    // Top ridge
-    for(let x=0; x<width; x+=80){
-
+    // Top edge — save/restore to clip to top strip only
+    ctxObj.save();
+    ctxObj.beginPath();
+    ctxObj.rect(mSize, 0, width - mSize * 2, mSize + 10);
+    ctxObj.clip();
+    for (let x = mSize; x < width - mSize; x += step) {
         ctxObj.beginPath();
-        ctxObj.moveTo(x,50);
-        ctxObj.lineTo(x+40,0);
-        ctxObj.lineTo(x+80,50);
+        ctxObj.moveTo(x, mSize);
+        ctxObj.lineTo(x + step / 2, 0);
+        ctxObj.lineTo(x + step, mSize);
         ctxObj.fill();
     }
+    ctxObj.restore();
 
-    // Bottom ridge
-    for(let x=0; x<width; x+=80){
-
+    // Bottom edge
+    ctxObj.save();
+    ctxObj.beginPath();
+    ctxObj.rect(mSize, height - mSize - 10, width - mSize * 2, mSize + 10);
+    ctxObj.clip();
+    for (let x = mSize; x < width - mSize; x += step) {
         ctxObj.beginPath();
-        ctxObj.moveTo(x,height-50);
-        ctxObj.lineTo(x+40,height-100);
-        ctxObj.lineTo(x+80,height-50);
+        ctxObj.moveTo(x, height - mSize);
+        ctxObj.lineTo(x + step / 2, height);
+        ctxObj.lineTo(x + step, height - mSize);
         ctxObj.fill();
     }
+    ctxObj.restore();
 
-    // Left ridge
-    for(let y=0; y<height; y+=80){
-
+    // Left edge
+    ctxObj.save();
+    ctxObj.beginPath();
+    ctxObj.rect(0, mSize, mSize + 10, height - mSize * 2);
+    ctxObj.clip();
+    for (let y = mSize; y < height - mSize; y += step) {
         ctxObj.beginPath();
-        ctxObj.moveTo(50,y);
-        ctxObj.lineTo(0,y+40);
-        ctxObj.lineTo(50,y+80);
+        ctxObj.moveTo(mSize, y);
+        ctxObj.lineTo(0, y + step / 2);
+        ctxObj.lineTo(mSize, y + step);
         ctxObj.fill();
     }
+    ctxObj.restore();
 
-    // Right ridge
-    for(let y=0; y<height; y+=80){
-
+    // Right edge
+    ctxObj.save();
+    ctxObj.beginPath();
+    ctxObj.rect(width - mSize - 10, mSize, mSize + 10, height - mSize * 2);
+    ctxObj.clip();
+    for (let y = mSize; y < height - mSize; y += step) {
         ctxObj.beginPath();
-        ctxObj.moveTo(width-50,y);
-        ctxObj.lineTo(width,y+40);
-        ctxObj.lineTo(width-50,y+80);
+        ctxObj.moveTo(width - mSize, y);
+        ctxObj.lineTo(width, y + step / 2);
+        ctxObj.lineTo(width - mSize, y + step);
         ctxObj.fill();
     }
+    ctxObj.restore();
+
+    // Fill the 4 corners solid gray so no gaps
+    ctxObj.fillStyle = "#6b6b6b";
+    ctxObj.fillRect(0, 0, mSize, mSize);
+    ctxObj.fillRect(width - mSize, 0, mSize, mSize);
+    ctxObj.fillRect(0, height - mSize, mSize, mSize);
+    ctxObj.fillRect(width - mSize, height - mSize, mSize, mSize);
 }
-    
-function drawForest(){
 
-    // Grass
+function drawForest() {
+    // Grass background
     ctx.fillStyle = "#2d6a2d";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // River
-ctx.fillStyle = "#3498db";
-ctx.fillRect(
-    river.x,
-    0,
-    river.width,
-    canvas.height
-);
-    
-drawMountains(
-    ctx,
-    canvas.width,
-    canvas.height
-);
+    ctx.fillStyle = "#3498db";
+    ctx.fillRect(river.x, 0, river.width, canvas.height);
 
-        
-    
+    // Mountains (on top so they cover the river at edges)
+    drawMountains(ctx, canvas.width, canvas.height);
 
     // Trees
-    // Draw trees
-for(const tree of trees){
+    for (const tree of trees) {
+        ctx.fillStyle = "#5c3b1e";
+        ctx.fillRect(tree.x - 5, tree.y, 10, 20);
 
-    ctx.fillStyle = "#5c3b1e";
-    ctx.fillRect(tree.x-5, tree.y, 10, 20);
-
-    ctx.fillStyle = "#145214";
-    ctx.beginPath();
-    ctx.arc(tree.x, tree.y-5, 18, 0, Math.PI*2);
-    ctx.fill();
+        ctx.fillStyle = "#145214";
+        ctx.beginPath();
+        ctx.arc(tree.x, tree.y - 5, 18, 0, Math.PI * 2);
+        ctx.fill();
+    }
 }
 
-}
-function drawVillage(){
-
+function drawVillage() {
     ctx.fillStyle = "#c2a878";
-    ctx.fillRect(
-        village.x,
-        village.y,
-        village.width,
-        village.height
-    );
+    ctx.fillRect(village.x, village.y, village.width, village.height);
 
     ctx.fillStyle = "#8b4513";
-
-    for(let i=0;i<3;i++){
-        ctx.fillRect(
-            village.x + 15 + (i * 35),
-            village.y + 20,
-            25,
-            25
-        );
+    for (let i = 0; i < 3; i++) {
+        ctx.fillRect(village.x + 15 + i * 35, village.y + 20, 25, 25);
     }
 
     ctx.fillStyle = "white";
     ctx.font = "18px Arial";
-    ctx.fillText(
-        "Village",
-        village.x + 20,
-        village.y - 10
-    );
+    ctx.fillText("Village", village.x + 20, village.y - 10);
 }
 
-function drawPlayer(){
+function drawPlayer() {
     ctx.fillStyle = player.color;
-
     ctx.beginPath();
-    ctx.arc(
-        player.x,
-        player.y,
-        player.size/2,
-        0,
-        Math.PI*2
-    );
+    ctx.arc(player.x, player.y, player.size / 2, 0, Math.PI * 2);
     ctx.fill();
+
+    // Outline so player is always visible
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+    ctx.stroke();
 }
 
-function drawInventory(){
-
+function drawInventory() {
     const slots = 10;
     const size = 60;
     const spacing = 8;
-
     const totalWidth = slots * (size + spacing);
     const startX = (canvas.width - totalWidth) / 2;
     const y = canvas.height - 90;
 
-    for(let i=0;i<slots;i++){
-
-        ctx.fillStyle = "#444";
-        ctx.fillRect(
-            startX + i*(size+spacing),
-            y,
-            size,
-            size
-        );
+    for (let i = 0; i < slots; i++) {
+        ctx.fillStyle = "rgba(68,68,68,0.85)";
+        ctx.fillRect(startX + i * (size + spacing), y, size, size);
 
         ctx.strokeStyle = "white";
-        ctx.strokeRect(
-            startX + i*(size+spacing),
-            y,
-            size,
-            size
-        );
+        ctx.lineWidth = 1;
+        ctx.strokeRect(startX + i * (size + spacing), y, size, size);
 
-        if(inventory[i]){
+        if (inventory[i]) {
             ctx.fillStyle = "white";
             ctx.font = "12px Arial";
-
-            ctx.fillText(
-                inventory[i],
-                startX + i*(size+spacing) + 8,
-                y + 35
-            );
+            ctx.fillText(inventory[i], startX + i * (size + spacing) + 8, y + 35);
         }
     }
 
+    // HUD instructions — always visible
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillRect(10, 10, 180, 85);
     ctx.fillStyle = "white";
     ctx.font = "18px Arial";
-    ctx.fillText("WASD = Move",20,30);
-    ctx.fillText("M = Map",20,55);
-    ctx.fillText("E = Interact",20,80);
+    ctx.fillText("WASD = Move", 20, 35);
+    ctx.fillText("M = Map", 20, 58);
+    ctx.fillText("E = Interact", 20, 81);
 }
 
-function drawMap(){
+function drawMap() {
+    mapCtx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
 
-    mapCtx.clearRect(0,0,mapCanvas.width,mapCanvas.height);
-
-    // Sky
+    // Sky background
     mapCtx.fillStyle = "#87ceeb";
-    mapCtx.fillRect(0,0,mapCanvas.width,mapCanvas.height);
+    mapCtx.fillRect(0, 0, mapCanvas.width, mapCanvas.height);
 
-    // Forest land
+    // Forest land area
     mapCtx.fillStyle = "#0f5f0f";
-    mapCtx.fillRect(
-        80,
-        80,
-        mapCanvas.width - 160,
-        mapCanvas.height - 160
-    );
+    mapCtx.fillRect(80, 80, mapCanvas.width - 160, mapCanvas.height - 160);
 
+    // River on map
     mapCtx.fillStyle = "#3498db";
+    const riverMapX = 80 + (river.x / canvas.width) * (mapCanvas.width - 160);
+    const riverMapWidth = (river.width / canvas.width) * (mapCanvas.width - 160);
+    mapCtx.fillRect(riverMapX, 80, riverMapWidth, mapCanvas.height - 160);
 
-const riverMapX =
-    80 +
-    (river.x / canvas.width) *
-    (mapCanvas.width - 160);
-
-const riverMapWidth =
-    (river.width / canvas.width) *
-    (mapCanvas.width - 160);
-
-mapCtx.fillRect(
-    riverMapX,
-    80,
-    riverMapWidth,
-    mapCanvas.height - 160
-);
-
-    drawMountains(
-    mapCtx,
-    mapCanvas.width,
-    mapCanvas.height
-);
+    // Mountains on map
+    drawMountains(mapCtx, mapCanvas.width, mapCanvas.height);
 
     // Trees on map
-    for(const tree of trees){
+    for (const tree of trees) {
+        const tx = 80 + (tree.x / canvas.width) * (mapCanvas.width - 160);
+        const ty = 80 + (tree.y / canvas.height) * (mapCanvas.height - 160);
 
-    const tx =
-        80 +
-        (tree.x / canvas.width) *
-        (mapCanvas.width - 160);
+        mapCtx.fillStyle = "#5c3b1e";
+        mapCtx.fillRect(tx - 2, ty, 4, 8);
 
-    const ty =
-        80 +
-        (tree.y / canvas.height) *
-        (mapCanvas.height - 160);
+        mapCtx.fillStyle = "#145214";
+        mapCtx.beginPath();
+        mapCtx.arc(tx, ty - 2, 8, 0, Math.PI * 2);
+        mapCtx.fill();
+    }
 
-    mapCtx.fillStyle = "#5c3b1e";
-    mapCtx.fillRect(tx-2, ty, 4, 8);
-
-    mapCtx.fillStyle = "#145214";
-    mapCtx.beginPath();
-    mapCtx.arc(tx, ty-2, 8, 0, Math.PI*2);
-    mapCtx.fill();
-}
-    
-
-    // Village
-    const villageX = mapCanvas.width - 220;
-    const villageY = mapCanvas.height / 2 - 80;
+    // Village on map
+    const villageMapX = 80 + (village.x / canvas.width) * (mapCanvas.width - 160);
+    const villageMapY = 80 + (village.y / canvas.height) * (mapCanvas.height - 160);
 
     mapCtx.fillStyle = "#c2a878";
-    mapCtx.fillRect(
-        villageX,
-        villageY,
-        140,
-        100
-    );
+    mapCtx.fillRect(villageMapX, villageMapY, 80, 55);
 
     mapCtx.fillStyle = "#8b4513";
-
-    for(let i=0;i<3;i++){
-        mapCtx.fillRect(
-            villageX + 15 + i*40,
-            villageY + 20,
-            25,
-            25
-        );
+    for (let i = 0; i < 3; i++) {
+        mapCtx.fillRect(villageMapX + 8 + i * 24, villageMapY + 12, 16, 16);
     }
 
     mapCtx.fillStyle = "white";
-    mapCtx.font = "28px Arial";
-    mapCtx.fillText(
-        "Village",
-        villageX - 10,
-        villageY - 20
-    );
+    mapCtx.font = "20px Arial";
+    mapCtx.fillText("Village", villageMapX - 5, villageMapY - 8);
 
-    // Player position
-    const px =
-        80 +
-        (player.x / canvas.width) *
-        (mapCanvas.width - 160);
-
-    const py =
-        80 +
-        (player.y / canvas.height) *
-        (mapCanvas.height - 160);
+    // Player dot on map
+    const px = 80 + (player.x / canvas.width) * (mapCanvas.width - 160);
+    const py = 80 + (player.y / canvas.height) * (mapCanvas.height - 160);
 
     mapCtx.fillStyle = "red";
     mapCtx.beginPath();
     mapCtx.arc(px, py, 8, 0, Math.PI * 2);
     mapCtx.fill();
 
+    // Map title
+    mapCtx.fillStyle = "rgba(0,0,0,0.6)";
+    mapCtx.fillRect(10, 10, 100, 40);
     mapCtx.fillStyle = "white";
-    mapCtx.font = "30px Arial";
-    mapCtx.fillText("MAP",30,50);
+    mapCtx.font = "28px Arial";
+    mapCtx.fillText("MAP", 20, 40);
+
+    // Close hint
+    mapCtx.fillStyle = "rgba(0,0,0,0.6)";
+    mapCtx.fillRect(mapCanvas.width - 160, 10, 150, 35);
+    mapCtx.fillStyle = "white";
+    mapCtx.font = "18px Arial";
+    mapCtx.fillText("M = Close Map", mapCanvas.width - 155, 33);
 }
 
-function gameLoop(){
-
-    if(!gameStarted) return;
+function gameLoop() {
+    if (!gameStarted) return;
 
     movePlayer();
-
     drawForest();
     drawVillage();
     drawPlayer();
     drawInventory();
 
-    if(showMap){
-        drawMap();
-    }
+    if (showMap) drawMap();
 
     requestAnimationFrame(gameLoop);
 }
 </script>
-
 </body>
 </html>
-```
