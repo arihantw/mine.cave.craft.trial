@@ -167,30 +167,70 @@ function movePlayer(){
     if(keys["d"]) player.x += player.speed;
 
     player.x = Math.max(
-        player.size/2,
-        Math.min(canvas.width-player.size/2, player.x)
-    );
+    60,
+    Math.min(canvas.width - 60, player.x)
+);
 
-    player.y = Math.max(
-        player.size/2,
-        Math.min(canvas.height-player.size/2, player.y)
-    );
+player.y = Math.max(
+    60,
+    Math.min(canvas.height - 60, player.y)
+);
 }
 
 function drawForest(){
+
+    // Grass
     ctx.fillStyle = "#2d6a2d";
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    for(let x=0;x<canvas.width;x+=80){
-        for(let y=0;y<canvas.height;y+=80){
+    // Mountains
+    ctx.fillStyle = "#777";
 
-            ctx.fillStyle = "#1f4d1f";
-            ctx.beginPath();
-            ctx.arc(x+20,y+20,18,0,Math.PI*2);
-            ctx.fill();
+    for(let x=0;x<canvas.width;x+=50){
+
+        // Top
+        ctx.beginPath();
+        ctx.moveTo(x,50);
+        ctx.lineTo(x+25,0);
+        ctx.lineTo(x+50,50);
+        ctx.fill();
+
+        // Bottom
+        ctx.beginPath();
+        ctx.moveTo(x,canvas.height-50);
+        ctx.lineTo(x+25,canvas.height);
+        ctx.lineTo(x+50,canvas.height-50);
+        ctx.fill();
+    }
+
+    for(let y=0;y<canvas.height;y+=50){
+
+        // Left
+        ctx.beginPath();
+        ctx.moveTo(50,y);
+        ctx.lineTo(0,y+25);
+        ctx.lineTo(50,y+50);
+        ctx.fill();
+
+        // Right
+        ctx.beginPath();
+        ctx.moveTo(canvas.width-50,y);
+        ctx.lineTo(canvas.width,y+25);
+        ctx.lineTo(canvas.width-50,y+50);
+        ctx.fill();
+    }
+
+    // Trees
+    for(let x=80;x<canvas.width;x+=80){
+        for(let y=80;y<canvas.height;y+=80){
 
             ctx.fillStyle = "#5c3b1e";
             ctx.fillRect(x+15,y+20,10,20);
+
+            ctx.fillStyle = "#1f4d1f";
+            ctx.beginPath();
+            ctx.arc(x+20,y+15,18,0,Math.PI*2);
+            ctx.fill();
         }
     }
 }
@@ -288,21 +328,13 @@ function drawInventory(){
 
 function drawMap(){
 
-    mapCtx.clearRect(
-        0,
-        0,
-        mapCanvas.width,
-        mapCanvas.height
-    );
+    mapCtx.clearRect(0,0,mapCanvas.width,mapCanvas.height);
 
-    mapCtx.fillStyle = "black";
-    mapCtx.fillRect(
-        0,
-        0,
-        mapCanvas.width,
-        mapCanvas.height
-    );
+    // Sky
+    mapCtx.fillStyle = "#87ceeb";
+    mapCtx.fillRect(0,0,mapCanvas.width,mapCanvas.height);
 
+    // Forest land
     mapCtx.fillStyle = "#0f5f0f";
     mapCtx.fillRect(
         80,
@@ -311,36 +343,60 @@ function drawMap(){
         mapCanvas.height - 160
     );
 
-    mapCtx.fillStyle = "gray";
+    // Mountains around edge
+    mapCtx.fillStyle = "#777";
 
-    mapCtx.fillRect(
-        0,
-        0,
-        mapCanvas.width,
-        70
-    );
+    // Top
+    for(let x=0;x<mapCanvas.width;x+=40){
+        mapCtx.beginPath();
+        mapCtx.moveTo(x,70);
+        mapCtx.lineTo(x+20,10);
+        mapCtx.lineTo(x+40,70);
+        mapCtx.fill();
+    }
 
-    mapCtx.fillRect(
-        0,
-        mapCanvas.height - 70,
-        mapCanvas.width,
-        70
-    );
+    // Bottom
+    for(let x=0;x<mapCanvas.width;x+=40){
+        mapCtx.beginPath();
+        mapCtx.moveTo(x,mapCanvas.height-70);
+        mapCtx.lineTo(x+20,mapCanvas.height-130);
+        mapCtx.lineTo(x+40,mapCanvas.height-70);
+        mapCtx.fill();
+    }
 
-    mapCtx.fillRect(
-        0,
-        0,
-        70,
-        mapCanvas.height
-    );
+    // Left
+    for(let y=0;y<mapCanvas.height;y+=40){
+        mapCtx.beginPath();
+        mapCtx.moveTo(70,y);
+        mapCtx.lineTo(10,y+20);
+        mapCtx.lineTo(70,y+40);
+        mapCtx.fill();
+    }
 
-    mapCtx.fillRect(
-        mapCanvas.width - 70,
-        0,
-        70,
-        mapCanvas.height
-    );
+    // Right
+    for(let y=0;y<mapCanvas.height;y+=40){
+        mapCtx.beginPath();
+        mapCtx.moveTo(mapCanvas.width-70,y);
+        mapCtx.lineTo(mapCanvas.width-10,y+20);
+        mapCtx.lineTo(mapCanvas.width-70,y+40);
+        mapCtx.fill();
+    }
 
+    // Trees on map
+    for(let x=120;x<mapCanvas.width-120;x+=90){
+        for(let y=120;y<mapCanvas.height-120;y+=90){
+
+            mapCtx.fillStyle = "#5c3b1e";
+            mapCtx.fillRect(x-4,y,8,14);
+
+            mapCtx.fillStyle = "#145214";
+            mapCtx.beginPath();
+            mapCtx.arc(x,y,12,0,Math.PI*2);
+            mapCtx.fill();
+        }
+    }
+
+    // Village
     const villageX = mapCanvas.width - 220;
     const villageY = mapCanvas.height / 2 - 80;
 
@@ -365,13 +421,13 @@ function drawMap(){
 
     mapCtx.fillStyle = "white";
     mapCtx.font = "28px Arial";
-
     mapCtx.fillText(
         "Village",
         villageX - 10,
         villageY - 20
     );
 
+    // Player position
     const px =
         80 +
         (player.x / canvas.width) *
@@ -383,12 +439,12 @@ function drawMap(){
         (mapCanvas.height - 160);
 
     mapCtx.fillStyle = "red";
-
     mapCtx.beginPath();
     mapCtx.arc(px, py, 8, 0, Math.PI * 2);
     mapCtx.fill();
 
     mapCtx.fillStyle = "white";
+    mapCtx.font = "30px Arial";
     mapCtx.fillText("MAP",30,50);
 }
 
