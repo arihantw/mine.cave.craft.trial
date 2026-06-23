@@ -823,56 +823,109 @@ function drawCaveInterior() {
 }
 
 // ===== GAME LOOP =====
-function gameLoop(){
-    if (deathScreen) {
-    drawDeathScreen();
-    requestAnimationFrame(gameLoop);
-    return;
-}
+function gameLoop() {
 
+    // 1️⃣ — Death screen check FIRST
+    if (deathScreen) {
+        drawDeathScreen();
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+
+    // 2️⃣ — Game must be started
     if (!gameStarted) return;
-    const now=Date.now();
-    // CHANGE 3: trade completion — only removes Axe
-    if (tradeActive && (now-tradeStartTime)>=TRADE_DURATION){
-        tradeActive=false;
+
+    const now = Date.now();
+
+    // 3️⃣ — Trade completion (Axe → Sword)
+    if (tradeActive && (now - tradeStartTime) >= TRADE_DURATION) {
+        tradeActive = false;
         removeFromInventory('Axe');
         addToInventory('Sword');
-        currentScene='world';
-        player.x=savedWorldPos.x; player.y=savedWorldPos.y;
-        showMap=false; mapCanvas.style.display='none';
+        currentScene = 'world';
+        player.x = savedWorldPos.x;
+        player.y = savedWorldPos.y;
+        showMap = false;
+        mapCanvas.style.display = 'none';
     }
-    if (swordSlashActive && (now-swordSlashStart)>=SWORD_SLASH_DURATION) swordSlashActive=false;
-    // CHANGE 4: pickaxe swing timeout
-    if (pickaxeSwingActive && (now-pickaxeSwingStart)>=PICKAXE_SWING_DURATION) pickaxeSwingActive=false;
-    const regenInterval=hasApple?700:4000;
-    if (now-lastRegenTime>regenInterval){
-        lastRegenTime=now;
-        if (player.health<player.maxHealth) player.health=Math.min(player.maxHealth,player.health+1);
+
+    // 4️⃣ — Sword slash timeout
+    if (swordSlashActive && (now - swordSlashStart) >= SWORD_SLASH_DURATION) {
+        swordSlashActive = false;
     }
-    if (currentScene==='world'){
+
+    // 5️⃣ — Pickaxe swing timeout
+    if (pickaxeSwingActive && (now - pickaxeSwingStart) >= PICKAXE_SWING_DURATION) {
+        pickaxeSwingActive = false;
+    }
+
+    // 6️⃣ — Health regeneration (Apple makes it faster)
+    const regenInterval = hasApple ? 700 : 4000;
+    if (now - lastRegenTime > regenInterval) {
+        lastRegenTime = now;
+        if (player.health < player.maxHealth) {
+            player.health = Math.min(player.maxHealth, player.health + 1);
+        }
+    }
+
+    // 7️⃣ — SCENE SWITCHING
+    if (currentScene === 'world') {
+
         movePlayer();
-        drawForest(); drawWorldVillage(); drawCave(); drawPlayer();
+        drawForest();
+        drawWorldVillage();
+        drawCave();
+        drawPlayer();
+
         if (swordSlashActive) drawSwordSlash();
         if (pickaxeSwingActive) drawPickaxeSwing();
-        drawHealthBar(); drawWorldHUD(); drawInventory();
-        if (showMap) drawMap();
+
+        drawHealthBar();
+        drawWorldHUD();
+        drawInventory();
         drawAppleMessage();
         drawCaveWarning();
-    else if (currentScene === 'cave') {
-    movePlayer();
-    drawCaveInterior();
-}
 
-    } else if (currentScene==='village'){
+    } else if (currentScene === 'village') {
+
         moveVillagePlayer();
         drawVillageScene();
         drawAppleMessage();
-    } else if (currentScene==='house'){
+
+    } else if (currentScene === 'house') {
+
         drawHouseInterior();
         drawAppleMessage();
+
+    } else if (currentScene === 'cave') {
+
+        // Movement inside cave
+        movePlayer();
+
+        // Draw cave interior
+        drawCaveInterior();
+
+        // Spike collision (death)
+        for (const s of caveSpikes) {
+            if (!s.broken && Math.hypot(player.x - s.x, player.y - s.y) < 40) {
+                deathScreen = true;
+            }
+        }
+
+        // Pickaxe breaks spikes
+        if (pickaxeSwingActive) {
+            for (const s of caveSpikes) {
+                if (!s.broken && Math.hypot(player.x - s.x, player.y - s.y) < 80) {
+                    s.broken = true;
+                }
+            }
+        }
     }
+
+    // 8️⃣ — Loop again
     requestAnimationFrame(gameLoop);
 }
+
 function drawDeathScreen() {
     ctx.fillStyle = 'rgba(0,0,0,0.85)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
