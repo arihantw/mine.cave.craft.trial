@@ -47,7 +47,6 @@ body { margin:0; overflow:hidden; background:black; font-family:Arial,sans-serif
 </style>
 </head>
 <body>
-
 <div id="titleScreen">
     <h1>Minetrials of Caves and Crafts</h1>
     <div class="subtitle">Created by Arihant Walia</div>
@@ -71,7 +70,6 @@ body { margin:0; overflow:hidden; background:black; font-family:Arial,sans-serif
         <span id="noteClose">[Press N to close]</span>
     </div>
 </div>
-
 <script>
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -109,6 +107,7 @@ let lastRegenTime = 0;
 let caveWarningExpiry = 0;
 let deathScreen = false;
 let deathButton = null;
+let snakeBiteFlash = 0; // timestamp until bite flash shows
 
 // ===== PLAYER =====
 const player = { x: 300, y: 300, size: 30, color: 'blue', speed: 4, maxHealth: 100, health: 100 };
@@ -138,7 +137,6 @@ function removeFromInventory(item) { const i = inventory.indexOf(item); if (i !=
 function hasItem(item) { return inventory.includes(item); }
 
 // ===== VILLAGE HOUSES =====
-// FIX 1: houseItems defined as a constant reference — itemTaken is reset on death
 const houseItems = ['Pickaxe', 'Axe', 'Apple', '', '', '', '', '', '', ''];
 const villageHouses = Array.from({ length: 10 }, (_, i) => {
     const col = i % 5, row = Math.floor(i / 5);
@@ -159,26 +157,44 @@ const villageHouses = Array.from({ length: 10 }, (_, i) => {
     };
 });
 
-// ===== CAVE SPIKES =====
-// FIX 2: spikes in a vertical line across the cave to block passage
+// ===== CAVE DATA =====
+let caveSpikes = [];
+let caveSnakes = [];
+const SPIKE_X_OFFSET = 80; // offset from center
+
+function getSpikeX() { return canvas.width / 2 + SPIKE_X_OFFSET; }
+
 function buildSpikes() {
     const spikes = [];
-    const spikeX = canvas.width / 2 + 80; // vertical line position
-    const numSpikes = 10;
-    for (let i = 0; i < numSpikes; i++) {
-        spikes.push({
-            x: spikeX,
-            y: 80 + i * 60,
-            broken: false
-        });
+    const sx = getSpikeX();
+    for (let i = 0; i < 10; i++) {
+        spikes.push({ x: sx, y: 70 + i * 60, broken: false });
     }
     return spikes;
 }
-let caveSpikes = [];
+
+function buildSnakes() {
+    const sx = getSpikeX();
+    const rightW = canvas.width - sx - 80;
+    const ch = canvas.height;
+    // 5 snakes spread across the right side of the cave
+    return [
+        { x: sx + rightW * 0.25, y: ch * 0.15 },
+        { x: sx + rightW * 0.55, y: ch * 0.32 },
+        { x: sx + rightW * 0.20, y: ch * 0.52 },
+        { x: sx + rightW * 0.60, y: ch * 0.70 },
+        { x: sx + rightW * 0.38, y: ch * 0.87 },
+    ].map(p => ({
+        x: p.x, y: p.y,
+        hp: 2, alive: true,
+        lastAttackTime: 0,
+        firstAttackDone: false,
+        hitFlash: 0
+    }));
+}
 
 // ===== KEYS =====
 const keys = {};
-
 document.addEventListener('keydown', e => {
     const key = e.key.toLowerCase();
     keys[key] = true;
@@ -201,14 +217,13 @@ document.addEventListener('keydown', e => {
                              player.y > cave.y-60 && player.y < cave.y+cave.height+60;
             if (nearVillage) enterVillage();
             else if (nearCave) {
-                if (!hasItem('Sword')) {
-                    caveWarningExpiry = Date.now() + 3500;
-                } else {
+                if (!hasItem('Sword')) { caveWarningExpiry = Date.now() + 3500; }
+                else {
                     caveWarningExpiry = 0;
                     caveSpikes = buildSpikes();
+                    caveSnakes = buildSnakes();
                     currentScene = 'cave';
-                    player.x = 200;
-                    player.y = canvas.height / 2;
+                    player.x = 150; player.y = canvas.height / 2;
                 }
             }
         } else if (currentScene === 'village' && !tradeActive) {
@@ -229,54 +244,60 @@ document.addEventListener('keydown', e => {
         if (currentScene === 'house') { currentScene = 'village'; inHouseIndex = -1; }
         else if (currentScene === 'village' && !tradeActive) exitVillage();
         else if (currentScene === 'cave') {
-            // Exit cave back to world
             currentScene = 'world';
-            player.x = savedWorldPos.x;
-            player.y = savedWorldPos.y;
+            player.x = savedWorldPos.x; player.y = savedWorldPos.y;
         }
     }
 
-    // FIX 3: Q sword works in both world AND cave
+    // SWORD - works in world AND cave
     if (key === 'q' && (currentScene === 'world' || currentScene === 'cave') && hasItem('Sword') && !showNote && !showMap) {
-        if (!swordSlashActive) { swordSlashActive = true; swordSlashStart = Date.now(); }
+        if (!swordSlashActive) {
+            swordSlashActive = true;
+            swordSlashStart = Date.now();
+            // Hit snakes in cave on sword press
+            if (currentScene === 'cave') {
+                for (const snake of caveSnakes) {
+                    if (!snake.alive) continue;
+                    if (Math.hypot(player.x - snake.x, player.y - snake.y) < 100) {
+                        snake.hp -= 1;
+                        snake.hitFlash = Date.now() + 350;
+                        if (snake.hp <= 0) snake.alive = false;
+                    }
+                }
+            }
+        }
     }
-    // FIX 3: R pickaxe works in both world AND cave
+    // PICKAXE - works in world AND cave
     if (key === 'r' && (currentScene === 'world' || currentScene === 'cave') && hasItem('Pickaxe') && !showNote && !showMap) {
         if (!pickaxeSwingActive) { pickaxeSwingActive = true; pickaxeSwingStart = Date.now(); }
     }
 });
 document.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 
+// ===== DEATH TRIGGER =====
+function triggerDeath() {
+    if (deathScreen) return;
+    deathScreen = true;
+}
+
 // ===== DEATH SCREEN CLICK =====
 canvas.addEventListener('click', e => {
     if (!deathScreen || !deathButton) return;
     const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
     if (mx > deathButton.x && mx < deathButton.x + deathButton.w &&
         my > deathButton.y && my < deathButton.y + deathButton.h) {
-
-        // FIX 1: Reset inventory
+        // Full reset
         inventory.fill('');
-        inventory[0] = 'Map';
-        inventory[1] = 'Note';
-
-        // FIX 1: Reset ALL house item availability so tools reappear in the village
+        inventory[0] = 'Map'; inventory[1] = 'Note';
         villageHouses.forEach(h => { h.itemTaken = false; });
-
-        // Reset spikes
-        caveSpikes.forEach(s => (s.broken = false));
-
-        // Reset player
+        caveSpikes = []; caveSnakes = [];
         player.health = player.maxHealth;
-        player.x = 300;
-        player.y = 300;
+        player.x = 300; player.y = 300;
         hasApple = false;
-
+        snakeBiteFlash = 0;
         deathScreen = false;
         currentScene = 'world';
-
-        document.getElementById('titleScreen').style.display = 'none';
         document.getElementById('menu').style.display = 'flex';
         gameStarted = false;
     }
@@ -352,7 +373,7 @@ function drawWorldVillage() {
     ctx.fillStyle='white'; ctx.font='18px Arial'; ctx.textAlign='left';
     ctx.fillText('Village',worldVillage.x+20,worldVillage.y-10);
 }
-function drawCaveWorld() {
+function drawCaveOnWorld() {
     const {x,y,width,height,entranceW,entranceH,cx}=cave;
     ctx.fillStyle='#4a4a4a';
     ctx.beginPath(); ctx.moveTo(x-10,y+height);
@@ -409,22 +430,16 @@ function drawSwordSlash() {
 function drawPickaxeSwing() {
     const elapsed = Date.now() - pickaxeSwingStart;
     const progress = Math.min(elapsed / PICKAXE_SWING_DURATION, 1);
-    const startA = -Math.PI * 0.7;
-    const endA = Math.PI * 0.6;
+    const startA = -Math.PI * 0.7, endA = Math.PI * 0.6;
     const curA = startA + (endA - startA) * progress;
     const radius = 52;
-    ctx.save();
-    ctx.globalAlpha = 1 - progress * 0.6;
+    ctx.save(); ctx.globalAlpha = 1 - progress * 0.6;
     ctx.strokeStyle = '#8b4513'; ctx.lineWidth = 6; ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(player.x, player.y);
-    ctx.lineTo(player.x + Math.cos(curA) * radius, player.y + Math.sin(curA) * radius);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(player.x, player.y);
+    ctx.lineTo(player.x + Math.cos(curA) * radius, player.y + Math.sin(curA) * radius); ctx.stroke();
     const tipX = player.x + Math.cos(curA) * radius;
     const tipY = player.y + Math.sin(curA) * radius;
-    ctx.save();
-    ctx.translate(tipX, tipY);
-    ctx.rotate(curA + Math.PI / 2);
+    ctx.save(); ctx.translate(tipX, tipY); ctx.rotate(curA + Math.PI / 2);
     ctx.fillStyle = '#cccccc';
     ctx.beginPath(); ctx.moveTo(-10,-6); ctx.lineTo(10,-6); ctx.lineTo(6,6); ctx.lineTo(-6,6); ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#eeeeee';
@@ -438,88 +453,192 @@ function drawPickaxeSwing() {
     ctx.restore();
 }
 
-// ===== CAVE INTERIOR =====
-function drawCaveInterior() {
-    // Dark cave background
-    ctx.fillStyle = '#1a1a1a';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+// ===== SNAKE DRAWING =====
+function drawSnake(snake) {
+    if (!snake.alive) return;
+    const { x, y, hp } = snake;
+    const isFlashing = Date.now() < snake.hitFlash;
 
-    // Stone wall texture
-    ctx.fillStyle = '#2a2a2a';
-    for (let cx2 = 0; cx2 < canvas.width; cx2 += 80)
-        for (let cy = 0; cy < canvas.height; cy += 50) {
-            const offX = (Math.floor(cy/50) % 2) * 40;
-            ctx.fillRect(cx2 + offX, cy, 78, 48);
-        }
-    ctx.strokeStyle = '#111'; ctx.lineWidth = 2;
-    for (let cx2 = 0; cx2 < canvas.width; cx2 += 80)
-        for (let cy = 0; cy < canvas.height; cy += 50) {
-            const offX = (Math.floor(cy/50) % 2) * 40;
-            ctx.strokeRect(cx2 + offX, cy, 78, 48);
-        }
+    // Direction from snake to player for head angle
+    const dx = player.x - x, dy = player.y - y;
+    const angle = Math.atan2(dy, dx);
 
-    // Torch light effect
-    const torchPositions = [[150, 200], [150, 450], [150, 700]];
-    for (const [tx, ty] of torchPositions) {
-        const grd = ctx.createRadialGradient(tx, ty, 5, tx, ty, 180);
-        grd.addColorStop(0, 'rgba(255,180,50,0.18)');
-        grd.addColorStop(1, 'rgba(255,180,50,0)');
-        ctx.fillStyle = grd;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        // Torch stick
-        ctx.fillStyle = '#8b4513'; ctx.fillRect(tx-4, ty, 8, 24);
-        // Flame
-        ctx.fillStyle = '#ff8800';
-        ctx.beginPath(); ctx.arc(tx, ty, 8, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#ffdd00';
-        ctx.beginPath(); ctx.arc(tx, ty-4, 5, 0, Math.PI*2); ctx.fill();
+    ctx.save();
+    ctx.translate(x, y);
+
+    const bodyColor = isFlashing ? '#ff7733' : '#1e7a0e';
+    const scaleColor = isFlashing ? '#ffcc88' : '#2faa18';
+    const bellyColor = isFlashing ? '#ffe0a0' : '#a8e060';
+
+    // Coiled body segments (back to front)
+    for (let i = 3; i >= 0; i--) {
+        const bx = Math.cos(i * 1.3 + 0.5) * (i * 9);
+        const by2 = Math.sin(i * 1.3 + 0.5) * (i * 7) + 12;
+        const rx = 22 - i * 2, ry = 14 - i * 1.5;
+        ctx.fillStyle = bodyColor;
+        ctx.beginPath(); ctx.ellipse(bx, by2, rx, ry, i * 0.4, 0, Math.PI * 2); ctx.fill();
+        // scale stripe
+        ctx.fillStyle = scaleColor;
+        ctx.beginPath(); ctx.ellipse(bx, by2, rx * 0.5, ry * 0.5, i * 0.4, 0, Math.PI * 2); ctx.fill();
     }
 
-    // FIX 2: Draw vertical spike wall
+    // Belly center
+    ctx.fillStyle = bellyColor;
+    ctx.beginPath(); ctx.ellipse(0, 12, 10, 8, 0, 0, Math.PI * 2); ctx.fill();
+
+    // Head pointing toward player
+    ctx.save();
+    ctx.rotate(angle);
+    ctx.fillStyle = bodyColor;
+    ctx.beginPath(); ctx.ellipse(32, 0, 17, 11, 0, 0, Math.PI * 2); ctx.fill();
+    // Head scale pattern
+    ctx.fillStyle = scaleColor;
+    ctx.beginPath(); ctx.ellipse(30, -3, 8, 5, -0.3, 0, Math.PI * 2); ctx.fill();
+    // Eyes
+    ctx.fillStyle = '#ffff00';
+    ctx.beginPath(); ctx.arc(38, -5, 4.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(38, 5, 4.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#111';
+    ctx.beginPath(); ctx.arc(39, -5, 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(39, 5, 2.5, 0, Math.PI * 2); ctx.fill();
+    // Tongue
+    ctx.strokeStyle = '#ff2222'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(48, 0); ctx.lineTo(56, 0); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(56, 0); ctx.lineTo(63, -6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(56, 0); ctx.lineTo(63, 6); ctx.stroke();
+    ctx.restore();
+
+    // HP hearts / pips above snake
+    for (let i = 0; i < 2; i++) {
+        ctx.fillStyle = i < hp ? '#ee2222' : '#444';
+        ctx.beginPath(); ctx.arc(-10 + i * 22, -48, 7, 0, Math.PI * 2); ctx.fill();
+        if (i < hp) {
+            ctx.fillStyle = '#ff8888';
+            ctx.beginPath(); ctx.arc(-13 + i * 22, -51, 3, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.strokeStyle = 'white'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(-10 + i * 22, -48, 7, 0, Math.PI * 2); ctx.stroke();
+    }
+
+    // Attack timer ring (shows next attack countdown)
+    if (snake.firstAttackDone) {
+        const elapsed = Date.now() - snake.lastAttackTime;
+        const pct = Math.min(elapsed / 5000, 1);
+        ctx.strokeStyle = pct > 0.8 ? '#ff4444' : '#ffaa00';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 12, 28, -Math.PI / 2, -Math.PI / 2 + pct * Math.PI * 2);
+        ctx.stroke();
+    }
+
+    ctx.restore();
+}
+
+// ===== BITE FLASH =====
+function drawBiteFlash() {
+    if (Date.now() > snakeBiteFlash) return;
+    const alpha = ((snakeBiteFlash - Date.now()) / 600) * 0.45;
+    ctx.fillStyle = `rgba(200,0,0,${alpha})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+// ===== CAVE INTERIOR =====
+function drawCaveInterior() {
+    // Dark stone background
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#252525';
+    for (let bx = 0; bx < canvas.width; bx += 80)
+        for (let by = 0; by < canvas.height; by += 50) {
+            const offX = (Math.floor(by / 50) % 2) * 40;
+            ctx.fillRect(bx + offX, by, 78, 48);
+        }
+    ctx.strokeStyle = '#111'; ctx.lineWidth = 2;
+    for (let bx = 0; bx < canvas.width; bx += 80)
+        for (let by = 0; by < canvas.height; by += 50) {
+            const offX = (Math.floor(by / 50) % 2) * 40;
+            ctx.strokeRect(bx + offX, by, 78, 48);
+        }
+
+    // Torches on left wall
+    for (const [tx, ty] of [[100, 180], [100, 440], [100, 700]]) {
+        const grd = ctx.createRadialGradient(tx, ty, 5, tx, ty, 200);
+        grd.addColorStop(0, 'rgba(255,160,40,0.15)');
+        grd.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#8b4513'; ctx.fillRect(tx - 4, ty, 8, 22);
+        ctx.fillStyle = '#ff8800';
+        ctx.beginPath(); ctx.arc(tx, ty, 9, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffdd00';
+        ctx.beginPath(); ctx.arc(tx, ty - 5, 5, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // Spike wall (vertical line)
+    const spikeX = getSpikeX();
+    // Wall border lines
+    ctx.strokeStyle = '#555'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(spikeX - 25, 0); ctx.lineTo(spikeX - 25, canvas.height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(spikeX + 45, 0); ctx.lineTo(spikeX + 45, canvas.height); ctx.stroke();
+
     for (const s of caveSpikes) {
         if (s.broken) {
-            // Draw broken rubble
             ctx.fillStyle = '#555';
-            ctx.beginPath(); ctx.arc(s.x, s.y + 35, 10, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(s.x - 8, s.y + 28, 7, 0, Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(s.x + 10, s.y + 32, 6, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(s.x, s.y + 38, 11, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(s.x - 9, s.y + 30, 7, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(s.x + 11, s.y + 33, 6, 0, Math.PI * 2); ctx.fill();
         } else {
-            // Red spike pointing up
             ctx.fillStyle = '#cc0000';
             ctx.beginPath();
             ctx.moveTo(s.x, s.y);
-            ctx.lineTo(s.x + 18, s.y + 45);
-            ctx.lineTo(s.x - 18, s.y + 45);
-            ctx.closePath();
-            ctx.fill();
-            // Shine highlight
+            ctx.lineTo(s.x + 18, s.y + 46);
+            ctx.lineTo(s.x - 18, s.y + 46);
+            ctx.closePath(); ctx.fill();
             ctx.fillStyle = '#ff4444';
             ctx.beginPath();
             ctx.moveTo(s.x, s.y + 4);
             ctx.lineTo(s.x + 6, s.y + 28);
             ctx.lineTo(s.x - 2, s.y + 28);
-            ctx.closePath();
-            ctx.fill();
-            // Base plate
+            ctx.closePath(); ctx.fill();
             ctx.fillStyle = '#880000';
-            ctx.fillRect(s.x - 22, s.y + 42, 44, 10);
+            ctx.fillRect(s.x - 22, s.y + 44, 44, 9);
         }
     }
+
+    // Snakes
+    for (const snake of caveSnakes) drawSnake(snake);
 
     drawPlayer();
     if (swordSlashActive) drawSwordSlash();
     if (pickaxeSwingActive) drawPickaxeSwing();
+    drawBiteFlash();
     drawHealthBar();
     drawInventory();
 
     // Cave HUD
     const lines = ['WASD = Move', 'J = Exit Cave'];
-    if (hasItem('Sword')) lines.push('Q = Use Sword');
+    if (hasItem('Sword')) lines.push('Q = Sword (kills snakes)');
     if (hasItem('Pickaxe')) lines.push('R = Break Spikes');
     const hudH = 26 * lines.length + 20;
-    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(10, 10, 210, hudH);
+    ctx.fillStyle = 'rgba(0,0,0,0.65)'; ctx.fillRect(10, 10, 240, hudH);
     ctx.fillStyle = 'white'; ctx.font = '17px Arial';
     lines.forEach((l, i) => ctx.fillText(l, 20, 34 + i * 26));
+
+    // Snake count
+    const alive = caveSnakes.filter(s => s.alive).length;
+    if (alive > 0) {
+        ctx.fillStyle = 'rgba(0,0,0,0.65)';
+        ctx.fillRect(canvas.width - 200, 55, 185, 36);
+        ctx.fillStyle = '#ff6666'; ctx.font = 'bold 17px Arial'; ctx.textAlign = 'right';
+        ctx.fillText(`🐍 Snakes: ${alive} / 5`, canvas.width - 20, 79);
+        ctx.textAlign = 'left';
+    } else if (caveSnakes.length > 0) {
+        ctx.fillStyle = 'rgba(0,80,0,0.7)';
+        ctx.fillRect(canvas.width / 2 - 130, canvas.height / 2 - 90, 260, 44);
+        ctx.fillStyle = '#88ff88'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center';
+        ctx.fillText('✓ All snakes defeated!', canvas.width / 2, canvas.height / 2 - 60);
+        ctx.textAlign = 'left';
+    }
 }
 
 function drawCaveWarning() {
@@ -529,15 +648,14 @@ function drawCaveWarning() {
     const bx = canvas.width/2 - boxW/2, by = canvas.height/2 - 120;
     ctx.fillStyle = 'rgba(80,0,0,0.88)';
     if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(bx, by, boxW, boxH, 10); ctx.fill(); }
-    else { ctx.fillRect(bx, by, boxW, boxH); }
-    ctx.strokeStyle = '#ff4444'; ctx.lineWidth = 2;
-    ctx.strokeRect(bx, by, boxW, boxH);
+    else ctx.fillRect(bx, by, boxW, boxH);
+    ctx.strokeStyle = '#ff4444'; ctx.lineWidth = 2; ctx.strokeRect(bx, by, boxW, boxH);
     ctx.fillStyle = '#ff9999'; ctx.font = 'bold 18px Arial'; ctx.textAlign = 'center';
     ctx.fillText('⚠  ' + msg, canvas.width/2, by + 36);
     ctx.textAlign = 'left';
 }
 
-// ===== VILLAGE SCENE =====
+// ===== VILLAGE =====
 function drawHouseDetailed(h, index) {
     const {x,y,width,height,cx}=h;
     const roofH=65;
@@ -592,7 +710,6 @@ function drawHouseDetailed(h, index) {
         ctx.fillText('E = Enter House', cx, y+height+31); ctx.textAlign='left';
     }
 }
-
 function drawVillageScene() {
     ctx.fillStyle='#e8c84a'; ctx.fillRect(0,0,canvas.width,canvas.height);
     ctx.fillStyle='rgba(0,0,0,0.05)';
@@ -611,7 +728,7 @@ function drawVillageScene() {
     if (tradeActive) drawTrader();
 }
 
-// ===== TRADER NPC =====
+// ===== TRADER =====
 function drawTrader() {
     const elapsed=Date.now()-tradeStartTime;
     const remaining=Math.max(0,Math.ceil((TRADE_DURATION-elapsed)/1000));
@@ -720,7 +837,6 @@ function drawHouseInterior() {
     ctx.fillText('House '+(inHouseIndex+1), canvas.width/2, 36); ctx.textAlign='left';
     drawInventory(); drawHealthBar();
 }
-
 function drawItemIcon(x,y,item){
     ctx.save(); ctx.translate(x,y);
     if (item==='Pickaxe'){
@@ -768,7 +884,6 @@ function drawHealthBar() {
     ctx.fillStyle='white'; ctx.font='bold 13px Arial'; ctx.textAlign='right';
     ctx.fillText(`HP  ${player.health} / ${player.maxHealth}`,x+barW,y-4); ctx.textAlign='left';
 }
-
 function drawInventory() {
     const slots=10,size=60,spacing=8;
     const totalW=slots*(size+spacing);
@@ -814,7 +929,6 @@ function drawInventory() {
         }
     }
 }
-
 function drawWorldHUD() {
     const lines=['WASD = Move','M = Map','E = Interact','N = Read Note'];
     if (hasItem('Sword')) lines.push('Q = Use Sword');
@@ -824,7 +938,6 @@ function drawWorldHUD() {
     ctx.fillStyle='white'; ctx.font='17px Arial';
     lines.forEach((l,i)=>ctx.fillText(l,20,34+i*26));
 }
-
 function drawAppleMessage() {
     if (Date.now()>appleMessageExpiry) return;
     ctx.fillStyle='rgba(0,0,0,0.8)'; ctx.fillRect(canvas.width/2-270,12,540,50);
@@ -871,24 +984,18 @@ function drawMap() {
 
 // ===== DEATH SCREEN =====
 function drawDeathScreen() {
-    ctx.fillStyle = 'rgba(0,0,0,0.88)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#ff2222';
-    ctx.font = 'bold 72px Georgia';
-    ctx.textAlign = 'center';
-    ctx.fillText('YOU DIED', canvas.width/2, canvas.height/2 - 50);
-    ctx.fillStyle = '#ffaaaa';
-    ctx.font = '22px Arial';
-    ctx.fillText('Your tools have been returned to the village.', canvas.width/2, canvas.height/2 + 10);
-
-    deathButton = { x: canvas.width/2 - 130, y: canvas.height/2 + 50, w: 260, h: 58 };
-    ctx.fillStyle = '#330000';
-    ctx.fillRect(deathButton.x, deathButton.y, deathButton.w, deathButton.h);
-    ctx.strokeStyle = '#ff4444'; ctx.lineWidth = 3;
-    ctx.strokeRect(deathButton.x, deathButton.y, deathButton.w, deathButton.h);
-    ctx.fillStyle = 'white'; ctx.font = 'bold 26px Arial';
-    ctx.fillText('▶  Play Again', canvas.width/2, deathButton.y + 38);
-    ctx.textAlign = 'left';
+    ctx.fillStyle='rgba(0,0,0,0.9)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    // Skull icon area
+    ctx.fillStyle='#ff2222'; ctx.font='bold 80px Georgia'; ctx.textAlign='center';
+    ctx.fillText('☠  YOU DIED', canvas.width/2, canvas.height/2 - 55);
+    ctx.fillStyle='#ffaaaa'; ctx.font='22px Arial';
+    ctx.fillText('Your tools have been returned to the village.', canvas.width/2, canvas.height/2 + 5);
+    deathButton = { x: canvas.width/2 - 135, y: canvas.height/2 + 45, w: 270, h: 62 };
+    ctx.fillStyle='#2a0000'; ctx.fillRect(deathButton.x, deathButton.y, deathButton.w, deathButton.h);
+    ctx.strokeStyle='#ff4444'; ctx.lineWidth=3; ctx.strokeRect(deathButton.x, deathButton.y, deathButton.w, deathButton.h);
+    ctx.fillStyle='white'; ctx.font='bold 28px Arial';
+    ctx.fillText('▶  Play Again', canvas.width/2, deathButton.y + 41);
+    ctx.textAlign='left';
 }
 
 // ===== TITLE / MENU =====
@@ -905,21 +1012,17 @@ function startGame(gender){
 
 // ===== GAME LOOP =====
 function gameLoop(){
-    if (deathScreen) {
-        drawDeathScreen();
-        requestAnimationFrame(gameLoop);
-        return;
-    }
+    if (deathScreen) { drawDeathScreen(); requestAnimationFrame(gameLoop); return; }
     if (!gameStarted) return;
 
     const now = Date.now();
 
+    // Trade completion
     if (tradeActive && (now-tradeStartTime)>=TRADE_DURATION){
         tradeActive=false;
         removeFromInventory('Axe');
         addToInventory('Sword');
-        currentScene='world';
-        player.x=savedWorldPos.x; player.y=savedWorldPos.y;
+        currentScene='world'; player.x=savedWorldPos.x; player.y=savedWorldPos.y;
         showMap=false; mapCanvas.style.display='none';
     }
     if (swordSlashActive && (now-swordSlashStart)>=SWORD_SLASH_DURATION) swordSlashActive=false;
@@ -931,30 +1034,60 @@ function gameLoop(){
         if (player.health<player.maxHealth) player.health=Math.min(player.maxHealth,player.health+1);
     }
 
+    // ===== SCENES =====
     if (currentScene==='world'){
         movePlayer();
-        drawForest(); drawWorldVillage(); drawCaveWorld(); drawPlayer();
+        drawForest(); drawWorldVillage(); drawCaveOnWorld(); drawPlayer();
         if (swordSlashActive) drawSwordSlash();
         if (pickaxeSwingActive) drawPickaxeSwing();
         drawHealthBar(); drawWorldHUD(); drawInventory();
         if (showMap) drawMap();
-        drawAppleMessage();
-        drawCaveWarning();
+        drawAppleMessage(); drawCaveWarning();
 
     } else if (currentScene==='village'){
-        moveVillagePlayer();
-        drawVillageScene();
-        drawAppleMessage();
+        moveVillagePlayer(); drawVillageScene(); drawAppleMessage();
 
     } else if (currentScene==='house'){
-        drawHouseInterior();
-        drawAppleMessage();
+        drawHouseInterior(); drawAppleMessage();
 
     } else if (currentScene==='cave'){
         movePlayer();
-        drawCaveInterior();
 
-        // FIX 3: Pickaxe breaks nearby spikes when swing is active
+        // ---- Snake movement (slowly drift toward player) ----
+        const spikeX = getSpikeX();
+        for (const snake of caveSnakes) {
+            if (!snake.alive) continue;
+            const dist = Math.hypot(player.x - snake.x, player.y - snake.y);
+            if (dist > 35 && dist < 220) {
+                const speed = 0.6;
+                snake.x += ((player.x - snake.x) / dist) * speed;
+                snake.y += ((player.y - snake.y) / dist) * speed;
+                // Don't let snakes cross back through spike wall
+                if (snake.x < spikeX + 50) snake.x = spikeX + 50;
+            }
+        }
+
+        // ---- Snake attack logic ----
+        for (const snake of caveSnakes) {
+            if (!snake.alive) continue;
+            const dist = Math.hypot(player.x - snake.x, player.y - snake.y);
+            if (dist < 60) { // attack range (contact range)
+                if (!snake.firstAttackDone) {
+                    // First attack: immediate on contact
+                    player.health = Math.max(0, player.health - 8);
+                    snake.firstAttackDone = true;
+                    snake.lastAttackTime = now;
+                    snakeBiteFlash = now + 600;
+                } else if (now - snake.lastAttackTime >= 5000) {
+                    // Subsequent attacks: every 5 seconds
+                    player.health = Math.max(0, player.health - 8);
+                    snake.lastAttackTime = now;
+                    snakeBiteFlash = now + 600;
+                }
+            }
+        }
+
+        // ---- Pickaxe breaks spikes ----
         if (pickaxeSwingActive) {
             for (const s of caveSpikes) {
                 if (!s.broken && Math.hypot(player.x - s.x, player.y - s.y) < 90) {
@@ -963,19 +1096,22 @@ function gameLoop(){
             }
         }
 
-        // Spike collision → death (only unbroken spikes)
+        // ---- Spike collision = instant death ----
         for (const s of caveSpikes) {
             if (!s.broken && Math.hypot(player.x - s.x, player.y - s.y) < 34) {
-                deathScreen = true;
-                // FIX 1: Reset house items on death so tools reappear
+                triggerDeath();
                 villageHouses.forEach(h => { h.itemTaken = false; });
-                inventory.fill('');
-                inventory[0] = 'Map';
-                inventory[1] = 'Note';
-                hasApple = false;
-                caveSpikes.forEach(s2 => (s2.broken = false));
             }
         }
+
+        // ---- Health death check ----
+        if (player.health <= 0) {
+            player.health = 0;
+            triggerDeath();
+            villageHouses.forEach(h => { h.itemTaken = false; });
+        }
+
+        drawCaveInterior();
     }
 
     requestAnimationFrame(gameLoop);
