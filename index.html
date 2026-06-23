@@ -10,7 +10,8 @@ body {
     background: black;
     font-family: Arial, sans-serif;
 }
-#menu {
+
+#titleScreen {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -18,16 +19,67 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    background: #000;
+    color: white;
+    z-index: 40;
+}
+
+#titleScreen h1 {
+    font-size: 52px;
+    font-family: 'Georgia', serif;
+    color: #f0c040;
+    text-shadow: 0 0 30px #f0a000, 0 0 60px #c07000;
+    margin-bottom: 12px;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+#titleScreen .subtitle {
+    font-size: 18px;
+    color: #aaa;
+    margin-bottom: 60px;
+    letter-spacing: 1px;
+}
+
+#titleScreen button {
+    padding: 14px 60px;
+    font-size: 24px;
+    background: #f0c040;
+    color: #1a0a00;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 0 20px #f0a000;
+    transition: background 0.2s, transform 0.1s;
+}
+
+#titleScreen button:hover {
+    background: #ffd966;
+    transform: scale(1.05);
+}
+
+#menu {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     background: #111;
     color: white;
     z-index: 20;
 }
+
 button {
     padding: 10px 25px;
     margin: 10px;
     font-size: 20px;
     cursor: pointer;
 }
+
 #game { position: absolute; top: 0; left: 0; }
 #mapScreen {
     position: absolute;
@@ -37,6 +89,7 @@ button {
     display: none;
     z-index: 10;
 }
+
 #noteOverlay {
     position: absolute;
     top: 0; left: 0;
@@ -79,6 +132,14 @@ button {
 </head>
 <body>
 
+<!-- Title Screen -->
+<div id="titleScreen">
+    <h1>Minetrials of Caves and Crafts</h1>
+    <div class="subtitle">Created by Arihant Walia</div>
+    <button onclick="showGenderMenu()">▶ Play</button>
+</div>
+
+<!-- Gender Menu -->
 <div id="menu">
     <h1>Choose Your Gender</h1>
     <button onclick="startGame('male')">Male</button>
@@ -125,27 +186,24 @@ const player = {
     maxHealth: 100, health: 100
 };
 
-// DYNAMIC POSITIONS: By using "get x()", these objects constantly read the live canvas size,
-// making it mathematically impossible for the cave to ever overlap the river.
-
-const river = { 
-    get x() { return canvas.width / 2 - 50; }, 
-    width: 100 
+const river = {
+    get x() { return canvas.width / 2 - 50; },
+    width: 100
 };
 
 const cave = {
-    get x() { return river.x + river.width + 120; }, // Forces the cave exactly 120px to the right of the river
+    get x() { return river.x + river.width + 120; },
     y: 280,
     width: 120, height: 100,
     entranceW: 60, entranceH: 65,
     get cx() { return this.x + this.width / 2; }
 };
 
-const village = { 
-    get x() { return cave.x + cave.width + 80; }, // Forces the village exactly 80px to the right of the cave
-    y: 300, 
-    width: 120, 
-    height: 100 
+const village = {
+    get x() { return cave.x + cave.width + 80; },
+    y: 300,
+    width: 120,
+    height: 100
 };
 
 const trees = [];
@@ -155,6 +213,11 @@ for (let x = 120; x < 2000; x += 80)
 
 const inventory = ["Map", "Note", "", "", "", "", "", "", "", ""];
 const keys = {};
+
+function showGenderMenu() {
+    document.getElementById("titleScreen").style.display = "none";
+    document.getElementById("menu").style.display = "flex";
+}
 
 function startGame(gender) {
     document.getElementById("menu").style.display = "none";
@@ -349,14 +412,13 @@ function drawPlayer() {
 }
 
 function drawHealthBar() {
-    const barW = 200;
-    const barH = 20;
+    const barW = 200, barH = 20;
     const x = canvas.width - barW - 20;
     const y = 20;
     const healthPct = player.health / player.maxHealth;
 
     ctx.fillStyle = "rgba(0,0,0,0.5)";
-    ctx.fillRect(x - 10, y - 8, barW + 20, barH + 16);
+    ctx.fillRect(x-10, y-8, barW+20, barH+16);
     ctx.fillStyle = "#555";
     ctx.fillRect(x, y, barW, barH);
 
@@ -406,7 +468,6 @@ function drawInventory() {
 
 function drawMap() {
     mapCtx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
-
     mapCtx.fillStyle = "#87ceeb";
     mapCtx.fillRect(0, 0, mapCanvas.width, mapCanvas.height);
     mapCtx.fillStyle = "#0f5f0f";
