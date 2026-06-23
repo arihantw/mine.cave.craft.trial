@@ -133,9 +133,17 @@ for (let x = 120; x < 2000; x += 80)
 
 // ===== INVENTORY =====
 const inventory = ['Map', 'Note', '', '', '', '', '', '', '', ''];
-function addToInventory(item) { const i = inventory.indexOf(''); if (i !== -1) inventory[i] = item; }
-function removeFromInventory(item) { const i = inventory.indexOf(item); if (i !== -1) inventory[i] = ''; }
-function hasItem(item) { return inventory.includes(item); }
+function addToInventory(item) {
+    const i = inventory.indexOf('');
+    if (i !== -1) inventory[i] = item;
+}
+function removeFromInventory(item) {
+    const i = inventory.indexOf(item);
+    if (i !== -1) inventory[i] = '';
+}
+function hasItem(item) {
+    return inventory.includes(item);
+}
 
 // ===== VILLAGE HOUSES =====
 const houseItems = ['Pickaxe', 'Axe', 'Apple', '', '', '', '', '', '', ''];
@@ -149,7 +157,8 @@ const villageHouses = Array.from({ length: 10 }, (_, i) => {
             return margin + col * (hw + gap);
         },
         get y() { return row === 0 ? 80 : 340; },
-        width: 130, height: 110,
+        width: 130,
+        height: 110,
         get cx() { return this.x + this.width / 2; },
         get doorX() { return this.cx; },
         get doorY() { return this.y + this.height; },
@@ -164,6 +173,113 @@ const keys = {};
 document.addEventListener('keydown', e => {
     const key = e.key.toLowerCase();
     keys[key] = true;
+
+    // NOTE TOGGLE
+    if (key === 'n' && currentScene === 'world') {
+        showNote = !showNote;
+        noteOverlay.style.display = showNote ? 'flex' : 'none';
+        if (showNote) {
+            showMap = false;
+            mapCanvas.style.display = 'none';
+        }
+    }
+
+    // MAP TOGGLE
+    if (key === 'm' && currentScene === 'world' && !showNote) {
+        showMap = !showMap;
+        mapCanvas.style.display = showMap ? 'block' : 'none';
+        if (showMap) drawMap();
+    }
+
+    // INTERACTION (E)
+    if (key === 'e' && !showNote && !showMap) {
+
+        if (currentScene === 'world') {
+
+            const nearVillage =
+                player.x > worldVillage.x - 60 &&
+                player.x < worldVillage.x + worldVillage.width + 60 &&
+                player.y > worldVillage.y - 60 &&
+                player.y < worldVillage.y + worldVillage.height + 60;
+
+            const nearCave =
+                player.x > cave.x - 60 &&
+                player.x < cave.x + cave.width + 60 &&
+                player.y > cave.y - 60 &&
+                player.y < cave.y + cave.height + 60;
+
+            if (nearVillage) {
+                enterVillage();
+            } else if (nearCave) {
+
+                if (!hasItem('Sword')) {
+                    caveWarningExpiry = Date.now() + 3500;
+                } else {
+                    caveWarningExpiry = 0;
+                    currentScene = 'cave';
+                    player.x = 300;
+                    player.y = 500;
+                }
+            }
+
+        } else if (currentScene === 'village' && !tradeActive) {
+
+            for (let i = 0; i < villageHouses.length; i++) {
+                const h = villageHouses[i];
+                if (Math.hypot(vp.x - h.doorX, vp.y - h.doorY) < 75) {
+                    enterHouse(i);
+                    break;
+                }
+            }
+
+        } else if (currentScene === 'house') {
+
+            const h = villageHouses[inHouseIndex];
+            if (h.item && !h.itemTaken) {
+                addToInventory(h.item);
+                h.itemTaken = true;
+
+                if (h.item === 'Apple') {
+                    appleMessageExpiry = Date.now() + 15000;
+                    hasApple = true;
+                }
+            }
+        }
+    }
+
+    // EXIT (J)
+    if (key === 'j') {
+        if (currentScene === 'house') {
+            currentScene = 'village';
+            inHouseIndex = -1;
+        } else if (currentScene === 'village' && !tradeActive) {
+            exitVillage();
+        }
+    }
+
+    // SWORD (Q)
+    if (key === 'q' && currentScene === 'world' && hasItem('Sword') && !showNote && !showMap) {
+        if (!swordSlashActive) {
+            swordSlashActive = true;
+            swordSlashStart = Date.now();
+        }
+    }
+
+    // PICKAXE (R)
+    if (key === 'r' && currentScene === 'world' && hasItem('Pickaxe') && !showNote && !showMap) {
+        if (!pickaxeSwingActive) {
+            pickaxeSwingActive = true;
+            pickaxeSwingStart = Date.now();
+        }
+    }
+});
+
+// ===== KEYUP =====
+document.addEventListener('keyup', e => {
+    keys[e.key.toLowerCase()] = false;
+});
+
+// ===== DEATH SCREEN CLICK LISTENER =====
 let deathButton = null;
 
 canvas.addEventListener('click', e => {
@@ -173,88 +289,36 @@ canvas.addEventListener('click', e => {
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
 
-    if (mx > deathButton.x && mx < deathButton.x + deathButton.w &&
-        my > deathButton.y && my < deathButton.y + deathButton.h) {
-
-        // Reset everything
+    if (
+        mx > deathButton.x &&
+        mx < deathButton.x + deathButton.w &&
+        my > deathButton.y &&
+        my < deathButton.y + deathButton.h
+    ) {
+        // Reset inventory
         inventory.fill('');
         inventory[0] = 'Map';
         inventory[1] = 'Note';
 
-        caveSpikes.forEach(s => s.broken = false);
+        // Reset spikes
+        caveSpikes.forEach(s => (s.broken = false));
 
+        // Reset player
         player.health = player.maxHealth;
         player.x = 300;
         player.y = 300;
 
+        // Close death screen
         deathScreen = false;
 
         // Return to gender menu
         document.getElementById('titleScreen').style.display = 'none';
         document.getElementById('menu').style.display = 'flex';
+
         currentScene = 'world';
         gameStarted = false;
     }
 });
-
-    if (key === 'n' && currentScene === 'world') {
-        showNote = !showNote;
-        noteOverlay.style.display = showNote ? 'flex' : 'none';
-        if (showNote) { showMap = false; mapCanvas.style.display = 'none'; }
-    }
-    if (key === 'm' && currentScene === 'world' && !showNote) {
-        showMap = !showMap;
-        mapCanvas.style.display = showMap ? 'block' : 'none';
-        if (showMap) drawMap();
-    }
-    if (key === 'e' && !showNote && !showMap) {
-        if (currentScene === 'world') {
-            const nearVillage = player.x > worldVillage.x-60 && player.x < worldVillage.x+worldVillage.width+60 &&
-                                player.y > worldVillage.y-60 && player.y < worldVillage.y+worldVillage.height+60;
-            const nearCave = player.x > cave.x-60 && player.x < cave.x+cave.width+60 &&
-                             player.y > cave.y-60 && player.y < cave.y+cave.height+60;
-            if (nearVillage) enterVillage();
-            else if (nearCave) {
-                // CHANGE 2: show on-screen warning instead of alert
-                if (!hasItem('Sword')) {
-                    caveWarningExpiry = Date.now() + 3500;
-                } else {
-    caveWarningExpiry = 0;
-    currentScene = 'cave';
-    player.x = 300;
-    player.y = 500;
-}
-
-                }
-            }
-        } else if (currentScene === 'village' && !tradeActive) {
-            for (let i = 0; i < villageHouses.length; i++) {
-                const h = villageHouses[i];
-                if (Math.hypot(vp.x - h.doorX, vp.y - h.doorY) < 75) { enterHouse(i); break; }
-            }
-        } else if (currentScene === 'house') {
-            const h = villageHouses[inHouseIndex];
-            if (h.item && !h.itemTaken) {
-                addToInventory(h.item);
-                h.itemTaken = true;
-                if (h.item === 'Apple') { appleMessageExpiry = Date.now() + 15000; hasApple = true; }
-            }
-        }
-    }
-    if (key === 'j') {
-        if (currentScene === 'house') { currentScene = 'village'; inHouseIndex = -1; }
-        else if (currentScene === 'village' && !tradeActive) exitVillage();
-    }
-    // CHANGE 1: sword uses Q instead of S
-    if (key === 'q' && currentScene === 'world' && hasItem('Sword') && !showNote && !showMap) {
-        if (!swordSlashActive) { swordSlashActive = true; swordSlashStart = Date.now(); }
-    }
-    // CHANGE 4: R = pickaxe swing
-    if (key === 'r' && currentScene === 'world' && hasItem('Pickaxe') && !showNote && !showMap) {
-        if (!pickaxeSwingActive) { pickaxeSwingActive = true; pickaxeSwingStart = Date.now(); }
-    }
-});
-document.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 
 // ===== SCENE TRANSITIONS =====
 function enterVillage() {
