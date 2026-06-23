@@ -164,6 +164,38 @@ const keys = {};
 document.addEventListener('keydown', e => {
     const key = e.key.toLowerCase();
     keys[key] = true;
+let deathButton = null;
+
+canvas.addEventListener('click', e => {
+    if (!deathScreen || !deathButton) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    if (mx > deathButton.x && mx < deathButton.x + deathButton.w &&
+        my > deathButton.y && my < deathButton.y + deathButton.h) {
+
+        // Reset everything
+        inventory.fill('');
+        inventory[0] = 'Map';
+        inventory[1] = 'Note';
+
+        caveSpikes.forEach(s => s.broken = false);
+
+        player.health = player.maxHealth;
+        player.x = 300;
+        player.y = 300;
+
+        deathScreen = false;
+
+        // Return to gender menu
+        document.getElementById('titleScreen').style.display = 'none';
+        document.getElementById('menu').style.display = 'flex';
+        currentScene = 'world';
+        gameStarted = false;
+    }
+});
 
     if (key === 'n' && currentScene === 'world') {
         showNote = !showNote;
@@ -187,8 +219,12 @@ document.addEventListener('keydown', e => {
                 if (!hasItem('Sword')) {
                     caveWarningExpiry = Date.now() + 3500;
                 } else {
-                    // placeholder for future cave interior
-                    caveWarningExpiry = 0;
+    caveWarningExpiry = 0;
+    currentScene = 'cave';
+    player.x = 300;
+    player.y = 500;
+}
+
                 }
             }
         } else if (currentScene === 'village' && !tradeActive) {
@@ -232,6 +268,15 @@ function exitVillage() {
     if (hasItem('Axe')) { tradeActive = true; tradeStartTime = Date.now(); }
     else { currentScene = 'world'; player.x = savedWorldPos.x; player.y = savedWorldPos.y; }
 }
+
+// ===== CAVE INTERIOR =====
+let caveSpikes = [
+    { x: 400, y: 300, broken: false },
+    { x: 600, y: 350, broken: false },
+    { x: 500, y: 450, broken: false }
+];
+
+let deathScreen = false;
 
 // ===== MOVEMENT =====
 function movePlayer() {
@@ -750,9 +795,41 @@ function startGame(gender){
     gameStarted=true;
     requestAnimationFrame(gameLoop);
 }
+function drawCaveInterior() {
+    ctx.fillStyle = '#222';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#444';
+    ctx.font = '26px Arial';
+    ctx.fillText('Cave Interior', 20, 40);
+
+    // Draw spikes
+    for (const s of caveSpikes) {
+        if (!s.broken) {
+            ctx.fillStyle = '#aa0000';
+            ctx.beginPath();
+            ctx.moveTo(s.x, s.y);
+            ctx.lineTo(s.x + 20, s.y + 40);
+            ctx.lineTo(s.x - 20, s.y + 40);
+            ctx.closePath();
+            ctx.fill();
+        }
+    }
+
+    drawPlayer();
+    drawHealthBar();
+    drawInventory();
+    drawWorldHUD();
+}
 
 // ===== GAME LOOP =====
 function gameLoop(){
+    if (deathScreen) {
+    drawDeathScreen();
+    requestAnimationFrame(gameLoop);
+    return;
+}
+
     if (!gameStarted) return;
     const now=Date.now();
     // CHANGE 3: trade completion — only removes Axe
@@ -781,6 +858,11 @@ function gameLoop(){
         if (showMap) drawMap();
         drawAppleMessage();
         drawCaveWarning();
+    else if (currentScene === 'cave') {
+    movePlayer();
+    drawCaveInterior();
+}
+
     } else if (currentScene==='village'){
         moveVillagePlayer();
         drawVillageScene();
@@ -791,6 +873,34 @@ function gameLoop(){
     }
     requestAnimationFrame(gameLoop);
 }
+function drawDeathScreen() {
+    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#ff4444';
+    ctx.font = 'bold 60px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('YOU DIED', canvas.width / 2, canvas.height / 2 - 40);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '28px Arial';
+    ctx.fillText('Play Again', canvas.width / 2, canvas.height / 2 + 40);
+
+    // Button area
+    deathButton = {
+        x: canvas.width / 2 - 120,
+        y: canvas.height / 2 + 10,
+        w: 240,
+        h: 60
+    };
+
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(deathButton.x, deathButton.y, deathButton.w, deathButton.h);
+
+    ctx.textAlign = 'left';
+}
+    
 </script>
 </body>
 </html>
