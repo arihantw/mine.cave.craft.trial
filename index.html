@@ -605,6 +605,32 @@ function drawLava(){
   else{ctx.fillStyle='#ff8800';ctx.fillText('⚠ LAVA — Need Fire Resistance Potion!',cx2,canvas.height/2-5);ctx.font='14px Arial';ctx.fillStyle='#ffcc88';ctx.fillText("Visit the Witch's Hut for a potion.",cx2,canvas.height/2+18);}
   ctx.textAlign='left';
 }
+function drawCavePlatform() {
+  const lx = getLavaStartX();
+  const platformX = lx + 180;   // distance after lava
+  const platformW = 260;
+  const platformY = 65;
+  const platformH = canvas.height - 130;
+
+  // Ground
+  ctx.fillStyle = '#3a3a3a';
+  ctx.fillRect(platformX, platformY, platformW, platformH);
+
+  // Stone texture
+  ctx.fillStyle = '#4a4a4a';
+  for (let x = platformX + 10; x < platformX + platformW - 10; x += 40) {
+    for (let y = platformY + 10; y < platformY + platformH - 10; y += 40) {
+      ctx.fillRect(x, y, 28, 28);
+    }
+  }
+
+  // Label
+  ctx.fillStyle = 'white';
+  ctx.font = '20px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('End of Cave', platformX + platformW / 2, platformY + 30);
+  ctx.textAlign = 'left';
+}
 
 // ===== CAVE INTERIOR =====
 function drawCaveInterior(){
@@ -634,6 +660,7 @@ function drawCaveInterior(){
   for(const sn of caveSnakes)drawSnake(sn);
   // Lava
   drawLava();
+  drawCavePlatform();
   drawPlayer();
   if(swordSlashActive)drawSwordSlash();if(pickaxeSwingActive)drawPickaxeSwing();
   drawDamageFlash();drawHealthBar();drawInventory();
@@ -910,6 +937,12 @@ function gameLoop(){
     if(player.x>lsx&&player.y>65&&player.y<canvas.height-65){
       if(!hasItem('FirePotion')){player.x=lsx-5;lavaWarningExpiry=now+2500;}
     }
+    // Allow standing on platform after lava
+const platformX = lsx + 180;
+if (player.x > platformX) {
+  // Safe zone — no pushback
+}
+
     // Health death
     if(player.health<=0){player.health=0;villageHouses.forEach(h=>{h.itemTaken=false;});triggerDeath();}
     drawCaveInterior();
