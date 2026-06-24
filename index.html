@@ -139,10 +139,12 @@ function buildSpikes(){
 function buildSnakes(){
   const sx=getSpikeX(),rw=getLavaStartX()-sx-60,ch=canvas.height;
   return [
-    {x:sx+rw*0.22,y:ch*0.16},{x:sx+rw*0.48,y:ch*0.32},
-    {x:sx+rw*0.22,y:ch*0.52},{x:sx+rw*0.52,y:ch*0.70},
-    {x:sx+rw*0.38,y:ch*0.86}
-  ].map(p=>({x:p.x,y:p.y,hp:2,alive:true,lastAttackTime:0,firstAttackDone:false,hitFlash:0}));
+    {x:sx+rw*0.18,y:ch*0.10},{x:sx+rw*0.42,y:ch*0.22},
+    {x:sx+rw*0.22,y:ch*0.35},{x:sx+rw*0.55,y:ch*0.45},
+    {x:sx+rw*0.18,y:ch*0.58},{x:sx+rw*0.48,y:ch*0.68},
+    {x:sx+rw*0.28,y:ch*0.78},{x:sx+rw*0.55,y:ch*0.88},
+    {x:sx+rw*0.38,y:ch*0.14},{x:sx+rw*0.42,y:ch*0.92}
+  ].map(p=>({x:p.x,y:p.y,hp:5,alive:true,lastAttackTime:0,firstAttackDone:false,hitFlash:0}));
 }
 
 // ===== DUNGEON DATA =====
@@ -151,10 +153,12 @@ let dungeonKey={x:0,y:0,taken:false};
 function buildSkeletons(){
   const cw=canvas.width,ch=canvas.height;
   return [
-    {x:cw*0.18,y:ch*0.25},{x:cw*0.35,y:ch*0.65},
-    {x:cw*0.52,y:ch*0.28},{x:cw*0.68,y:ch*0.68},
-    {x:cw*0.80,y:ch*0.42}
-  ].map(p=>({x:p.x,y:p.y,hp:3,alive:true,lastAttackTime:0,firstAttackDone:false,hitFlash:0}));
+    {x:cw*0.15,y:ch*0.15},{x:cw*0.32,y:ch*0.55},
+    {x:cw*0.50,y:ch*0.20},{x:cw*0.65,y:ch*0.60},
+    {x:cw*0.78,y:ch*0.35},{x:cw*0.22,y:ch*0.80},
+    {x:cw*0.42,y:ch*0.75},{x:cw*0.60,y:ch*0.85},
+    {x:cw*0.75,y:ch*0.70},{x:cw*0.88,y:ch*0.50}
+  ].map(p=>({x:p.x,y:p.y,hp:5,alive:true,lastAttackTime:0,firstAttackDone:false,hitFlash:0}));
 }
 
 // ===== KEYS =====
@@ -437,7 +441,7 @@ function drawSnake(snake){
   ctx.strokeStyle='#ff2222';ctx.lineWidth=2.5;ctx.lineCap='round';
   ctx.beginPath();ctx.moveTo(48,0);ctx.lineTo(56,0);ctx.stroke();ctx.beginPath();ctx.moveTo(56,0);ctx.lineTo(63,-6);ctx.stroke();ctx.beginPath();ctx.moveTo(56,0);ctx.lineTo(63,6);ctx.stroke();
   ctx.restore();
-  for(let i=0;i<2;i++){ctx.fillStyle=i<hp?'#ee2222':'#444';ctx.beginPath();ctx.arc(-10+i*22,-48,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(-10+i*22,-48,7,0,Math.PI*2);ctx.stroke();}
+  for(let i=0;i<5;i++){ctx.fillStyle=i<hp?'#ee2222':'#444';ctx.beginPath();ctx.arc(-42+i*21,-48,6,0,Math.PI*2);ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(-42+i*21,-48,6,0,Math.PI*2);ctx.stroke();}
   if(snake.firstAttackDone){const pct=Math.min((Date.now()-snake.lastAttackTime)/5000,1);ctx.strokeStyle=pct>0.8?'#ff4444':'#ffaa00';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,12,28,-Math.PI/2,-Math.PI/2+pct*Math.PI*2);ctx.stroke();}
   ctx.restore();
 }
@@ -466,7 +470,7 @@ function drawSkeleton(sk){
   ctx.beginPath();ctx.moveTo(-8,18);ctx.lineTo(-12,42);ctx.lineTo(-10,64);ctx.stroke();
   ctx.beginPath();ctx.moveTo(8,18);ctx.lineTo(12,42);ctx.lineTo(10,64);ctx.stroke();
   // HP pips (3)
-  for(let i=0;i<3;i++){ctx.fillStyle=i<hp?'#8888ff':'#333';ctx.beginPath();ctx.arc(-20+i*20,-84,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(-20+i*20,-84,7,0,Math.PI*2);ctx.stroke();}
+  for(let i=0;i<5;i++){ctx.fillStyle=i<hp?'#8888ff':'#333';ctx.beginPath();ctx.arc(-42+i*21,-84,6,0,Math.PI*2);ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(-42+i*21,-84,6,0,Math.PI*2);ctx.stroke();}
   if(sk.firstAttackDone){const pct=Math.min((Date.now()-sk.lastAttackTime)/5000,1);ctx.strokeStyle=pct>0.8?'#ff4444':'#8888ff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,-52,26,-Math.PI/2,-Math.PI/2+pct*Math.PI*2);ctx.stroke();}
   ctx.restore();
 }
@@ -593,12 +597,12 @@ function drawSkeletonDungeonScene(){
   drawDamageFlash();drawHealthBar();drawInventory();
   const alive=dungeonSkeletons.filter(s=>s.alive).length;
   const lines=['WASD = Move','J = Exit Dungeon'];
-  if(hasItem('Sword'))lines.push('Q = Sword (3 hits)');
+  if(hasItem('Sword'))lines.push('Q = Sword (5 hits)');
   const hudH=26*lines.length+20;
   ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(10,10,240,hudH);ctx.fillStyle='white';ctx.font='17px Arial';lines.forEach((l,i)=>ctx.fillText(l,20,34+i*26));
   if(alive>0){
     ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(canvas.width-220,55,205,36);
-    ctx.fillStyle='#aaaaff';ctx.font='bold 17px Arial';ctx.textAlign='right';ctx.fillText(`💀 Skeletons: ${alive}/5`,canvas.width-20,79);ctx.textAlign='left';
+    ctx.fillStyle='#aaaaff';ctx.font='bold 17px Arial';ctx.textAlign='right';ctx.fillText(`💀 Skeletons: ${alive}/10`,canvas.width-20,79);ctx.textAlign='left';
   }else if(dungeonSkeletons.length>0){
     ctx.fillStyle='rgba(0,40,0,0.75)';ctx.fillRect(canvas.width/2-180,canvas.height/2-88,360,46);
     ctx.fillStyle='#88ff88';ctx.font='bold 20px Arial';ctx.textAlign='center';ctx.fillText('✓ All defeated! Pick up the Key →',canvas.width/2,canvas.height/2-58);ctx.textAlign='left';
@@ -621,12 +625,14 @@ function drawLava(){
   // Left edge warning glow
   const eg=ctx.createLinearGradient(lx-25,0,lx+15,0);eg.addColorStop(0,'rgba(255,80,0,0)');eg.addColorStop(1,'rgba(255,80,0,0.45)');
   ctx.fillStyle=eg;ctx.fillRect(lx-25,ly,40,lh);
-  // Label
-  const cx2=lx+lw/2;
-  ctx.fillStyle='rgba(0,0,0,0.78)';ctx.fillRect(lx+10,canvas.height/2-30,lw-20,56);
+  // Label — centred in the snake zone, left of the lava
+  const msgCx=(getSpikeX()+lx)/2;
+  const msgW=440,msgH=58,msgX=msgCx-msgW/2,msgY=canvas.height/2-29;
+  ctx.fillStyle='rgba(0,0,0,0.82)';ctx.fillRect(msgX,msgY,msgW,msgH);
+  ctx.strokeStyle=hasItem('FirePotion')?'#44cc44':'#ff8800';ctx.lineWidth=2;ctx.strokeRect(msgX,msgY,msgW,msgH);
   ctx.textAlign='center';ctx.font='bold 17px Arial';
-  if(hasItem('FirePotion')){ctx.fillStyle='#88ff88';ctx.fillText('🔥 Fire Resistance Active — Safe!',cx2,canvas.height/2-5);ctx.font='14px Arial';ctx.fillStyle='#aaffaa';ctx.fillText('You may cross the lava.',cx2,canvas.height/2+18);}
-  else{ctx.fillStyle='#ff8800';ctx.fillText('⚠ LAVA — Need Fire Resistance Potion!',cx2,canvas.height/2-5);ctx.font='14px Arial';ctx.fillStyle='#ffcc88';ctx.fillText("Visit the Witch's Hut for a potion.",cx2,canvas.height/2+18);}
+  if(hasItem('FirePotion')){ctx.fillStyle='#88ff88';ctx.fillText('🔥 Fire Resistance Active — Safe!',msgCx,msgY+22);ctx.font='14px Arial';ctx.fillStyle='#aaffaa';ctx.fillText('You may cross the lava.',msgCx,msgY+44);}
+  else{ctx.fillStyle='#ff8800';ctx.fillText('⚠ LAVA — Need Fire Resistance!',msgCx,msgY+22);ctx.font='14px Arial';ctx.fillStyle='#ffcc88';ctx.fillText("Get the potion from the Witch's Hut.",msgCx,msgY+44);}
   ctx.textAlign='left';
 }
 
@@ -730,7 +736,7 @@ function drawCaveInterior(){
   if(hasItem('Pickaxe'))lines.push('R = Break Spikes');
   const hudH=26*lines.length+20;
   ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(10,10,245,hudH);ctx.fillStyle='white';ctx.font='17px Arial';lines.forEach((l,i)=>ctx.fillText(l,20,34+i*26));
-  if(snakeAlive>0){ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(canvas.width-205,55,190,36);ctx.fillStyle='#ff6666';ctx.font='bold 17px Arial';ctx.textAlign='right';ctx.fillText(`🐍 Snakes: ${snakeAlive}/5`,canvas.width-20,79);ctx.textAlign='left';}
+  if(snakeAlive>0){ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(canvas.width-205,55,190,36);ctx.fillStyle='#ff6666';ctx.font='bold 17px Arial';ctx.textAlign='right';ctx.fillText(`🐍 Snakes: ${snakeAlive}/10`,canvas.width-20,79);ctx.textAlign='left';}
   if(snakeAlive===0&&caveSnakes.length>0){ctx.fillStyle='rgba(0,40,0,0.75)';ctx.fillRect(canvas.width/2-160,canvas.height/2-88,320,44);ctx.fillStyle='#88ff88';ctx.font='bold 20px Arial';ctx.textAlign='center';ctx.fillText('✓ All snakes defeated!',canvas.width/2,canvas.height/2-60);ctx.textAlign='left';}
   if(Date.now()<lavaWarningExpiry){
     ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(canvas.width/2-230,canvas.height-155,460,48);
@@ -1010,8 +1016,8 @@ function gameLoop(){
       if(!sk.alive)continue;
       const dist=Math.hypot(player.x-sk.x,player.y-sk.y);
       if(dist<68){
-        if(!sk.firstAttackDone){player.health=Math.max(0,player.health-10);sk.firstAttackDone=true;sk.lastAttackTime=now;damageFlash=now+600;}
-        else if(now-sk.lastAttackTime>=5000){player.health=Math.max(0,player.health-10);sk.lastAttackTime=now;damageFlash=now+600;}
+        if(!sk.firstAttackDone){player.health=Math.max(0,player.health-15);sk.firstAttackDone=true;sk.lastAttackTime=now;damageFlash=now+600;}
+        else if(now-sk.lastAttackTime>=5000){player.health=Math.max(0,player.health-15);sk.lastAttackTime=now;damageFlash=now+600;}
       }
     }
     if(player.health<=0){player.health=0;villageHouses.forEach(h=>{h.itemTaken=false;});triggerDeath();}
@@ -1032,8 +1038,8 @@ function gameLoop(){
       if(!sn.alive)continue;
       const dist=Math.hypot(player.x-sn.x,player.y-sn.y);
       if(dist<62){
-        if(!sn.firstAttackDone){player.health=Math.max(0,player.health-8);sn.firstAttackDone=true;sn.lastAttackTime=now;damageFlash=now+600;}
-        else if(now-sn.lastAttackTime>=5000){player.health=Math.max(0,player.health-8);sn.lastAttackTime=now;damageFlash=now+600;}
+        if(!sn.firstAttackDone){player.health=Math.max(0,player.health-15);sn.firstAttackDone=true;sn.lastAttackTime=now;damageFlash=now+600;}
+        else if(now-sn.lastAttackTime>=5000){player.health=Math.max(0,player.health-15);sn.lastAttackTime=now;damageFlash=now+600;}
       }
     }
     // Pickaxe breaks spikes
