@@ -4,1117 +4,918 @@
 <meta charset="UTF-8">
 <title>Minetrials of Caves and Crafts</title>
 <style>
-body { margin:0; overflow:hidden; background:black; font-family:Arial,sans-serif; }
-#titleScreen {
-    position:absolute; width:100%; height:100%;
-    display:flex; flex-direction:column; justify-content:center; align-items:center;
-    background:#000; color:white; z-index:40;
-}
-#titleScreen h1 {
-    font-size:52px; font-family:'Georgia',serif; color:#f0c040;
-    text-shadow:0 0 30px #f0a000,0 0 60px #c07000;
-    margin-bottom:12px; text-align:center; letter-spacing:2px;
-}
-#titleScreen .subtitle { font-size:18px; color:#aaa; margin-bottom:60px; }
-#titleScreen button {
-    padding:14px 60px; font-size:24px; background:#f0c040; color:#1a0a00;
-    border:none; border-radius:6px; cursor:pointer; font-weight:bold;
-    box-shadow:0 0 20px #f0a000; transition:background 0.2s,transform 0.1s;
-}
-#titleScreen button:hover { background:#ffd966; transform:scale(1.05); }
-#menu {
-    position:absolute; width:100%; height:100%;
-    display:none; flex-direction:column; justify-content:center; align-items:center;
-    background:#111; color:white; z-index:20;
-}
-#menu h1 { font-size:36px; }
-#menu button { padding:10px 25px; margin:10px; font-size:20px; cursor:pointer; }
-#game { position:absolute; top:0; left:0; }
-#mapScreen { position:absolute; top:0; left:0; width:100%; height:100%; background:black; display:none; z-index:10; }
-#noteOverlay {
-    position:absolute; top:0; left:0; width:100%; height:100%;
-    display:none; justify-content:center; align-items:center; z-index:30;
-    background:rgba(0,0,0,0.7);
-}
-#noteBox {
-    background:#f5e6c8; border:4px solid #8b6914; border-radius:8px;
-    padding:40px 50px; max-width:520px; color:#2a1a00;
-    font-family:'Georgia',serif; font-size:17px; line-height:1.8;
-    box-shadow:0 0 40px rgba(0,0,0,0.8);
-}
-#noteBox h2 { margin-top:0; font-size:22px; text-align:center; border-bottom:2px solid #8b6914; padding-bottom:10px; margin-bottom:20px; }
-#noteClose { margin-top:24px; display:block; text-align:center; font-size:14px; color:#8b6914; }
+body{margin:0;overflow:hidden;background:black;font-family:Arial,sans-serif;}
+#titleScreen{position:absolute;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#000;color:white;z-index:40;}
+#titleScreen h1{font-size:52px;font-family:'Georgia',serif;color:#f0c040;text-shadow:0 0 30px #f0a000,0 0 60px #c07000;margin-bottom:12px;text-align:center;letter-spacing:2px;}
+#titleScreen .subtitle{font-size:18px;color:#aaa;margin-bottom:60px;}
+#titleScreen button{padding:14px 60px;font-size:24px;background:#f0c040;color:#1a0a00;border:none;border-radius:6px;cursor:pointer;font-weight:bold;box-shadow:0 0 20px #f0a000;transition:background .2s,transform .1s;}
+#titleScreen button:hover{background:#ffd966;transform:scale(1.05);}
+#menu{position:absolute;width:100%;height:100%;display:none;flex-direction:column;justify-content:center;align-items:center;background:#111;color:white;z-index:20;}
+#menu h1{font-size:36px;}
+#menu button{padding:10px 25px;margin:10px;font-size:20px;cursor:pointer;}
+#game{position:absolute;top:0;left:0;}
+#mapScreen{position:absolute;top:0;left:0;width:100%;height:100%;background:black;display:none;z-index:10;}
+#noteOverlay{position:absolute;top:0;left:0;width:100%;height:100%;display:none;justify-content:center;align-items:center;z-index:30;background:rgba(0,0,0,0.7);}
+#noteBox{background:#f5e6c8;border:4px solid #8b6914;border-radius:8px;padding:40px 50px;max-width:520px;color:#2a1a00;font-family:'Georgia',serif;font-size:17px;line-height:1.8;box-shadow:0 0 40px rgba(0,0,0,0.8);}
+#noteBox h2{margin-top:0;font-size:22px;text-align:center;border-bottom:2px solid #8b6914;padding-bottom:10px;margin-bottom:20px;}
+#noteClose{margin-top:24px;display:block;text-align:center;font-size:14px;color:#8b6914;}
 </style>
 </head>
 <body>
 <div id="titleScreen">
-    <h1>Minetrials of Caves and Crafts</h1>
-    <div class="subtitle">Created by Arihant Walia</div>
-    <button onclick="showGenderMenu()">▶ Play</button>
+  <h1>Minetrials of Caves and Crafts</h1>
+  <div class="subtitle">Created by Arihant Walia</div>
+  <button onclick="showGenderMenu()">▶ Play</button>
 </div>
 <div id="menu">
-    <h1>Choose Your Gender</h1>
-    <button onclick="startGame('male')">Male</button>
-    <button onclick="startGame('female')">Female</button>
+  <h1>Choose Your Gender</h1>
+  <button onclick="startGame('male')">Male</button>
+  <button onclick="startGame('female')">Female</button>
 </div>
 <canvas id="game"></canvas>
 <canvas id="mapScreen"></canvas>
 <div id="noteOverlay">
-    <div id="noteBox">
-        <h2>📜 Note</h2>
-        Your memory has been wiped.<br><br>
-        In the cave, there is treasure to take, along with a key to get out of this place which you have been trapped in.<br><br>
-        However, be aware of the dangers in the cave. Get a sword before going in.<br><br>
-        Get an axe and pickaxe from the village to get the resources to make a sword.<br><br>
-        Good luck... you will need it.
-        <span id="noteClose">[Press N to close]</span>
-    </div>
+  <div id="noteBox">
+    <h2>📜 Note</h2>
+    Your memory has been wiped.<br><br>
+    In the cave there is treasure and a key to escape.<br><br>
+    Get a sword before going in. The cave holds spikes, snakes, and lava!<br><br>
+    A witch near the forest can give you fire resistance for the lava — but you must bring her a key from the Dark Dungeon first.<br><br>
+    Good luck... you will need it.
+    <span id="noteClose">[Press N to close]</span>
+  </div>
 </div>
 <script>
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-const mapCanvas = document.getElementById('mapScreen');
-const mapCtx = mapCanvas.getContext('2d');
-const noteOverlay = document.getElementById('noteOverlay');
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+const mapCanvas=document.getElementById('mapScreen');
+const mapCtx=mapCanvas.getContext('2d');
+const noteOverlay=document.getElementById('noteOverlay');
 
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    mapCanvas.width = window.innerWidth;
-    mapCanvas.height = window.innerHeight;
+function resizeCanvas(){
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  mapCanvas.width=window.innerWidth; mapCanvas.height=window.innerHeight;
 }
 resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
+window.addEventListener('resize',resizeCanvas);
 
 // ===== STATE =====
-let gameStarted = false;
-let showMap = false;
-let showNote = false;
-let currentScene = 'world';
-let inHouseIndex = -1;
-let tradeActive = false;
-let tradeStartTime = 0;
-const TRADE_DURATION = 7000;
-let swordSlashActive = false;
-let swordSlashStart = 0;
-const SWORD_SLASH_DURATION = 500;
-let pickaxeSwingActive = false;
-let pickaxeSwingStart = 0;
-const PICKAXE_SWING_DURATION = 500;
-let appleMessageExpiry = 0;
-let hasApple = false;
-let lastRegenTime = 0;
-let caveWarningExpiry = 0;
-let deathScreen = false;
-let deathButton = null;
-let snakeBiteFlash = 0; // timestamp until bite flash shows
+let gameStarted=false,showMap=false,showNote=false;
+let currentScene='world';
+let inHouseIndex=-1,tradeActive=false,tradeStartTime=0;
+const TRADE_DURATION=7000;
+let swordSlashActive=false,swordSlashStart=0;
+const SWORD_SLASH_DURATION=500;
+let pickaxeSwingActive=false,pickaxeSwingStart=0;
+const PICKAXE_SWING_DURATION=500;
+let appleMessageExpiry=0,hasApple=false,lastRegenTime=0;
+let caveWarningExpiry=0,lavaWarningExpiry=0;
+let deathScreen=false,deathButton=null;
+let damageFlash=0;
 
 // ===== PLAYER =====
-const player = { x: 300, y: 300, size: 30, color: 'blue', speed: 4, maxHealth: 100, health: 100 };
-let savedWorldPos = { x: 300, y: 300 };
-const vp = { x: 0, y: 0, size: 30, speed: 4 };
+const player={x:300,y:300,size:30,color:'blue',speed:4,maxHealth:100,health:100};
+let savedWorldPos={x:300,y:300};
+const vp={x:0,y:0,size:30,speed:4};
 
 // ===== WORLD OBJECTS =====
-const river = { get x() { return canvas.width / 2 - 50; }, width: 100 };
-const cave = {
-    get x() { return river.x + river.width + 120; },
-    y: 280, width: 120, height: 100, entranceW: 60, entranceH: 65,
-    get cx() { return this.x + this.width / 2; }
+const river={get x(){return canvas.width/2-50;},width:100};
+const cave={
+  get x(){return river.x+river.width+120;},
+  y:280,width:120,height:100,entranceW:60,entranceH:65,
+  get cx(){return this.x+this.width/2;}
 };
-const worldVillage = {
-    get x() { return cave.x + cave.width + 80; },
-    y: 300, width: 120, height: 100
+const worldVillage={
+  get x(){return cave.x+cave.width+80;},
+  y:300,width:120,height:100
 };
-const trees = [];
-for (let x = 120; x < 2000; x += 80)
-    for (let y = 120; y < 1200; y += 80)
-        trees.push({ x, y });
+const witchHut={
+  get x(){return river.x-290;},
+  y:240,width:130,height:100,
+  get cx(){return this.x+this.width/2;}
+};
+const dungeonEntrance={
+  get x(){return witchHut.x+witchHut.width+18;},
+  y:255,width:95,height:72,
+  get cx(){return this.x+this.width/2;}
+};
+const trees=[];
+for(let x=120;x<2000;x+=80)for(let y=120;y<1200;y+=80)trees.push({x,y});
 
 // ===== INVENTORY =====
-const inventory = ['Map', 'Note', '', '', '', '', '', '', '', ''];
-function addToInventory(item) { const i = inventory.indexOf(''); if (i !== -1) inventory[i] = item; }
-function removeFromInventory(item) { const i = inventory.indexOf(item); if (i !== -1) inventory[i] = ''; }
-function hasItem(item) { return inventory.includes(item); }
+const inventory=['Map','Note','','','','','','','',''];
+function addToInventory(item){const i=inventory.indexOf('');if(i!==-1)inventory[i]=item;}
+function removeFromInventory(item){const i=inventory.indexOf(item);if(i!==-1)inventory[i]='';}
+function hasItem(item){return inventory.includes(item);}
 
 // ===== VILLAGE HOUSES =====
-const houseItems = ['Pickaxe', 'Axe', 'Apple', '', '', '', '', '', '', ''];
-const villageHouses = Array.from({ length: 10 }, (_, i) => {
-    const col = i % 5, row = Math.floor(i / 5);
-    return {
-        col, row,
-        get x() {
-            const margin = 60, hw = 130;
-            const gap = Math.max(20, (canvas.width - 2 * margin - 5 * hw) / 4);
-            return margin + col * (hw + gap);
-        },
-        get y() { return row === 0 ? 80 : 340; },
-        width: 130, height: 110,
-        get cx() { return this.x + this.width / 2; },
-        get doorX() { return this.cx; },
-        get doorY() { return this.y + this.height; },
-        item: houseItems[i],
-        itemTaken: false
-    };
+const houseItems=['Pickaxe','Axe','Apple','','','','','','',''];
+const villageHouses=Array.from({length:10},(_,i)=>{
+  const col=i%5,row=Math.floor(i/5);
+  return{col,row,
+    get x(){const margin=60,hw=130,gap=Math.max(20,(canvas.width-2*margin-5*hw)/4);return margin+col*(hw+gap);},
+    get y(){return row===0?80:340;},
+    width:130,height:110,
+    get cx(){return this.x+this.width/2;},
+    get doorX(){return this.cx;},
+    get doorY(){return this.y+this.height;},
+    item:houseItems[i],itemTaken:false
+  };
 });
 
 // ===== CAVE DATA =====
-let caveSpikes = [];
-let caveSnakes = [];
-const SPIKE_X_OFFSET = 80; // offset from center
+let caveSpikes=[],caveSnakes=[];
+function getSpikeX(){return canvas.width/2+80;}
+function getLavaStartX(){return canvas.width*0.79;}
 
-function getSpikeX() { return canvas.width / 2 + SPIKE_X_OFFSET; }
-
-function buildSpikes() {
-    const spikes = [];
-    const sx = getSpikeX();
-    for (let i = 0; i < 10; i++) {
-        spikes.push({ x: sx, y: 70 + i * 60, broken: false });
-    }
-    return spikes;
+function buildSpikes(){
+  const spikes=[],sx=getSpikeX();
+  for(let i=0;i<10;i++)spikes.push({x:sx,y:70+i*60,broken:false});
+  return spikes;
+}
+function buildSnakes(){
+  const sx=getSpikeX(),rw=getLavaStartX()-sx-60,ch=canvas.height;
+  return [
+    {x:sx+rw*0.22,y:ch*0.16},{x:sx+rw*0.48,y:ch*0.32},
+    {x:sx+rw*0.22,y:ch*0.52},{x:sx+rw*0.52,y:ch*0.70},
+    {x:sx+rw*0.38,y:ch*0.86}
+  ].map(p=>({x:p.x,y:p.y,hp:2,alive:true,lastAttackTime:0,firstAttackDone:false,hitFlash:0}));
 }
 
-function buildSnakes() {
-    const sx = getSpikeX();
-    const rightW = canvas.width - sx - 80;
-    const ch = canvas.height;
-    // 5 snakes spread across the right side of the cave
-    return [
-        { x: sx + rightW * 0.25, y: ch * 0.15 },
-        { x: sx + rightW * 0.55, y: ch * 0.32 },
-        { x: sx + rightW * 0.20, y: ch * 0.52 },
-        { x: sx + rightW * 0.60, y: ch * 0.70 },
-        { x: sx + rightW * 0.38, y: ch * 0.87 },
-    ].map(p => ({
-        x: p.x, y: p.y,
-        hp: 2, alive: true,
-        lastAttackTime: 0,
-        firstAttackDone: false,
-        hitFlash: 0
-    }));
+// ===== DUNGEON DATA =====
+let dungeonSkeletons=[];
+let dungeonKey={x:0,y:0,taken:false};
+function buildSkeletons(){
+  const cw=canvas.width,ch=canvas.height;
+  return [
+    {x:cw*0.18,y:ch*0.25},{x:cw*0.35,y:ch*0.65},
+    {x:cw*0.52,y:ch*0.28},{x:cw*0.68,y:ch*0.68},
+    {x:cw*0.80,y:ch*0.42}
+  ].map(p=>({x:p.x,y:p.y,hp:3,alive:true,lastAttackTime:0,firstAttackDone:false,hitFlash:0}));
 }
 
 // ===== KEYS =====
-const keys = {};
-document.addEventListener('keydown', e => {
-    const key = e.key.toLowerCase();
-    keys[key] = true;
+const keys={};
+document.addEventListener('keydown',e=>{
+  const key=e.key.toLowerCase();
+  keys[key]=true;
 
-    if (key === 'n' && currentScene === 'world') {
-        showNote = !showNote;
-        noteOverlay.style.display = showNote ? 'flex' : 'none';
-        if (showNote) { showMap = false; mapCanvas.style.display = 'none'; }
-    }
-    if (key === 'm' && currentScene === 'world' && !showNote) {
-        showMap = !showMap;
-        mapCanvas.style.display = showMap ? 'block' : 'none';
-        if (showMap) drawMap();
-    }
-    if (key === 'e' && !showNote && !showMap) {
-        if (currentScene === 'world') {
-            const nearVillage = player.x > worldVillage.x-60 && player.x < worldVillage.x+worldVillage.width+60 &&
-                                player.y > worldVillage.y-60 && player.y < worldVillage.y+worldVillage.height+60;
-            const nearCave = player.x > cave.x-60 && player.x < cave.x+cave.width+60 &&
-                             player.y > cave.y-60 && player.y < cave.y+cave.height+60;
-            if (nearVillage) enterVillage();
-            else if (nearCave) {
-                if (!hasItem('Sword')) { caveWarningExpiry = Date.now() + 3500; }
-                else {
-                    caveWarningExpiry = 0;
-                    caveSpikes = buildSpikes();
-                    caveSnakes = buildSnakes();
-                    currentScene = 'cave';
-                    player.x = 150; player.y = canvas.height / 2;
-                }
-            }
-        } else if (currentScene === 'village' && !tradeActive) {
-            for (let i = 0; i < villageHouses.length; i++) {
-                const h = villageHouses[i];
-                if (Math.hypot(vp.x - h.doorX, vp.y - h.doorY) < 75) { enterHouse(i); break; }
-            }
-        } else if (currentScene === 'house') {
-            const h = villageHouses[inHouseIndex];
-            if (h.item && !h.itemTaken) {
-                addToInventory(h.item);
-                h.itemTaken = true;
-                if (h.item === 'Apple') { appleMessageExpiry = Date.now() + 15000; hasApple = true; }
-            }
-        }
-    }
-    if (key === 'j') {
-        if (currentScene === 'house') { currentScene = 'village'; inHouseIndex = -1; }
-        else if (currentScene === 'village' && !tradeActive) exitVillage();
-        else if (currentScene === 'cave') {
-            currentScene = 'world';
-            player.x = savedWorldPos.x; player.y = savedWorldPos.y;
-        }
-    }
+  if(key==='n'&&currentScene==='world'){
+    showNote=!showNote;
+    noteOverlay.style.display=showNote?'flex':'none';
+    if(showNote){showMap=false;mapCanvas.style.display='none';}
+  }
+  if(key==='m'&&currentScene==='world'&&!showNote){
+    showMap=!showMap;
+    mapCanvas.style.display=showMap?'block':'none';
+    if(showMap)drawMap();
+  }
 
-    // SWORD - works in world AND cave
-    if (key === 'q' && (currentScene === 'world' || currentScene === 'cave') && hasItem('Sword') && !showNote && !showMap) {
-        if (!swordSlashActive) {
-            swordSlashActive = true;
-            swordSlashStart = Date.now();
-            // Hit snakes in cave on sword press
-            if (currentScene === 'cave') {
-                for (const snake of caveSnakes) {
-                    if (!snake.alive) continue;
-                    if (Math.hypot(player.x - snake.x, player.y - snake.y) < 100) {
-                        snake.hp -= 1;
-                        snake.hitFlash = Date.now() + 350;
-                        if (snake.hp <= 0) snake.alive = false;
-                    }
-                }
-            }
-        }
+  if(key==='e'&&!showNote&&!showMap){
+    if(currentScene==='world'){
+      const nV=player.x>worldVillage.x-60&&player.x<worldVillage.x+worldVillage.width+60&&player.y>worldVillage.y-60&&player.y<worldVillage.y+worldVillage.height+60;
+      const nC=player.x>cave.x-60&&player.x<cave.x+cave.width+60&&player.y>cave.y-60&&player.y<cave.y+cave.height+60;
+      const nW=Math.hypot(player.x-witchHut.cx,player.y-(witchHut.y+witchHut.height))<100;
+      const nD=Math.hypot(player.x-dungeonEntrance.cx,player.y-(dungeonEntrance.y+dungeonEntrance.height))<100;
+      if(nV) enterVillage();
+      else if(nC){
+        if(!hasItem('Sword')){caveWarningExpiry=Date.now()+3500;}
+        else{caveWarningExpiry=0;caveSpikes=buildSpikes();caveSnakes=buildSnakes();currentScene='cave';player.x=150;player.y=canvas.height/2;}
+      }
+      else if(nW){savedWorldPos={x:player.x,y:player.y};currentScene='witchHut';player.x=canvas.width/2;player.y=canvas.height-130;}
+      else if(nD){
+        savedWorldPos={x:player.x,y:player.y};
+        dungeonSkeletons=buildSkeletons();
+        if(!hasItem('Key'))dungeonKey={x:canvas.width-130,y:canvas.height/2,taken:false};
+        currentScene='skeletonDungeon';player.x=100;player.y=canvas.height/2;
+      }
     }
-    // PICKAXE - works in world AND cave
-    if (key === 'r' && (currentScene === 'world' || currentScene === 'cave') && hasItem('Pickaxe') && !showNote && !showMap) {
-        if (!pickaxeSwingActive) { pickaxeSwingActive = true; pickaxeSwingStart = Date.now(); }
+    else if(currentScene==='village'&&!tradeActive){
+      for(let i=0;i<villageHouses.length;i++){
+        const h=villageHouses[i];
+        if(Math.hypot(vp.x-h.doorX,vp.y-h.doorY)<75){enterHouse(i);break;}
+      }
     }
+    else if(currentScene==='house'){
+      const h=villageHouses[inHouseIndex];
+      if(h.item&&!h.itemTaken){addToInventory(h.item);h.itemTaken=true;if(h.item==='Apple'){appleMessageExpiry=Date.now()+15000;hasApple=true;}}
+    }
+    else if(currentScene==='witchHut'){
+      const witchX=canvas.width*0.62,witchY=canvas.height*0.42;
+      if(Math.hypot(player.x-witchX,player.y-witchY)<130&&hasItem('Key')&&!hasItem('FirePotion')){
+        removeFromInventory('Key');addToInventory('FirePotion');
+      }
+    }
+    else if(currentScene==='skeletonDungeon'){
+      if(!dungeonKey.taken&&Math.hypot(player.x-dungeonKey.x,player.y-dungeonKey.y)<70){
+        addToInventory('Key');dungeonKey.taken=true;
+      }
+    }
+  }
+
+  if(key==='j'){
+    if(currentScene==='house'){currentScene='village';inHouseIndex=-1;}
+    else if(currentScene==='village'&&!tradeActive)exitVillage();
+    else if(currentScene==='cave'){currentScene='world';player.x=savedWorldPos.x;player.y=savedWorldPos.y;}
+    else if(currentScene==='witchHut'){currentScene='world';player.x=savedWorldPos.x;player.y=savedWorldPos.y;}
+    else if(currentScene==='skeletonDungeon'){currentScene='world';player.x=savedWorldPos.x;player.y=savedWorldPos.y;}
+  }
+
+  // SWORD (Q) — cave, world, skeletonDungeon
+  if(key==='q'&&(currentScene==='world'||currentScene==='cave'||currentScene==='skeletonDungeon')&&hasItem('Sword')&&!showNote&&!showMap){
+    if(!swordSlashActive){
+      swordSlashActive=true;swordSlashStart=Date.now();
+      if(currentScene==='cave'){
+        for(const s of caveSnakes)if(s.alive&&Math.hypot(player.x-s.x,player.y-s.y)<100){s.hp--;s.hitFlash=Date.now()+350;if(s.hp<=0)s.alive=false;}
+      }
+      if(currentScene==='skeletonDungeon'){
+        for(const s of dungeonSkeletons)if(s.alive&&Math.hypot(player.x-s.x,player.y-s.y)<105){s.hp--;s.hitFlash=Date.now()+350;if(s.hp<=0)s.alive=false;}
+      }
+    }
+  }
+  // PICKAXE (R)
+  if(key==='r'&&(currentScene==='world'||currentScene==='cave')&&hasItem('Pickaxe')&&!showNote&&!showMap){
+    if(!pickaxeSwingActive){pickaxeSwingActive=true;pickaxeSwingStart=Date.now();}
+  }
 });
-document.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+document.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
 
-// ===== DEATH TRIGGER =====
-function triggerDeath() {
-    if (deathScreen) return;
-    deathScreen = true;
+// ===== DEATH =====
+function triggerDeath(){
+  if(deathScreen)return;
+  deathScreen=true;
 }
-
-// ===== DEATH SCREEN CLICK =====
-canvas.addEventListener('click', e => {
-    if (!deathScreen || !deathButton) return;
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-    if (mx > deathButton.x && mx < deathButton.x + deathButton.w &&
-        my > deathButton.y && my < deathButton.y + deathButton.h) {
-        // Full reset
-        inventory.fill('');
-        inventory[0] = 'Map'; inventory[1] = 'Note';
-        villageHouses.forEach(h => { h.itemTaken = false; });
-        caveSpikes = []; caveSnakes = [];
-        player.health = player.maxHealth;
-        player.x = 300; player.y = 300;
-        hasApple = false;
-        snakeBiteFlash = 0;
-        deathScreen = false;
-        currentScene = 'world';
-        document.getElementById('menu').style.display = 'flex';
-        gameStarted = false;
-    }
+canvas.addEventListener('click',e=>{
+  if(!deathScreen||!deathButton)return;
+  const rect=canvas.getBoundingClientRect();
+  const mx=e.clientX-rect.left,my=e.clientY-rect.top;
+  if(mx>deathButton.x&&mx<deathButton.x+deathButton.w&&my>deathButton.y&&my<deathButton.y+deathButton.h){
+    inventory.fill('');inventory[0]='Map';inventory[1]='Note';
+    villageHouses.forEach(h=>{h.itemTaken=false;});
+    caveSpikes=[];caveSnakes=[];dungeonSkeletons=[];dungeonKey={x:0,y:0,taken:false};
+    player.health=player.maxHealth;player.x=300;player.y=300;
+    hasApple=false;damageFlash=0;deathScreen=false;currentScene='world';
+    document.getElementById('menu').style.display='flex';gameStarted=false;
+  }
 });
 
 // ===== SCENE TRANSITIONS =====
-function enterVillage() {
-    savedWorldPos = { x: player.x, y: player.y };
-    vp.x = canvas.width / 2; vp.y = canvas.height - 130;
-    currentScene = 'village'; showMap = false; mapCanvas.style.display = 'none';
-}
-function enterHouse(i) { inHouseIndex = i; currentScene = 'house'; }
-function exitVillage() {
-    if (hasItem('Axe')) { tradeActive = true; tradeStartTime = Date.now(); }
-    else { currentScene = 'world'; player.x = savedWorldPos.x; player.y = savedWorldPos.y; }
-}
+function enterVillage(){savedWorldPos={x:player.x,y:player.y};vp.x=canvas.width/2;vp.y=canvas.height-130;currentScene='village';showMap=false;mapCanvas.style.display='none';}
+function enterHouse(i){inHouseIndex=i;currentScene='house';}
+function exitVillage(){if(hasItem('Axe')){tradeActive=true;tradeStartTime=Date.now();}else{currentScene='world';player.x=savedWorldPos.x;player.y=savedWorldPos.y;}}
 
 // ===== MOVEMENT =====
-function movePlayer() {
-    if (showMap || showNote) return;
-    if (keys['w']) player.y -= player.speed;
-    if (keys['s']) player.y += player.speed;
-    if (keys['a']) player.x -= player.speed;
-    if (keys['d']) player.x += player.speed;
-    player.x = Math.max(70, Math.min(canvas.width-70, player.x));
-    player.y = Math.max(70, Math.min(canvas.height-70, player.y));
+function movePlayer(){
+  if(showMap||showNote)return;
+  if(keys['w'])player.y-=player.speed;
+  if(keys['s'])player.y+=player.speed;
+  if(keys['a'])player.x-=player.speed;
+  if(keys['d'])player.x+=player.speed;
+  player.x=Math.max(70,Math.min(canvas.width-70,player.x));
+  player.y=Math.max(70,Math.min(canvas.height-70,player.y));
 }
-function moveVillagePlayer() {
-    if (tradeActive) return;
-    if (keys['w']) vp.y -= vp.speed;
-    if (keys['s']) vp.y += vp.speed;
-    if (keys['a']) vp.x -= vp.speed;
-    if (keys['d']) vp.x += vp.speed;
-    vp.x = Math.max(30, Math.min(canvas.width-30, vp.x));
-    vp.y = Math.max(30, Math.min(canvas.height-110, vp.y));
+function moveVillagePlayer(){
+  if(tradeActive)return;
+  if(keys['w'])vp.y-=vp.speed;if(keys['s'])vp.y+=vp.speed;
+  if(keys['a'])vp.x-=vp.speed;if(keys['d'])vp.x+=vp.speed;
+  vp.x=Math.max(30,Math.min(canvas.width-30,vp.x));
+  vp.y=Math.max(30,Math.min(canvas.height-110,vp.y));
 }
 
 // ===== MOUNTAINS =====
-function drawMountains(c, w, h) {
-    const ms = 50, step = 80;
-    c.fillStyle = '#6b6b6b';
-    c.save(); c.beginPath(); c.rect(ms,0,w-ms*2,ms+10); c.clip();
-    for (let x=ms;x<w-ms;x+=step){ c.beginPath(); c.moveTo(x,ms); c.lineTo(x+step/2,0); c.lineTo(x+step,ms); c.fill(); }
-    c.restore();
-    c.save(); c.beginPath(); c.rect(ms,h-ms-10,w-ms*2,ms+10); c.clip();
-    for (let x=ms;x<w-ms;x+=step){ c.beginPath(); c.moveTo(x,h-ms); c.lineTo(x+step/2,h); c.lineTo(x+step,h-ms); c.fill(); }
-    c.restore();
-    c.save(); c.beginPath(); c.rect(0,ms,ms+10,h-ms*2); c.clip();
-    for (let y=ms;y<h-ms;y+=step){ c.beginPath(); c.moveTo(ms,y); c.lineTo(0,y+step/2); c.lineTo(ms,y+step); c.fill(); }
-    c.restore();
-    c.save(); c.beginPath(); c.rect(w-ms-10,ms,ms+10,h-ms*2); c.clip();
-    for (let y=ms;y<h-ms;y+=step){ c.beginPath(); c.moveTo(w-ms,y); c.lineTo(w,y+step/2); c.lineTo(w-ms,y+step); c.fill(); }
-    c.restore();
-    c.fillStyle='#6b6b6b';
-    c.fillRect(0,0,ms,ms); c.fillRect(w-ms,0,ms,ms);
-    c.fillRect(0,h-ms,ms,ms); c.fillRect(w-ms,h-ms,ms,ms);
+function drawMountains(c,w,h){
+  const ms=50,step=80;c.fillStyle='#6b6b6b';
+  c.save();c.beginPath();c.rect(ms,0,w-ms*2,ms+10);c.clip();
+  for(let x=ms;x<w-ms;x+=step){c.beginPath();c.moveTo(x,ms);c.lineTo(x+step/2,0);c.lineTo(x+step,ms);c.fill();}c.restore();
+  c.save();c.beginPath();c.rect(ms,h-ms-10,w-ms*2,ms+10);c.clip();
+  for(let x=ms;x<w-ms;x+=step){c.beginPath();c.moveTo(x,h-ms);c.lineTo(x+step/2,h);c.lineTo(x+step,h-ms);c.fill();}c.restore();
+  c.save();c.beginPath();c.rect(0,ms,ms+10,h-ms*2);c.clip();
+  for(let y=ms;y<h-ms;y+=step){c.beginPath();c.moveTo(ms,y);c.lineTo(0,y+step/2);c.lineTo(ms,y+step);c.fill();}c.restore();
+  c.save();c.beginPath();c.rect(w-ms-10,ms,ms+10,h-ms*2);c.clip();
+  for(let y=ms;y<h-ms;y+=step){c.beginPath();c.moveTo(w-ms,y);c.lineTo(w,y+step/2);c.lineTo(w-ms,y+step);c.fill();}c.restore();
+  c.fillStyle='#6b6b6b';c.fillRect(0,0,ms,ms);c.fillRect(w-ms,0,ms,ms);c.fillRect(0,h-ms,ms,ms);c.fillRect(w-ms,h-ms,ms,ms);
 }
 
 // ===== WORLD DRAW =====
-function drawForest() {
-    ctx.fillStyle='#2d6a2d'; ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle='#3498db'; ctx.fillRect(river.x,0,river.width,canvas.height);
-    drawMountains(ctx,canvas.width,canvas.height);
-    for (const t of trees) {
-        ctx.fillStyle='#5c3b1e'; ctx.fillRect(t.x-5,t.y,10,20);
-        ctx.fillStyle='#145214'; ctx.beginPath(); ctx.arc(t.x,t.y-5,18,0,Math.PI*2); ctx.fill();
+function drawForest(){
+  ctx.fillStyle='#2d6a2d';ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#3498db';ctx.fillRect(river.x,0,river.width,canvas.height);
+  drawMountains(ctx,canvas.width,canvas.height);
+  for(const t of trees){ctx.fillStyle='#5c3b1e';ctx.fillRect(t.x-5,t.y,10,20);ctx.fillStyle='#145214';ctx.beginPath();ctx.arc(t.x,t.y-5,18,0,Math.PI*2);ctx.fill();}
+}
+function drawWorldVillage(){
+  ctx.fillStyle='#c2a878';ctx.fillRect(worldVillage.x,worldVillage.y,worldVillage.width,worldVillage.height);
+  ctx.fillStyle='#8b4513';for(let i=0;i<3;i++)ctx.fillRect(worldVillage.x+15+i*35,worldVillage.y+20,25,25);
+  ctx.fillStyle='white';ctx.font='18px Arial';ctx.textAlign='left';ctx.fillText('Village',worldVillage.x+20,worldVillage.y-10);
+}
+function drawCaveOnWorld(){
+  const{x,y,width,height,entranceW,entranceH,cx}=cave;
+  ctx.fillStyle='#4a4a4a';
+  ctx.beginPath();ctx.moveTo(x-10,y+height);ctx.bezierCurveTo(x-10,y+10,x+10,y-20,cx,y-30);ctx.bezierCurveTo(x+width-10,y-20,x+width+10,y+10,x+width+10,y+height);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#5e5e5e';ctx.beginPath();ctx.ellipse(cx-18,y+15,14,9,-0.3,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(cx+22,y+25,10,7,0.4,0,Math.PI*2);ctx.fill();
+  const ex=cx-entranceW/2,ey=y+height-entranceH;
+  ctx.fillStyle='#111';ctx.beginPath();ctx.moveTo(ex,y+height);ctx.lineTo(ex,ey+12);ctx.quadraticCurveTo(cx,ey-10,ex+entranceW,ey+12);ctx.lineTo(ex+entranceW,y+height);ctx.closePath();ctx.fill();
+  ctx.fillStyle='white';ctx.font='16px Arial';ctx.textAlign='center';ctx.fillText('Cave',cx,y-35);ctx.textAlign='left';
+  if(Math.hypot(player.x-cx,player.y-(y+height))<100){ctx.strokeStyle='rgba(255,200,50,0.6)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,y+height-10,28,0,Math.PI*2);ctx.stroke();}
+}
+
+function drawWitchHutWorld(){
+  const{x,y,width,height,cx}=witchHut;const roofH=85;
+  ctx.fillStyle='rgba(0,0,0,0.25)';ctx.fillRect(x+8,y+10,width,height);
+  ctx.fillStyle='#3a2010';ctx.fillRect(x,y,width,height);
+  ctx.strokeStyle='#2a1008';ctx.lineWidth=2;
+  for(let px=x+32;px<x+width;px+=32){ctx.beginPath();ctx.moveTo(px,y);ctx.lineTo(px,y+height);ctx.stroke();}
+  ctx.fillStyle='#1a0a28';ctx.beginPath();ctx.moveTo(x-15,y+2);ctx.lineTo(cx,y-roofH);ctx.lineTo(x+width+15,y+2);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#2a1040';ctx.beginPath();ctx.moveTo(cx,y-roofH);ctx.lineTo(x+width+15,y+2);ctx.lineTo(cx,y+2);ctx.closePath();ctx.fill();
+  // Chimney purple smoke
+  ctx.fillStyle='#333';ctx.fillRect(cx+10,y-roofH+15,18,40);
+  const now=Date.now();
+  for(let s=0;s<3;s++){const sp=((now/1500)+s*0.5)%1;ctx.fillStyle=`rgba(160,60,240,${0.4-sp*0.4})`;ctx.beginPath();ctx.arc(cx+19+Math.sin(sp*4)*8,y-roofH+10-sp*42,7+sp*9,0,Math.PI*2);ctx.fill();}
+  // Moon symbol
+  ctx.fillStyle='#aa88ff';ctx.font='18px Arial';ctx.textAlign='center';ctx.fillText('☽',cx,y-roofH+30);
+  // Glowing window
+  ctx.fillStyle='#4a2060';ctx.fillRect(x+14,y+18,28,24);ctx.strokeStyle='#1a0a28';ctx.lineWidth=2;ctx.strokeRect(x+14,y+18,28,24);
+  ctx.fillStyle='rgba(140,70,220,0.55)';ctx.fillRect(x+17,y+21,22,18);
+  // Door
+  const dw=28,dh=42,dx=cx-dw/2,dy=y+height-dh;
+  ctx.fillStyle='#1a0808';ctx.fillRect(dx-3,dy-3,dw+6,dh+3);ctx.fillStyle='#2a1010';ctx.fillRect(dx,dy,dw,dh);
+  ctx.fillStyle='#cc8800';ctx.beginPath();ctx.arc(dx+dw-6,dy+dh/2,3,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(170,80,255,0.9)';ctx.font='bold 13px Arial';ctx.textAlign='center';ctx.fillText("Witch's Hut",cx,y-roofH-10);ctx.textAlign='left';
+  if(Math.hypot(player.x-cx,player.y-(y+height))<100){
+    ctx.fillStyle='rgba(0,0,0,0.7)';ctx.fillRect(cx-80,y+height+8,160,26);
+    ctx.fillStyle='#cc88ff';ctx.font='14px Arial';ctx.textAlign='center';ctx.fillText('E = Enter Hut',cx,y+height+26);ctx.textAlign='left';
+  }
+}
+
+function drawDungeonEntranceWorld(){
+  const{x,y,width,height,cx}=dungeonEntrance;
+  ctx.fillStyle='#1e1e2e';
+  ctx.beginPath();ctx.moveTo(x-8,y+height);ctx.bezierCurveTo(x-8,y+8,x+5,y-14,cx,y-22);ctx.bezierCurveTo(x+width-5,y-14,x+width+8,y+8,x+width+8,y+height);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#050508';
+  ctx.beginPath();ctx.moveTo(x+8,y+height);ctx.lineTo(x+8,y+18);ctx.quadraticCurveTo(cx,y+2,x+width-8,y+18);ctx.lineTo(x+width-8,y+height);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#aaaaaa';ctx.font='20px Arial';ctx.textAlign='center';ctx.fillText('💀',cx,y-26);
+  ctx.fillStyle='rgba(200,200,200,0.9)';ctx.font='bold 12px Arial';ctx.fillText('Dark Dungeon',cx,y-44);ctx.textAlign='left';
+  if(Math.hypot(player.x-cx,player.y-(y+height))<100){
+    ctx.fillStyle='rgba(0,0,0,0.7)';ctx.fillRect(cx-85,y+height+8,170,26);
+    ctx.fillStyle='#dddddd';ctx.font='14px Arial';ctx.textAlign='center';ctx.fillText('E = Enter Dungeon',cx,y+height+26);ctx.textAlign='left';
+  }
+}
+
+function drawPlayer(){
+  ctx.fillStyle=player.color;ctx.beginPath();ctx.arc(player.x,player.y,player.size/2,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='white';ctx.lineWidth=2;ctx.stroke();
+}
+function drawSwordSlash(){
+  const elapsed=Date.now()-swordSlashStart,progress=Math.min(elapsed/SWORD_SLASH_DURATION,1);
+  const startA=-Math.PI*0.9,endA=Math.PI*0.3,curA=startA+(endA-startA)*progress,radius=55;
+  ctx.save();ctx.globalAlpha=1-progress*0.7;
+  ctx.strokeStyle='#ffee44';ctx.lineWidth=8;ctx.lineCap='round';
+  ctx.beginPath();ctx.arc(player.x,player.y,radius,startA,curA);ctx.stroke();
+  ctx.strokeStyle='white';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(player.x,player.y);ctx.lineTo(player.x+Math.cos(curA)*radius,player.y+Math.sin(curA)*radius);ctx.stroke();
+  ctx.restore();
+}
+function drawPickaxeSwing(){
+  const elapsed=Date.now()-pickaxeSwingStart,progress=Math.min(elapsed/PICKAXE_SWING_DURATION,1);
+  const curA=(-Math.PI*0.7)+(Math.PI*1.3)*progress,radius=52;
+  ctx.save();ctx.globalAlpha=1-progress*0.6;
+  ctx.strokeStyle='#8b4513';ctx.lineWidth=6;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(player.x,player.y);ctx.lineTo(player.x+Math.cos(curA)*radius,player.y+Math.sin(curA)*radius);ctx.stroke();
+  const tipX=player.x+Math.cos(curA)*radius,tipY=player.y+Math.sin(curA)*radius;
+  ctx.save();ctx.translate(tipX,tipY);ctx.rotate(curA+Math.PI/2);
+  ctx.fillStyle='#ccc';ctx.beginPath();ctx.moveTo(-10,-6);ctx.lineTo(10,-6);ctx.lineTo(6,6);ctx.lineTo(-6,6);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#eee';ctx.beginPath();ctx.moveTo(8,-6);ctx.lineTo(18,-14);ctx.lineTo(12,2);ctx.closePath();ctx.fill();
+  ctx.restore();
+  if(progress>0.85){ctx.globalAlpha=(1-progress)*4;ctx.fillStyle='#ffdd88';ctx.beginPath();ctx.arc(tipX,tipY,14,0,Math.PI*2);ctx.fill();}
+  ctx.restore();
+}
+function drawDamageFlash(){
+  if(Date.now()>damageFlash)return;
+  ctx.fillStyle=`rgba(200,0,0,${((damageFlash-Date.now())/600)*0.45})`;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+
+// ===== SNAKE =====
+function drawSnake(snake){
+  if(!snake.alive)return;
+  const{x,y,hp}=snake,fl=Date.now()<snake.hitFlash;
+  const angle=Math.atan2(player.y-y,player.x-x);
+  ctx.save();ctx.translate(x,y);
+  const bc=fl?'#ff7733':'#1e7a0e',sc=fl?'#ffcc88':'#2faa18',bel=fl?'#ffe0a0':'#a8e060';
+  for(let i=3;i>=0;i--){
+    ctx.fillStyle=bc;ctx.beginPath();ctx.ellipse(Math.cos(i*1.3+0.5)*i*9,Math.sin(i*1.3+0.5)*i*7+12,22-i*2,14-i*1.5,i*0.4,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=sc;ctx.beginPath();ctx.ellipse(Math.cos(i*1.3+0.5)*i*9,Math.sin(i*1.3+0.5)*i*7+12,(22-i*2)*0.5,(14-i*1.5)*0.5,i*0.4,0,Math.PI*2);ctx.fill();
+  }
+  ctx.fillStyle=bel;ctx.beginPath();ctx.ellipse(0,12,10,8,0,0,Math.PI*2);ctx.fill();
+  ctx.save();ctx.rotate(angle);
+  ctx.fillStyle=bc;ctx.beginPath();ctx.ellipse(32,0,17,11,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#ffff00';ctx.beginPath();ctx.arc(38,-5,4.5,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(38,5,4.5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#111';ctx.beginPath();ctx.arc(39,-5,2.5,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(39,5,2.5,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#ff2222';ctx.lineWidth=2.5;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(48,0);ctx.lineTo(56,0);ctx.stroke();ctx.beginPath();ctx.moveTo(56,0);ctx.lineTo(63,-6);ctx.stroke();ctx.beginPath();ctx.moveTo(56,0);ctx.lineTo(63,6);ctx.stroke();
+  ctx.restore();
+  for(let i=0;i<2;i++){ctx.fillStyle=i<hp?'#ee2222':'#444';ctx.beginPath();ctx.arc(-10+i*22,-48,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(-10+i*22,-48,7,0,Math.PI*2);ctx.stroke();}
+  if(snake.firstAttackDone){const pct=Math.min((Date.now()-snake.lastAttackTime)/5000,1);ctx.strokeStyle=pct>0.8?'#ff4444':'#ffaa00';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,12,28,-Math.PI/2,-Math.PI/2+pct*Math.PI*2);ctx.stroke();}
+  ctx.restore();
+}
+
+// ===== SKELETON =====
+function drawSkeleton(sk){
+  if(!sk.alive)return;
+  const{x,y,hp}=sk,fl=Date.now()<sk.hitFlash;
+  const bc=fl?'#ffaaaa':'#d8d8c0';
+  ctx.save();ctx.translate(x,y);
+  // Skull
+  ctx.fillStyle=bc;ctx.beginPath();ctx.ellipse(0,-52,18,20,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(0,-35,12,9,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#111';ctx.beginPath();ctx.ellipse(-7,-57,6,7,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(7,-57,6,7,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(0,-47,3,4,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=bc;for(let t=-10;t<=10;t+=7){ctx.fillRect(t-2,-40,5,7);}
+  // Spine + pelvis
+  ctx.fillRect(-4,-26,8,42);ctx.beginPath();ctx.ellipse(0,18,15,8,0,0,Math.PI*2);ctx.fill();
+  // Ribs
+  ctx.strokeStyle=bc;ctx.lineWidth=4;ctx.lineCap='round';
+  for(let r=0;r<4;r++){const ry=-22+r*9;ctx.beginPath();ctx.moveTo(-4,ry);ctx.quadraticCurveTo(-24,ry+3,-20,ry+9);ctx.stroke();ctx.beginPath();ctx.moveTo(4,ry);ctx.quadraticCurveTo(24,ry+3,20,ry+9);ctx.stroke();}
+  // Arms
+  ctx.beginPath();ctx.moveTo(-4,-22);ctx.lineTo(-26,-8);ctx.lineTo(-22,8);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(4,-22);ctx.lineTo(28,-8);ctx.lineTo(24,8);ctx.stroke();
+  // Legs
+  ctx.beginPath();ctx.moveTo(-8,18);ctx.lineTo(-12,42);ctx.lineTo(-10,64);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(8,18);ctx.lineTo(12,42);ctx.lineTo(10,64);ctx.stroke();
+  // HP pips (3)
+  for(let i=0;i<3;i++){ctx.fillStyle=i<hp?'#8888ff':'#333';ctx.beginPath();ctx.arc(-20+i*20,-84,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(-20+i*20,-84,7,0,Math.PI*2);ctx.stroke();}
+  if(sk.firstAttackDone){const pct=Math.min((Date.now()-sk.lastAttackTime)/5000,1);ctx.strokeStyle=pct>0.8?'#ff4444':'#8888ff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,-52,26,-Math.PI/2,-Math.PI/2+pct*Math.PI*2);ctx.stroke();}
+  ctx.restore();
+}
+
+// ===== WITCH NPC =====
+function drawWitchNPC(x,y){
+  ctx.save();ctx.translate(x,y);
+  ctx.fillStyle='#1a0a2a';
+  ctx.beginPath();ctx.moveTo(-20,-60);ctx.lineTo(20,-60);ctx.lineTo(45,50);ctx.lineTo(-45,50);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#2a1040';ctx.beginPath();ctx.moveTo(-20,-60);ctx.lineTo(5,-60);ctx.lineTo(25,50);ctx.lineTo(-45,50);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#5a3010';ctx.fillRect(-22,-5,44,10);ctx.fillStyle='#c08020';ctx.fillRect(-8,-5,16,10);
+  ctx.fillStyle='#1a0a2a';ctx.fillRect(-60,-50,40,12);ctx.fillRect(20,-50,40,12);
+  ctx.fillStyle='#446634';ctx.beginPath();ctx.arc(-60,-44,9,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(60,-44,9,0,Math.PI*2);ctx.fill();
+  ctx.fillRect(-9,-80,18,22);ctx.beginPath();ctx.arc(0,-96,22,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#ffee00';ctx.beginPath();ctx.arc(-8,-100,5,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(8,-100,5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#000';ctx.beginPath();ctx.arc(-8,-100,2.5,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(8,-100,2.5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#335524';ctx.beginPath();ctx.moveTo(0,-93);ctx.lineTo(7,-83);ctx.lineTo(-7,-83);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#557744';ctx.beginPath();ctx.arc(5,-85,3,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#223322';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-83,8,0.2,Math.PI-0.2);ctx.stroke();
+  ctx.fillStyle='#0a0518';ctx.beginPath();ctx.ellipse(0,-117,36,9,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.moveTo(-24,-117);ctx.lineTo(-4,-185);ctx.lineTo(4,-185);ctx.lineTo(24,-117);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#6b3a0a';ctx.fillRect(-25,-130,50,8);ctx.fillStyle='#d4a020';ctx.fillRect(-8,-130,16,8);
+  ctx.fillStyle='#aa88ff';ctx.font='16px Arial';ctx.textAlign='center';ctx.fillText('★',0,-158);ctx.textAlign='left';
+  ctx.restore();
+}
+
+function drawPotionBottle(x,y,color){
+  ctx.fillStyle='#666';ctx.fillRect(x-3,y-32,6,7);ctx.fillStyle='#888';ctx.fillRect(x-5,y-38,10,7);
+  ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y-15,11,17,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.25)';ctx.beginPath();ctx.ellipse(x-4,y-20,4,7,-0.3,0,Math.PI*2);ctx.fill();
+}
+
+// ===== WITCH HUT INTERIOR =====
+function drawWitchHutScene(){
+  ctx.fillStyle='#3a1e08';ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle='#2a1005';ctx.lineWidth=2;
+  for(let px=0;px<canvas.width;px+=70){ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,canvas.height);ctx.stroke();}
+  for(let py=0;py<canvas.height;py+=22){ctx.beginPath();ctx.moveTo(0,py);ctx.lineTo(canvas.width,py);ctx.stroke();}
+  const wallH=canvas.height*0.32;
+  ctx.fillStyle='#2a1208';ctx.fillRect(0,0,canvas.width,wallH);
+  ctx.fillStyle='#1a0a04';for(let px=100;px<canvas.width;px+=180)ctx.fillRect(px,0,18,wallH);
+  ctx.fillStyle='#1a0805';ctx.fillRect(0,wallH,canvas.width,10);
+  // Window
+  ctx.fillStyle='#223344';ctx.fillRect(80,35,100,80);ctx.strokeStyle='#1a0a04';ctx.lineWidth=4;ctx.strokeRect(80,35,100,80);
+  ctx.fillStyle='rgba(80,40,140,0.3)';ctx.fillRect(80,35,100,80);
+  // Shelves
+  ctx.fillStyle='#3a2010';ctx.fillRect(canvas.width*0.55,48,canvas.width*0.38,16);ctx.fillRect(canvas.width*0.55,108,canvas.width*0.38,16);
+  ctx.fillStyle='#2a1008';ctx.fillRect(canvas.width*0.55-4,48,8,wallH-48);ctx.fillRect(canvas.width*0.93-4,48,8,wallH-48);
+  const bcols=['#8822cc','#22ccaa','#cc8822','#cc2244','#22aa44','#4488cc'];
+  bcols.forEach((c,i)=>drawPotionBottle(canvas.width*0.58+i*(i<4?i<4:0)*0+i*50,(i<4?32:92),c));
+  // Cauldron
+  const cauldX=canvas.width/2,cauldY=canvas.height*0.5,now=Date.now();
+  ctx.fillStyle='#222';ctx.fillRect(cauldX-38,cauldY+55,16,35);ctx.fillRect(cauldX+22,cauldY+55,16,35);
+  ctx.fillStyle='#2a2a2a';ctx.beginPath();ctx.ellipse(cauldX,cauldY+38,58,38,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#383838';ctx.beginPath();ctx.ellipse(cauldX,cauldY+24,58,12,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#1a7a1a';ctx.beginPath();ctx.ellipse(cauldX,cauldY+22,48,10,0,0,Math.PI*2);ctx.fill();
+  for(let b=0;b<6;b++){const bp=((now/900)+b*0.28)%1;ctx.fillStyle=`rgba(80,255,80,${0.8-bp*0.8})`;ctx.beginPath();ctx.arc(cauldX-20+b*8,cauldY+22-bp*20,2+bp*2,0,Math.PI*2);ctx.fill();}
+  for(let s=0;s<4;s++){const sp=((now/1200)+s*0.35)%1;ctx.fillStyle=`rgba(100,200,100,${0.25-sp*0.25})`;ctx.beginPath();ctx.arc(cauldX-15+s*10,cauldY+8-sp*60,10+sp*12,0,Math.PI*2);ctx.fill();}
+  // Witch
+  const witchX=canvas.width*0.62,witchY=canvas.height*0.42;
+  drawWitchNPC(witchX,witchY);
+  // Dialogue
+  const nearWitch=Math.hypot(player.x-witchX,player.y-witchY)<130;
+  if(nearWitch){
+    const hk=hasItem('Key'),hp2=hasItem('FirePotion');
+    const lines=hp2?['You have the potion!','Cross the cave lava safely.']:hk?['The dungeon key!','Press E to trade for','Fire Resistance Potion!']:['Bring me the key from','the Dark Dungeon outside.','I\'ll give you a fire potion!'];
+    const bw=360,bh=20+lines.length*26+10,bx=witchX-bw/2,by=witchY-240;
+    ctx.fillStyle='#f0e6c8';ctx.strokeStyle='#4a1a8a';ctx.lineWidth=3;
+    if(ctx.roundRect){ctx.beginPath();ctx.roundRect(bx,by,bw,bh,10);ctx.fill();ctx.stroke();}else{ctx.fillRect(bx,by,bw,bh);ctx.strokeRect(bx,by,bw,bh);}
+    ctx.fillStyle='#2a0a3a';ctx.font='16px Georgia';ctx.textAlign='center';
+    lines.forEach((l,i)=>ctx.fillText(l,witchX,by+28+i*24));
+    ctx.textAlign='left';
+    if(hk&&!hp2){
+      ctx.fillStyle='rgba(0,0,0,0.75)';ctx.fillRect(witchX-100,witchY-148,200,36);
+      ctx.fillStyle='#aa88ff';ctx.font='bold 18px Arial';ctx.textAlign='center';ctx.fillText('E = Trade Key',witchX,witchY-124);ctx.textAlign='left';
     }
+  }
+  drawPlayer();if(swordSlashActive)drawSwordSlash();
+  drawInventory();drawHealthBar();
+  ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(10,10,200,44);
+  ctx.fillStyle='white';ctx.font='17px Arial';ctx.fillText('J = Exit Hut',20,36);
 }
-function drawWorldVillage() {
-    ctx.fillStyle='#c2a878'; ctx.fillRect(worldVillage.x,worldVillage.y,worldVillage.width,worldVillage.height);
-    ctx.fillStyle='#8b4513';
-    for (let i=0;i<3;i++) ctx.fillRect(worldVillage.x+15+i*35,worldVillage.y+20,25,25);
-    ctx.fillStyle='white'; ctx.font='18px Arial'; ctx.textAlign='left';
-    ctx.fillText('Village',worldVillage.x+20,worldVillage.y-10);
-}
-function drawCaveOnWorld() {
-    const {x,y,width,height,entranceW,entranceH,cx}=cave;
-    ctx.fillStyle='#4a4a4a';
-    ctx.beginPath(); ctx.moveTo(x-10,y+height);
-    ctx.bezierCurveTo(x-10,y+10,x+10,y-20,cx,y-30);
-    ctx.bezierCurveTo(x+width-10,y-20,x+width+10,y+10,x+width+10,y+height);
-    ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#5e5e5e';
-    ctx.beginPath(); ctx.ellipse(cx-18,y+15,14,9,-0.3,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(cx+22,y+25,10,7,0.4,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(cx,y-10,12,8,0,0,Math.PI*2); ctx.fill();
-    const ex=cx-entranceW/2, ey=y+height-entranceH;
-    ctx.fillStyle='#111';
-    ctx.beginPath(); ctx.moveTo(ex,y+height); ctx.lineTo(ex,ey+12);
-    ctx.quadraticCurveTo(cx,ey-10,ex+entranceW,ey+12); ctx.lineTo(ex+entranceW,y+height);
-    ctx.closePath(); ctx.fill();
-    const gr=ctx.createRadialGradient(cx,y+height-10,4,cx,y+height-15,entranceW*0.8);
-    gr.addColorStop(0,'rgba(0,0,0,0.9)'); gr.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle=gr;
-    ctx.beginPath(); ctx.moveTo(ex,y+height); ctx.lineTo(ex,ey+12);
-    ctx.quadraticCurveTo(cx,ey-10,ex+entranceW,ey+12); ctx.lineTo(ex+entranceW,y+height);
-    ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#3a3a3a';
-    for (let i=0;i<5;i++){
-        const sx=ex+6+i*(entranceW-12)/4, sh=8+(i%2)*6;
-        ctx.beginPath(); ctx.moveTo(sx-4,ey+10+i%3*3); ctx.lineTo(sx+4,ey+10+i%3*3);
-        ctx.lineTo(sx,ey+10+i%3*3+sh); ctx.closePath(); ctx.fill();
-    }
-    ctx.fillStyle='white'; ctx.font='16px Arial'; ctx.textAlign='center';
-    ctx.fillText('Cave',cx,y-35); ctx.textAlign='left';
-    if (Math.hypot(player.x-cx,player.y-(y+height))<100){
-        ctx.strokeStyle='rgba(255,200,50,0.6)'; ctx.lineWidth=2;
-        ctx.beginPath(); ctx.arc(cx,y+height-10,28,0,Math.PI*2); ctx.stroke();
-    }
-}
-function drawPlayer() {
-    ctx.fillStyle=player.color; ctx.beginPath();
-    ctx.arc(player.x,player.y,player.size/2,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='white'; ctx.lineWidth=2; ctx.stroke();
-}
-function drawSwordSlash() {
-    const elapsed=Date.now()-swordSlashStart;
-    const progress=Math.min(elapsed/SWORD_SLASH_DURATION,1);
-    const startA=-Math.PI*0.9, endA=Math.PI*0.3;
-    const curA=startA+(endA-startA)*progress;
-    const radius=55;
-    ctx.save(); ctx.globalAlpha=1-progress*0.7;
-    ctx.strokeStyle='#ffee44'; ctx.lineWidth=8; ctx.lineCap='round';
-    ctx.beginPath(); ctx.arc(player.x,player.y,radius,startA,curA); ctx.stroke();
-    ctx.strokeStyle='white'; ctx.lineWidth=3;
-    ctx.beginPath(); ctx.moveTo(player.x,player.y);
-    ctx.lineTo(player.x+Math.cos(curA)*radius, player.y+Math.sin(curA)*radius); ctx.stroke();
+
+// ===== SKELETON DUNGEON =====
+function drawSkeletonDungeonScene(){
+  ctx.fillStyle='#0a0a14';ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#141420';
+  for(let x=0;x<canvas.width;x+=72)for(let y=0;y<canvas.height;y+=46){const ox=(Math.floor(y/46)%2)*36;ctx.fillRect(x+ox,y,70,44);}
+  ctx.strokeStyle='#080810';ctx.lineWidth=2;
+  for(let x=0;x<canvas.width;x+=72)for(let y=0;y<canvas.height;y+=46){const ox=(Math.floor(y/46)%2)*36;ctx.strokeRect(x+ox,y,70,44);}
+  // Purple torches
+  const torchPos=[[80,150],[80,400],[80,650],[canvas.width-100,150],[canvas.width-100,400],[canvas.width-100,650]];
+  const now=Date.now();
+  for(const[tx,ty]of torchPos){
+    const g=ctx.createRadialGradient(tx,ty,5,tx,ty,170);g.addColorStop(0,'rgba(90,40,200,0.2)');g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#4a2a10';ctx.fillRect(tx-3,ty,6,22);
+    ctx.fillStyle='#8833ff';ctx.beginPath();ctx.arc(tx,ty,9,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#cc88ff';ctx.beginPath();ctx.arc(tx,ty-5,4.5,0,Math.PI*2);ctx.fill();
+  }
+  // Bone debris
+  ctx.strokeStyle='rgba(190,190,170,0.3)';ctx.lineWidth=3;ctx.lineCap='round';
+  [[200,canvas.height-80,0.3],[500,canvas.height-65,1.1],[800,canvas.height-85,0.7],[300,95,2.1],[700,80,1.5]].forEach(([bx,by,ba])=>{
+    ctx.save();ctx.translate(bx,by);ctx.rotate(ba);ctx.beginPath();ctx.moveTo(-22,0);ctx.lineTo(22,0);ctx.stroke();ctx.restore();
+  });
+  // Key (if not taken)
+  if(!dungeonKey.taken){
+    const glow=Math.sin(now/400)*0.3+0.7,kx=dungeonKey.x,ky=dungeonKey.y;
+    ctx.fillStyle=`rgba(255,215,0,${glow*0.4})`;ctx.beginPath();ctx.arc(kx,ky,32,0,Math.PI*2);ctx.fill();
+    ctx.save();ctx.translate(kx,ky);
+    ctx.strokeStyle='#d4a020';ctx.lineWidth=5;ctx.lineCap='round';
+    ctx.beginPath();ctx.arc(-7,-4,14,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(7,-4);ctx.lineTo(28,-4);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(20,-4);ctx.lineTo(20,6);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(26,-4);ctx.lineTo(26,6);ctx.stroke();
     ctx.restore();
-}
-function drawPickaxeSwing() {
-    const elapsed = Date.now() - pickaxeSwingStart;
-    const progress = Math.min(elapsed / PICKAXE_SWING_DURATION, 1);
-    const startA = -Math.PI * 0.7, endA = Math.PI * 0.6;
-    const curA = startA + (endA - startA) * progress;
-    const radius = 52;
-    ctx.save(); ctx.globalAlpha = 1 - progress * 0.6;
-    ctx.strokeStyle = '#8b4513'; ctx.lineWidth = 6; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(player.x, player.y);
-    ctx.lineTo(player.x + Math.cos(curA) * radius, player.y + Math.sin(curA) * radius); ctx.stroke();
-    const tipX = player.x + Math.cos(curA) * radius;
-    const tipY = player.y + Math.sin(curA) * radius;
-    ctx.save(); ctx.translate(tipX, tipY); ctx.rotate(curA + Math.PI / 2);
-    ctx.fillStyle = '#cccccc';
-    ctx.beginPath(); ctx.moveTo(-10,-6); ctx.lineTo(10,-6); ctx.lineTo(6,6); ctx.lineTo(-6,6); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#eeeeee';
-    ctx.beginPath(); ctx.moveTo(8,-6); ctx.lineTo(18,-14); ctx.lineTo(12,2); ctx.closePath(); ctx.fill();
-    ctx.restore();
-    if (progress > 0.85) {
-        ctx.globalAlpha = (1 - progress) * 4;
-        ctx.fillStyle = '#ffdd88';
-        ctx.beginPath(); ctx.arc(tipX, tipY, 14, 0, Math.PI*2); ctx.fill();
+    if(Math.hypot(player.x-kx,player.y-ky)<75){
+      ctx.fillStyle='rgba(0,0,0,0.75)';ctx.fillRect(kx-95,ky-58,190,36);
+      ctx.fillStyle='#ffd700';ctx.font='bold 17px Arial';ctx.textAlign='center';ctx.fillText('E = Pick up Key',kx,ky-34);ctx.textAlign='left';
     }
-    ctx.restore();
+  }
+  for(const sk of dungeonSkeletons)drawSkeleton(sk);
+  drawPlayer();if(swordSlashActive)drawSwordSlash();if(pickaxeSwingActive)drawPickaxeSwing();
+  drawDamageFlash();drawHealthBar();drawInventory();
+  const alive=dungeonSkeletons.filter(s=>s.alive).length;
+  const lines=['WASD = Move','J = Exit Dungeon'];
+  if(hasItem('Sword'))lines.push('Q = Sword (3 hits)');
+  const hudH=26*lines.length+20;
+  ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(10,10,240,hudH);ctx.fillStyle='white';ctx.font='17px Arial';lines.forEach((l,i)=>ctx.fillText(l,20,34+i*26));
+  if(alive>0){
+    ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(canvas.width-220,55,205,36);
+    ctx.fillStyle='#aaaaff';ctx.font='bold 17px Arial';ctx.textAlign='right';ctx.fillText(`💀 Skeletons: ${alive}/5`,canvas.width-20,79);ctx.textAlign='left';
+  }else if(dungeonSkeletons.length>0){
+    ctx.fillStyle='rgba(0,40,0,0.75)';ctx.fillRect(canvas.width/2-180,canvas.height/2-88,360,46);
+    ctx.fillStyle='#88ff88';ctx.font='bold 20px Arial';ctx.textAlign='center';ctx.fillText('✓ All defeated! Pick up the Key →',canvas.width/2,canvas.height/2-58);ctx.textAlign='left';
+  }
 }
 
-// ===== SNAKE DRAWING =====
-function drawSnake(snake) {
-    if (!snake.alive) return;
-    const { x, y, hp } = snake;
-    const isFlashing = Date.now() < snake.hitFlash;
-
-    // Direction from snake to player for head angle
-    const dx = player.x - x, dy = player.y - y;
-    const angle = Math.atan2(dy, dx);
-
-    ctx.save();
-    ctx.translate(x, y);
-
-    const bodyColor = isFlashing ? '#ff7733' : '#1e7a0e';
-    const scaleColor = isFlashing ? '#ffcc88' : '#2faa18';
-    const bellyColor = isFlashing ? '#ffe0a0' : '#a8e060';
-
-    // Coiled body segments (back to front)
-    for (let i = 3; i >= 0; i--) {
-        const bx = Math.cos(i * 1.3 + 0.5) * (i * 9);
-        const by2 = Math.sin(i * 1.3 + 0.5) * (i * 7) + 12;
-        const rx = 22 - i * 2, ry = 14 - i * 1.5;
-        ctx.fillStyle = bodyColor;
-        ctx.beginPath(); ctx.ellipse(bx, by2, rx, ry, i * 0.4, 0, Math.PI * 2); ctx.fill();
-        // scale stripe
-        ctx.fillStyle = scaleColor;
-        ctx.beginPath(); ctx.ellipse(bx, by2, rx * 0.5, ry * 0.5, i * 0.4, 0, Math.PI * 2); ctx.fill();
-    }
-
-    // Belly center
-    ctx.fillStyle = bellyColor;
-    ctx.beginPath(); ctx.ellipse(0, 12, 10, 8, 0, 0, Math.PI * 2); ctx.fill();
-
-    // Head pointing toward player
-    ctx.save();
-    ctx.rotate(angle);
-    ctx.fillStyle = bodyColor;
-    ctx.beginPath(); ctx.ellipse(32, 0, 17, 11, 0, 0, Math.PI * 2); ctx.fill();
-    // Head scale pattern
-    ctx.fillStyle = scaleColor;
-    ctx.beginPath(); ctx.ellipse(30, -3, 8, 5, -0.3, 0, Math.PI * 2); ctx.fill();
-    // Eyes
-    ctx.fillStyle = '#ffff00';
-    ctx.beginPath(); ctx.arc(38, -5, 4.5, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(38, 5, 4.5, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#111';
-    ctx.beginPath(); ctx.arc(39, -5, 2.5, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(39, 5, 2.5, 0, Math.PI * 2); ctx.fill();
-    // Tongue
-    ctx.strokeStyle = '#ff2222'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(48, 0); ctx.lineTo(56, 0); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(56, 0); ctx.lineTo(63, -6); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(56, 0); ctx.lineTo(63, 6); ctx.stroke();
-    ctx.restore();
-
-    // HP hearts / pips above snake
-    for (let i = 0; i < 2; i++) {
-        ctx.fillStyle = i < hp ? '#ee2222' : '#444';
-        ctx.beginPath(); ctx.arc(-10 + i * 22, -48, 7, 0, Math.PI * 2); ctx.fill();
-        if (i < hp) {
-            ctx.fillStyle = '#ff8888';
-            ctx.beginPath(); ctx.arc(-13 + i * 22, -51, 3, 0, Math.PI * 2); ctx.fill();
-        }
-        ctx.strokeStyle = 'white'; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.arc(-10 + i * 22, -48, 7, 0, Math.PI * 2); ctx.stroke();
-    }
-
-    // Attack timer ring (shows next attack countdown)
-    if (snake.firstAttackDone) {
-        const elapsed = Date.now() - snake.lastAttackTime;
-        const pct = Math.min(elapsed / 5000, 1);
-        ctx.strokeStyle = pct > 0.8 ? '#ff4444' : '#ffaa00';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(0, 12, 28, -Math.PI / 2, -Math.PI / 2 + pct * Math.PI * 2);
-        ctx.stroke();
-    }
-
-    ctx.restore();
-}
-
-// ===== BITE FLASH =====
-function drawBiteFlash() {
-    if (Date.now() > snakeBiteFlash) return;
-    const alpha = ((snakeBiteFlash - Date.now()) / 600) * 0.45;
-    ctx.fillStyle = `rgba(200,0,0,${alpha})`;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+// ===== LAVA =====
+function drawLava(){
+  const lx=getLavaStartX(),now=Date.now(),lw=canvas.width-lx-28,ly=65,lh=canvas.height-130;
+  ctx.fillStyle='#8b1a00';ctx.fillRect(lx,ly,lw,lh);
+  for(let row=ly+22;row<ly+lh-22;row+=44)for(let col=lx+15;col<lx+lw-15;col+=55){
+    const w=Math.sin(now/500+col*0.03+row*0.02)*0.5+0.5;
+    ctx.fillStyle=`rgba(255,${Math.floor(80+w*100)},0,0.7)`;ctx.beginPath();ctx.arc(col+Math.sin(now/600+row)*6,row,20+w*10,0,Math.PI*2);ctx.fill();
+  }
+  ctx.fillStyle='rgba(255,110,0,0.28)';ctx.fillRect(lx,ly,lw,lh);
+  for(let b=0;b<10;b++){
+    const phase=((now/1400)+b*0.23)%1,bx=lx+20+(b*43)%(lw-40),by=ly+lh-20-phase*lh,br=3+(b%3)*2;
+    if(phase>0.05&&phase<0.95){ctx.fillStyle=`rgba(255,180,0,${Math.sin(phase*Math.PI)*0.8})`;ctx.beginPath();ctx.arc(bx,by,br,0,Math.PI*2);ctx.fill();}
+  }
+  // Left edge warning glow
+  const eg=ctx.createLinearGradient(lx-25,0,lx+15,0);eg.addColorStop(0,'rgba(255,80,0,0)');eg.addColorStop(1,'rgba(255,80,0,0.45)');
+  ctx.fillStyle=eg;ctx.fillRect(lx-25,ly,40,lh);
+  // Label
+  const cx2=lx+lw/2;
+  ctx.fillStyle='rgba(0,0,0,0.78)';ctx.fillRect(lx+10,canvas.height/2-30,lw-20,56);
+  ctx.textAlign='center';ctx.font='bold 17px Arial';
+  if(hasItem('FirePotion')){ctx.fillStyle='#88ff88';ctx.fillText('🔥 Fire Resistance Active — Safe!',cx2,canvas.height/2-5);ctx.font='14px Arial';ctx.fillStyle='#aaffaa';ctx.fillText('You may cross the lava.',cx2,canvas.height/2+18);}
+  else{ctx.fillStyle='#ff8800';ctx.fillText('⚠ LAVA — Need Fire Resistance Potion!',cx2,canvas.height/2-5);ctx.font='14px Arial';ctx.fillStyle='#ffcc88';ctx.fillText("Visit the Witch's Hut for a potion.",cx2,canvas.height/2+18);}
+  ctx.textAlign='left';
 }
 
 // ===== CAVE INTERIOR =====
-function drawCaveInterior() {
-    // Dark stone background
-    ctx.fillStyle = '#1a1a1a';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#252525';
-    for (let bx = 0; bx < canvas.width; bx += 80)
-        for (let by = 0; by < canvas.height; by += 50) {
-            const offX = (Math.floor(by / 50) % 2) * 40;
-            ctx.fillRect(bx + offX, by, 78, 48);
-        }
-    ctx.strokeStyle = '#111'; ctx.lineWidth = 2;
-    for (let bx = 0; bx < canvas.width; bx += 80)
-        for (let by = 0; by < canvas.height; by += 50) {
-            const offX = (Math.floor(by / 50) % 2) * 40;
-            ctx.strokeRect(bx + offX, by, 78, 48);
-        }
-
-    // Torches on left wall
-    for (const [tx, ty] of [[100, 180], [100, 440], [100, 700]]) {
-        const grd = ctx.createRadialGradient(tx, ty, 5, tx, ty, 200);
-        grd.addColorStop(0, 'rgba(255,160,40,0.15)');
-        grd.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = grd;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#8b4513'; ctx.fillRect(tx - 4, ty, 8, 22);
-        ctx.fillStyle = '#ff8800';
-        ctx.beginPath(); ctx.arc(tx, ty, 9, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#ffdd00';
-        ctx.beginPath(); ctx.arc(tx, ty - 5, 5, 0, Math.PI * 2); ctx.fill();
-    }
-
-    // Spike wall (vertical line)
-    const spikeX = getSpikeX();
-    // Wall border lines
-    ctx.strokeStyle = '#555'; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.moveTo(spikeX - 25, 0); ctx.lineTo(spikeX - 25, canvas.height); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(spikeX + 45, 0); ctx.lineTo(spikeX + 45, canvas.height); ctx.stroke();
-
-    for (const s of caveSpikes) {
-        if (s.broken) {
-            ctx.fillStyle = '#555';
-            ctx.beginPath(); ctx.arc(s.x, s.y + 38, 11, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.arc(s.x - 9, s.y + 30, 7, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.arc(s.x + 11, s.y + 33, 6, 0, Math.PI * 2); ctx.fill();
-        } else {
-            ctx.fillStyle = '#cc0000';
-            ctx.beginPath();
-            ctx.moveTo(s.x, s.y);
-            ctx.lineTo(s.x + 18, s.y + 46);
-            ctx.lineTo(s.x - 18, s.y + 46);
-            ctx.closePath(); ctx.fill();
-            ctx.fillStyle = '#ff4444';
-            ctx.beginPath();
-            ctx.moveTo(s.x, s.y + 4);
-            ctx.lineTo(s.x + 6, s.y + 28);
-            ctx.lineTo(s.x - 2, s.y + 28);
-            ctx.closePath(); ctx.fill();
-            ctx.fillStyle = '#880000';
-            ctx.fillRect(s.x - 22, s.y + 44, 44, 9);
-        }
-    }
-
-    // Snakes
-    for (const snake of caveSnakes) drawSnake(snake);
-
-    drawPlayer();
-    if (swordSlashActive) drawSwordSlash();
-    if (pickaxeSwingActive) drawPickaxeSwing();
-    drawBiteFlash();
-    drawHealthBar();
-    drawInventory();
-
-    // Cave HUD
-    const lines = ['WASD = Move', 'J = Exit Cave'];
-    if (hasItem('Sword')) lines.push('Q = Sword (kills snakes)');
-    if (hasItem('Pickaxe')) lines.push('R = Break Spikes');
-    const hudH = 26 * lines.length + 20;
-    ctx.fillStyle = 'rgba(0,0,0,0.65)'; ctx.fillRect(10, 10, 240, hudH);
-    ctx.fillStyle = 'white'; ctx.font = '17px Arial';
-    lines.forEach((l, i) => ctx.fillText(l, 20, 34 + i * 26));
-
-    // Snake count
-    const alive = caveSnakes.filter(s => s.alive).length;
-    if (alive > 0) {
-        ctx.fillStyle = 'rgba(0,0,0,0.65)';
-        ctx.fillRect(canvas.width - 200, 55, 185, 36);
-        ctx.fillStyle = '#ff6666'; ctx.font = 'bold 17px Arial'; ctx.textAlign = 'right';
-        ctx.fillText(`🐍 Snakes: ${alive} / 5`, canvas.width - 20, 79);
-        ctx.textAlign = 'left';
-    } else if (caveSnakes.length > 0) {
-        ctx.fillStyle = 'rgba(0,80,0,0.7)';
-        ctx.fillRect(canvas.width / 2 - 130, canvas.height / 2 - 90, 260, 44);
-        ctx.fillStyle = '#88ff88'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center';
-        ctx.fillText('✓ All snakes defeated!', canvas.width / 2, canvas.height / 2 - 60);
-        ctx.textAlign = 'left';
-    }
+function drawCaveInterior(){
+  ctx.fillStyle='#1a1a1a';ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#252525';
+  for(let bx=0;bx<canvas.width;bx+=80)for(let by=0;by<canvas.height;by+=50){const ox=(Math.floor(by/50)%2)*40;ctx.fillRect(bx+ox,by,78,48);}
+  ctx.strokeStyle='#111';ctx.lineWidth=2;
+  for(let bx=0;bx<canvas.width;bx+=80)for(let by=0;by<canvas.height;by+=50){const ox=(Math.floor(by/50)%2)*40;ctx.strokeRect(bx+ox,by,78,48);}
+  const now=Date.now();
+  for(const[tx,ty]of[[100,180],[100,440],[100,700]]){
+    const g=ctx.createRadialGradient(tx,ty,5,tx,ty,200);g.addColorStop(0,'rgba(255,160,40,0.15)');g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#8b4513';ctx.fillRect(tx-4,ty,8,22);
+    ctx.fillStyle='#ff8800';ctx.beginPath();ctx.arc(tx,ty,9,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#ffdd00';ctx.beginPath();ctx.arc(tx,ty-5,5,0,Math.PI*2);ctx.fill();
+  }
+  // Spike wall
+  const spikeX=getSpikeX();
+  ctx.strokeStyle='#555';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(spikeX-25,0);ctx.lineTo(spikeX-25,canvas.height);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(spikeX+45,0);ctx.lineTo(spikeX+45,canvas.height);ctx.stroke();
+  for(const s of caveSpikes){
+    if(s.broken){ctx.fillStyle='#555';ctx.beginPath();ctx.arc(s.x,s.y+38,11,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(s.x-9,s.y+30,7,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(s.x+11,s.y+33,6,0,Math.PI*2);ctx.fill();}
+    else{ctx.fillStyle='#cc0000';ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(s.x+18,s.y+46);ctx.lineTo(s.x-18,s.y+46);ctx.closePath();ctx.fill();ctx.fillStyle='#ff4444';ctx.beginPath();ctx.moveTo(s.x,s.y+4);ctx.lineTo(s.x+6,s.y+28);ctx.lineTo(s.x-2,s.y+28);ctx.closePath();ctx.fill();ctx.fillStyle='#880000';ctx.fillRect(s.x-22,s.y+44,44,9);}
+  }
+  // Snakes
+  for(const sn of caveSnakes)drawSnake(sn);
+  // Lava
+  drawLava();
+  drawPlayer();
+  if(swordSlashActive)drawSwordSlash();if(pickaxeSwingActive)drawPickaxeSwing();
+  drawDamageFlash();drawHealthBar();drawInventory();
+  const snakeAlive=caveSnakes.filter(s=>s.alive).length;
+  const lines=['WASD = Move','J = Exit Cave'];
+  if(hasItem('Sword'))lines.push('Q = Sword (kills snakes)');
+  if(hasItem('Pickaxe'))lines.push('R = Break Spikes');
+  const hudH=26*lines.length+20;
+  ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(10,10,245,hudH);ctx.fillStyle='white';ctx.font='17px Arial';lines.forEach((l,i)=>ctx.fillText(l,20,34+i*26));
+  if(snakeAlive>0){ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(canvas.width-205,55,190,36);ctx.fillStyle='#ff6666';ctx.font='bold 17px Arial';ctx.textAlign='right';ctx.fillText(`🐍 Snakes: ${snakeAlive}/5`,canvas.width-20,79);ctx.textAlign='left';}
+  if(snakeAlive===0&&caveSnakes.length>0){ctx.fillStyle='rgba(0,40,0,0.75)';ctx.fillRect(canvas.width/2-160,canvas.height/2-88,320,44);ctx.fillStyle='#88ff88';ctx.font='bold 20px Arial';ctx.textAlign='center';ctx.fillText('✓ All snakes defeated!',canvas.width/2,canvas.height/2-60);ctx.textAlign='left';}
+  if(Date.now()<lavaWarningExpiry){
+    ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(canvas.width/2-230,canvas.height-155,460,48);
+    ctx.fillStyle='#ff8800';ctx.font='bold 18px Arial';ctx.textAlign='center';ctx.fillText('⚠ You need the Fire Resistance Potion to cross!',canvas.width/2,canvas.height-124);ctx.textAlign='left';
+  }
 }
 
-function drawCaveWarning() {
-    if (Date.now() > caveWarningExpiry) return;
-    const msg = 'You are not ready. Click E at the Village and get tools.';
-    const boxW = 560, boxH = 58;
-    const bx = canvas.width/2 - boxW/2, by = canvas.height/2 - 120;
-    ctx.fillStyle = 'rgba(80,0,0,0.88)';
-    if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(bx, by, boxW, boxH, 10); ctx.fill(); }
-    else ctx.fillRect(bx, by, boxW, boxH);
-    ctx.strokeStyle = '#ff4444'; ctx.lineWidth = 2; ctx.strokeRect(bx, by, boxW, boxH);
-    ctx.fillStyle = '#ff9999'; ctx.font = 'bold 18px Arial'; ctx.textAlign = 'center';
-    ctx.fillText('⚠  ' + msg, canvas.width/2, by + 36);
-    ctx.textAlign = 'left';
+function drawCaveWarning(){
+  if(Date.now()>caveWarningExpiry)return;
+  const msg='You are not ready. Enter the Village and get tools.';
+  const bw=500,bh=56,bx=canvas.width/2-bw/2,by=canvas.height/2-120;
+  ctx.fillStyle='rgba(80,0,0,0.88)';if(ctx.roundRect){ctx.beginPath();ctx.roundRect(bx,by,bw,bh,10);ctx.fill();}else ctx.fillRect(bx,by,bw,bh);
+  ctx.strokeStyle='#ff4444';ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);
+  ctx.fillStyle='#ff9999';ctx.font='bold 17px Arial';ctx.textAlign='center';ctx.fillText('⚠  '+msg,canvas.width/2,by+34);ctx.textAlign='left';
 }
 
 // ===== VILLAGE =====
-function drawHouseDetailed(h, index) {
-    const {x,y,width,height,cx}=h;
-    const roofH=65;
-    ctx.fillStyle='rgba(0,0,0,0.18)'; ctx.fillRect(x+6,y+8,width,height);
-    ctx.fillStyle='#c8a060'; ctx.fillRect(x,y,width,height);
-    ctx.strokeStyle='#a07840'; ctx.lineWidth=1.5;
-    for (let py=y+20;py<y+height;py+=18){ ctx.beginPath(); ctx.moveTo(x,py); ctx.lineTo(x+width,py); ctx.stroke(); }
-    for (let px=x+32;px<x+width;px+=32){ ctx.beginPath(); ctx.moveTo(px,y); ctx.lineTo(px,y+height); ctx.stroke(); }
-    ctx.fillStyle='#8b5c28'; ctx.fillRect(x,y,8,height); ctx.fillRect(x+width-8,y,8,height);
-    ctx.fillStyle='#8b1a1a';
-    ctx.beginPath(); ctx.moveTo(x-12,y+2); ctx.lineTo(cx,y-roofH); ctx.lineTo(x+width+12,y+2); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#6b1010';
-    ctx.beginPath(); ctx.moveTo(cx,y-roofH); ctx.lineTo(x+width+12,y+2); ctx.lineTo(cx,y+2); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle='#4a0a0a'; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.moveTo(x-12,y+2); ctx.lineTo(cx,y-roofH); ctx.lineTo(x+width+12,y+2); ctx.stroke();
-    ctx.fillStyle='#555'; ctx.fillRect(cx+12,y-roofH+15,16,38);
-    ctx.fillStyle='#444'; ctx.fillRect(cx+9,y-roofH+12,22,6);
-    ctx.fillStyle='rgba(200,200,200,0.45)';
-    ctx.beginPath(); ctx.arc(cx+20,y-roofH+4,6,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx+26,y-roofH-4,5,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx+23,y-roofH-12,4,0,Math.PI*2); ctx.fill();
-    const winW=28,winH=24;
-    function drawWindow(wx,wy){
-        ctx.fillStyle='#b8d8ee'; ctx.fillRect(wx,wy,winW,winH);
-        ctx.strokeStyle='#5c3010'; ctx.lineWidth=2; ctx.strokeRect(wx,wy,winW,winH);
-        ctx.beginPath(); ctx.moveTo(wx+winW/2,wy); ctx.lineTo(wx+winW/2,wy+winH);
-        ctx.moveTo(wx,wy+winH/2); ctx.lineTo(wx+winW,wy+winH/2); ctx.stroke();
-        ctx.fillStyle='#8b5c28'; ctx.fillRect(wx-3,wy+winH,winW+6,5);
-    }
-    drawWindow(x+12,y+22); drawWindow(x+width-12-winW,y+22);
-    const dW=32,dH=52,dX=cx-dW/2,dY=y+height-dH;
-    ctx.fillStyle='#5c3010'; ctx.fillRect(dX-4,dY-4,dW+8,dH+4);
-    ctx.fillStyle='#7c4020'; ctx.fillRect(dX,dY,dW,dH);
-    ctx.fillStyle='#6b3015'; ctx.fillRect(dX+4,dY+5,dW-8,dH*0.38); ctx.fillRect(dX+4,dY+dH*0.48,dW-8,dH*0.38);
-    ctx.fillStyle='#d4a020'; ctx.beginPath(); ctx.arc(dX+dW-8,dY+dH/2,4,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#7c4020'; ctx.beginPath(); ctx.arc(cx,dY,dW/2,Math.PI,0); ctx.fill();
-    ctx.strokeStyle='#5c3010'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,dY,dW/2,Math.PI,0); ctx.stroke();
-    ctx.fillStyle='#8b7040'; ctx.fillRect(dX-6,y+height,dW+12,8);
-    ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(cx-14,y-roofH-28,28,22);
-    ctx.fillStyle='white'; ctx.font='bold 13px Arial'; ctx.textAlign='center';
-    ctx.fillText(index+1, cx, y-roofH-11); ctx.textAlign='left';
-    if (h.item && !h.itemTaken){
-        ctx.fillStyle='#ffd700'; ctx.font='bold 18px Arial'; ctx.textAlign='center';
-        ctx.fillText('!', cx, y-roofH-35); ctx.textAlign='left';
-    }
-    const dist=Math.hypot(vp.x-h.doorX, vp.y-h.doorY);
-    if (dist<75 && currentScene==='village'){
-        ctx.strokeStyle='rgba(255,220,50,0.9)'; ctx.lineWidth=3;
-        ctx.strokeRect(x-6,y-roofH-6,width+12,height+roofH+14);
-        ctx.fillStyle='rgba(0,0,0,0.7)'; ctx.fillRect(cx-75,y+height+14,150,26);
-        ctx.fillStyle='white'; ctx.font='14px Arial'; ctx.textAlign='center';
-        ctx.fillText('E = Enter House', cx, y+height+31); ctx.textAlign='left';
-    }
+function drawHouseDetailed(h,index){
+  const{x,y,width,height,cx}=h,roofH=65;
+  ctx.fillStyle='rgba(0,0,0,0.18)';ctx.fillRect(x+6,y+8,width,height);
+  ctx.fillStyle='#c8a060';ctx.fillRect(x,y,width,height);
+  ctx.strokeStyle='#a07840';ctx.lineWidth=1.5;
+  for(let py=y+20;py<y+height;py+=18){ctx.beginPath();ctx.moveTo(x,py);ctx.lineTo(x+width,py);ctx.stroke();}
+  for(let px=x+32;px<x+width;px+=32){ctx.beginPath();ctx.moveTo(px,y);ctx.lineTo(px,y+height);ctx.stroke();}
+  ctx.fillStyle='#8b5c28';ctx.fillRect(x,y,8,height);ctx.fillRect(x+width-8,y,8,height);
+  ctx.fillStyle='#8b1a1a';ctx.beginPath();ctx.moveTo(x-12,y+2);ctx.lineTo(cx,y-roofH);ctx.lineTo(x+width+12,y+2);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#6b1010';ctx.beginPath();ctx.moveTo(cx,y-roofH);ctx.lineTo(x+width+12,y+2);ctx.lineTo(cx,y+2);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#4a0a0a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-12,y+2);ctx.lineTo(cx,y-roofH);ctx.lineTo(x+width+12,y+2);ctx.stroke();
+  ctx.fillStyle='#555';ctx.fillRect(cx+12,y-roofH+15,16,38);ctx.fillStyle='#444';ctx.fillRect(cx+9,y-roofH+12,22,6);
+  ctx.fillStyle='rgba(200,200,200,0.45)';ctx.beginPath();ctx.arc(cx+20,y-roofH+4,6,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(cx+26,y-roofH-4,5,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(cx+23,y-roofH-12,4,0,Math.PI*2);ctx.fill();
+  const winW=28,winH=24;
+  function dw(wx,wy){ctx.fillStyle='#b8d8ee';ctx.fillRect(wx,wy,winW,winH);ctx.strokeStyle='#5c3010';ctx.lineWidth=2;ctx.strokeRect(wx,wy,winW,winH);ctx.beginPath();ctx.moveTo(wx+winW/2,wy);ctx.lineTo(wx+winW/2,wy+winH);ctx.moveTo(wx,wy+winH/2);ctx.lineTo(wx+winW,wy+winH/2);ctx.stroke();ctx.fillStyle='#8b5c28';ctx.fillRect(wx-3,wy+winH,winW+6,5);}
+  dw(x+12,y+22);dw(x+width-12-winW,y+22);
+  const dW=32,dH=52,dX=cx-dW/2,dY=y+height-dH;
+  ctx.fillStyle='#5c3010';ctx.fillRect(dX-4,dY-4,dW+8,dH+4);ctx.fillStyle='#7c4020';ctx.fillRect(dX,dY,dW,dH);
+  ctx.fillStyle='#6b3015';ctx.fillRect(dX+4,dY+5,dW-8,dH*0.38);ctx.fillRect(dX+4,dY+dH*0.48,dW-8,dH*0.38);
+  ctx.fillStyle='#d4a020';ctx.beginPath();ctx.arc(dX+dW-8,dY+dH/2,4,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#7c4020';ctx.beginPath();ctx.arc(cx,dY,dW/2,Math.PI,0);ctx.fill();ctx.strokeStyle='#5c3010';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,dY,dW/2,Math.PI,0);ctx.stroke();
+  ctx.fillStyle='#8b7040';ctx.fillRect(dX-6,y+height,dW+12,8);
+  ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(cx-14,y-roofH-28,28,22);ctx.fillStyle='white';ctx.font='bold 13px Arial';ctx.textAlign='center';ctx.fillText(index+1,cx,y-roofH-11);ctx.textAlign='left';
+  if(h.item&&!h.itemTaken){ctx.fillStyle='#ffd700';ctx.font='bold 18px Arial';ctx.textAlign='center';ctx.fillText('!',cx,y-roofH-35);ctx.textAlign='left';}
+  const dist=Math.hypot(vp.x-h.doorX,vp.y-h.doorY);
+  if(dist<75&&currentScene==='village'){
+    ctx.strokeStyle='rgba(255,220,50,0.9)';ctx.lineWidth=3;ctx.strokeRect(x-6,y-roofH-6,width+12,height+roofH+14);
+    ctx.fillStyle='rgba(0,0,0,0.7)';ctx.fillRect(cx-75,y+height+14,150,26);ctx.fillStyle='white';ctx.font='14px Arial';ctx.textAlign='center';ctx.fillText('E = Enter House',cx,y+height+31);ctx.textAlign='left';
+  }
 }
-function drawVillageScene() {
-    ctx.fillStyle='#e8c84a'; ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle='rgba(0,0,0,0.05)';
-    for (let x=0;x<canvas.width;x+=60) for (let y=0;y<canvas.height;y+=60)
-        if ((Math.floor(x/60)+Math.floor(y/60))%2===0) ctx.fillRect(x,y,60,60);
-    ctx.fillStyle='#c8a030'; ctx.fillRect(0,270,canvas.width,60);
-    ctx.fillStyle='#d0aa38'; ctx.fillRect(0,canvas.height-140,canvas.width,40);
-    for (let i=0;i<villageHouses.length;i++) drawHouseDetailed(villageHouses[i], i);
-    ctx.fillStyle=player.color; ctx.beginPath();
-    ctx.arc(vp.x,vp.y,vp.size/2,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='white'; ctx.lineWidth=2; ctx.stroke();
-    ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(10,10,220,65);
-    ctx.fillStyle='white'; ctx.font='18px Arial';
-    ctx.fillText('J = Exit Village',20,36); ctx.fillText('E = Enter House',20,62);
-    drawInventory(); drawHealthBar();
-    if (tradeActive) drawTrader();
+function drawVillageScene(){
+  ctx.fillStyle='#e8c84a';ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='rgba(0,0,0,0.05)';for(let x=0;x<canvas.width;x+=60)for(let y=0;y<canvas.height;y+=60)if((Math.floor(x/60)+Math.floor(y/60))%2===0)ctx.fillRect(x,y,60,60);
+  ctx.fillStyle='#c8a030';ctx.fillRect(0,270,canvas.width,60);ctx.fillStyle='#d0aa38';ctx.fillRect(0,canvas.height-140,canvas.width,40);
+  for(let i=0;i<villageHouses.length;i++)drawHouseDetailed(villageHouses[i],i);
+  ctx.fillStyle=player.color;ctx.beginPath();ctx.arc(vp.x,vp.y,vp.size/2,0,Math.PI*2);ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(10,10,220,65);ctx.fillStyle='white';ctx.font='18px Arial';ctx.fillText('J = Exit Village',20,36);ctx.fillText('E = Enter House',20,62);
+  drawInventory();drawHealthBar();if(tradeActive)drawTrader();
 }
-
-// ===== TRADER =====
-function drawTrader() {
-    const elapsed=Date.now()-tradeStartTime;
-    const remaining=Math.max(0,Math.ceil((TRADE_DURATION-elapsed)/1000));
-    ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(0,0,canvas.width,canvas.height);
-    const tx=canvas.width/2, ty=canvas.height/2+20;
-    ctx.fillStyle='#2a1060'; ctx.fillRect(tx-28,ty+88,22,55); ctx.fillRect(tx+6,ty+88,22,55);
-    ctx.fillStyle='#222'; ctx.fillRect(tx-32,ty+135,28,16); ctx.fillRect(tx+4,ty+135,28,16);
-    ctx.fillStyle='#3a1870';
-    ctx.beginPath(); ctx.moveTo(tx-38,ty-55); ctx.lineTo(tx+38,ty-55);
-    ctx.lineTo(tx+58,ty+92); ctx.lineTo(tx-58,ty+92); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#5a2898';
-    ctx.beginPath(); ctx.moveTo(tx-38,ty-55); ctx.lineTo(tx+8,ty-55);
-    ctx.lineTo(tx+22,ty+92); ctx.lineTo(tx-58,ty+92); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#d4a020'; ctx.fillRect(tx-38,ty+15,76,12);
-    ctx.fillStyle='#f0c830'; ctx.fillRect(tx-10,ty+15,20,12);
-    ctx.fillStyle='#3a1870'; ctx.fillRect(tx-80,ty-48,44,15); ctx.fillRect(tx+36,ty-48,44,15);
-    ctx.fillStyle='#f0c090';
-    ctx.beginPath(); ctx.arc(tx-80,ty-40,13,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(tx+80,ty-40,13,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#f0c090'; ctx.fillRect(tx-11,ty-78,22,26);
-    ctx.fillStyle='#f0c090'; ctx.beginPath(); ctx.arc(tx,ty-100,34,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#e8e8e8';
-    ctx.beginPath(); ctx.moveTo(tx-20,ty-82); ctx.lineTo(tx-24,ty-48); ctx.lineTo(tx,ty-42);
-    ctx.lineTo(tx+24,ty-48); ctx.lineTo(tx+20,ty-82); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#ccc';
-    ctx.beginPath(); ctx.ellipse(tx-9,ty-82,9,4,0.3,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(tx+9,ty-82,9,4,-0.3,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(tx-13,ty-105,7,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(tx+13,ty-105,7,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#3355aa'; ctx.beginPath(); ctx.arc(tx-13,ty-105,4,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(tx+13,ty-105,4,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(tx-13,ty-106,2,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(tx+13,ty-106,2,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='#888'; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.moveTo(tx-21,ty-115); ctx.lineTo(tx-5,ty-112); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(tx+5,ty-112); ctx.lineTo(tx+21,ty-115); ctx.stroke();
-    ctx.fillStyle='#1a0840';
-    ctx.beginPath(); ctx.ellipse(tx,ty-133,46,11,0,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(tx-32,ty-133); ctx.lineTo(tx-8,ty-195);
-    ctx.lineTo(tx+8,ty-195); ctx.lineTo(tx+32,ty-133); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#d4a020'; ctx.fillRect(tx-33,ty-146,66,9);
-    ctx.fillStyle='#ffd700'; ctx.font='16px Arial'; ctx.textAlign='center';
-    ctx.fillText('★', tx, ty-168);
-    const bx=tx-330, by=ty-165, bw=265, bh=80, r=12;
-    ctx.fillStyle='white';
-    ctx.beginPath();
-    ctx.moveTo(bx+r,by); ctx.lineTo(bx+bw-r,by); ctx.quadraticCurveTo(bx+bw,by,bx+bw,by+r);
-    ctx.lineTo(bx+bw,by+bh-r); ctx.quadraticCurveTo(bx+bw,by+bh,bx+bw-r,by+bh);
-    ctx.lineTo(bx+r,by+bh); ctx.quadraticCurveTo(bx,by+bh,bx,by+bh-r);
-    ctx.lineTo(bx,by+r); ctx.quadraticCurveTo(bx,by,bx+r,by); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle='#aaa'; ctx.lineWidth=2; ctx.stroke();
-    ctx.fillStyle='white';
-    ctx.beginPath(); ctx.moveTo(bx+bw,by+bh-25); ctx.lineTo(bx+bw+28,by+bh-5); ctx.lineTo(bx+bw,by+bh-8); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#222'; ctx.font='bold 17px Georgia'; ctx.textAlign='center';
-    ctx.fillText('I am trading with you...', bx+bw/2, by+35);
-    ctx.fillStyle='#555'; ctx.font='14px Arial';
-    ctx.fillText(`(${remaining}s remaining)`, bx+bw/2, by+60);
-    ctx.fillStyle='rgba(255,255,100,0.9)'; ctx.font='bold 16px Arial';
-    ctx.fillText('Axe  →  Sword', tx, ty+120);
-    ctx.textAlign='left';
+function drawTrader(){
+  const elapsed=Date.now()-tradeStartTime,remaining=Math.max(0,Math.ceil((TRADE_DURATION-elapsed)/1000));
+  ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(0,0,canvas.width,canvas.height);
+  const tx=canvas.width/2,ty=canvas.height/2+20;
+  ctx.fillStyle='#2a1060';ctx.fillRect(tx-28,ty+88,22,55);ctx.fillRect(tx+6,ty+88,22,55);ctx.fillStyle='#222';ctx.fillRect(tx-32,ty+135,28,16);ctx.fillRect(tx+4,ty+135,28,16);
+  ctx.fillStyle='#3a1870';ctx.beginPath();ctx.moveTo(tx-38,ty-55);ctx.lineTo(tx+38,ty-55);ctx.lineTo(tx+58,ty+92);ctx.lineTo(tx-58,ty+92);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#5a2898';ctx.beginPath();ctx.moveTo(tx-38,ty-55);ctx.lineTo(tx+8,ty-55);ctx.lineTo(tx+22,ty+92);ctx.lineTo(tx-58,ty+92);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#d4a020';ctx.fillRect(tx-38,ty+15,76,12);ctx.fillStyle='#f0c830';ctx.fillRect(tx-10,ty+15,20,12);
+  ctx.fillStyle='#3a1870';ctx.fillRect(tx-80,ty-48,44,15);ctx.fillRect(tx+36,ty-48,44,15);
+  ctx.fillStyle='#f0c090';ctx.beginPath();ctx.arc(tx-80,ty-40,13,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(tx+80,ty-40,13,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#f0c090';ctx.fillRect(tx-11,ty-78,22,26);ctx.beginPath();ctx.arc(tx,ty-100,34,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#e8e8e8';ctx.beginPath();ctx.moveTo(tx-20,ty-82);ctx.lineTo(tx-24,ty-48);ctx.lineTo(tx,ty-42);ctx.lineTo(tx+24,ty-48);ctx.lineTo(tx+20,ty-82);ctx.closePath();ctx.fill();
+  ctx.fillStyle='white';ctx.beginPath();ctx.arc(tx-13,ty-105,7,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(tx+13,ty-105,7,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#3355aa';ctx.beginPath();ctx.arc(tx-13,ty-105,4,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(tx+13,ty-105,4,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#111';ctx.beginPath();ctx.arc(tx-13,ty-106,2,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(tx+13,ty-106,2,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#1a0840';ctx.beginPath();ctx.ellipse(tx,ty-133,46,11,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(tx-32,ty-133);ctx.lineTo(tx-8,ty-195);ctx.lineTo(tx+8,ty-195);ctx.lineTo(tx+32,ty-133);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#d4a020';ctx.fillRect(tx-33,ty-146,66,9);ctx.fillStyle='#ffd700';ctx.font='16px Arial';ctx.textAlign='center';ctx.fillText('★',tx,ty-168);
+  const bx=tx-330,by2=ty-165,bw=265,bh=80,r=12;
+  ctx.fillStyle='white';ctx.beginPath();ctx.moveTo(bx+r,by2);ctx.lineTo(bx+bw-r,by2);ctx.quadraticCurveTo(bx+bw,by2,bx+bw,by2+r);ctx.lineTo(bx+bw,by2+bh-r);ctx.quadraticCurveTo(bx+bw,by2+bh,bx+bw-r,by2+bh);ctx.lineTo(bx+r,by2+bh);ctx.quadraticCurveTo(bx,by2+bh,bx,by2+bh-r);ctx.lineTo(bx,by2+r);ctx.quadraticCurveTo(bx,by2,bx+r,by2);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#aaa';ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle='white';ctx.beginPath();ctx.moveTo(bx+bw,by2+bh-25);ctx.lineTo(bx+bw+28,by2+bh-5);ctx.lineTo(bx+bw,by2+bh-8);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#222';ctx.font='bold 17px Georgia';ctx.textAlign='center';ctx.fillText('I am trading with you...',bx+bw/2,by2+35);
+  ctx.fillStyle='#555';ctx.font='14px Arial';ctx.fillText(`(${remaining}s remaining)`,bx+bw/2,by2+60);
+  ctx.fillStyle='rgba(255,255,100,0.9)';ctx.font='bold 16px Arial';ctx.fillText('Axe  →  Sword',tx,ty+120);ctx.textAlign='left';
 }
-
-// ===== HOUSE INTERIOR =====
-function drawHouseInterior() {
-    const h=villageHouses[inHouseIndex];
-    ctx.fillStyle='#8b6040'; ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.strokeStyle='#6b4020'; ctx.lineWidth=2;
-    for (let px=0;px<canvas.width;px+=80){ ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,canvas.height); ctx.stroke(); }
-    for (let py=0;py<canvas.height;py+=30){ ctx.beginPath(); ctx.moveTo(0,py); ctx.lineTo(canvas.width,py); ctx.stroke(); }
-    const wallH=canvas.height*0.35;
-    ctx.fillStyle='#d4b078'; ctx.fillRect(0,0,canvas.width,wallH);
-    ctx.strokeStyle='rgba(0,0,0,0.1)'; ctx.lineWidth=1;
-    for (let px=0;px<canvas.width;px+=40){ ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,wallH); ctx.stroke(); }
-    for (let py=0;py<wallH;py+=40){ ctx.beginPath(); ctx.moveTo(0,py); ctx.lineTo(canvas.width,py); ctx.stroke(); }
-    ctx.fillStyle='#5c3010'; ctx.fillRect(0,wallH,canvas.width,10);
-    function drawWallWindow(wx,wy){
-        ctx.fillStyle='#b8d8ee'; ctx.fillRect(wx,wy,110,85);
-        ctx.strokeStyle='#5c3010'; ctx.lineWidth=3; ctx.strokeRect(wx,wy,110,85);
-        ctx.beginPath(); ctx.moveTo(wx+55,wy); ctx.lineTo(wx+55,wy+85);
-        ctx.moveTo(wx,wy+42); ctx.lineTo(wx+110,wy+42); ctx.stroke();
-        ctx.fillStyle='#5c3010'; ctx.fillRect(wx-5,wy+83,120,8);
-    }
-    drawWallWindow(80,40); drawWallWindow(canvas.width-190,40);
-    const icx=canvas.width/2, icy=canvas.height/2-30;
-    if (h.item && !h.itemTaken){
-        ctx.fillStyle='#5c3010'; ctx.fillRect(icx-50,icy+45,100,16);
-        ctx.fillStyle='#7a4020'; ctx.fillRect(icx-60,icy+56,120,10);
-        const glow=ctx.createRadialGradient(icx,icy,5,icx,icy,70);
-        glow.addColorStop(0,'rgba(255,230,80,0.25)'); glow.addColorStop(1,'rgba(255,230,80,0)');
-        ctx.fillStyle=glow; ctx.beginPath(); ctx.arc(icx,icy,70,0,Math.PI*2); ctx.fill();
-        drawItemIcon(icx,icy,h.item);
-        ctx.fillStyle='rgba(0,0,0,0.75)'; ctx.fillRect(icx-185,canvas.height-115,370,44);
-        ctx.fillStyle='#ffd700'; ctx.font='bold 21px Arial'; ctx.textAlign='center';
-        ctx.fillText('Press E to pick up: '+h.item, icx, canvas.height-86); ctx.textAlign='left';
-    } else if (h.item && h.itemTaken){
-        ctx.fillStyle='#aaa'; ctx.font='22px Arial'; ctx.textAlign='center';
-        ctx.fillText('(Item already taken)', icx, icy); ctx.textAlign='left';
-    } else {
-        ctx.fillStyle='#aaa'; ctx.font='22px Arial'; ctx.textAlign='center';
-        ctx.fillText('This house is empty.', icx, icy); ctx.textAlign='left';
-    }
-    ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(10,canvas.height-55,215,38);
-    ctx.fillStyle='white'; ctx.font='18px Arial'; ctx.fillText('J = Exit House',20,canvas.height-29);
-    ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(canvas.width/2-90,10,180,38);
-    ctx.fillStyle='white'; ctx.font='bold 20px Arial'; ctx.textAlign='center';
-    ctx.fillText('House '+(inHouseIndex+1), canvas.width/2, 36); ctx.textAlign='left';
-    drawInventory(); drawHealthBar();
+function drawHouseInterior(){
+  const h=villageHouses[inHouseIndex];
+  ctx.fillStyle='#8b6040';ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle='#6b4020';ctx.lineWidth=2;
+  for(let px=0;px<canvas.width;px+=80){ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,canvas.height);ctx.stroke();}
+  for(let py=0;py<canvas.height;py+=30){ctx.beginPath();ctx.moveTo(0,py);ctx.lineTo(canvas.width,py);ctx.stroke();}
+  const wallH=canvas.height*0.35;
+  ctx.fillStyle='#d4b078';ctx.fillRect(0,0,canvas.width,wallH);
+  ctx.strokeStyle='rgba(0,0,0,0.1)';ctx.lineWidth=1;
+  for(let px=0;px<canvas.width;px+=40){ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,wallH);ctx.stroke();}
+  for(let py=0;py<wallH;py+=40){ctx.beginPath();ctx.moveTo(0,py);ctx.lineTo(canvas.width,py);ctx.stroke();}
+  ctx.fillStyle='#5c3010';ctx.fillRect(0,wallH,canvas.width,10);
+  function dww(wx,wy){ctx.fillStyle='#b8d8ee';ctx.fillRect(wx,wy,110,85);ctx.strokeStyle='#5c3010';ctx.lineWidth=3;ctx.strokeRect(wx,wy,110,85);ctx.beginPath();ctx.moveTo(wx+55,wy);ctx.lineTo(wx+55,wy+85);ctx.moveTo(wx,wy+42);ctx.lineTo(wx+110,wy+42);ctx.stroke();ctx.fillStyle='#5c3010';ctx.fillRect(wx-5,wy+83,120,8);}
+  dww(80,40);dww(canvas.width-190,40);
+  const icx=canvas.width/2,icy=canvas.height/2-30;
+  if(h.item&&!h.itemTaken){
+    ctx.fillStyle='#5c3010';ctx.fillRect(icx-50,icy+45,100,16);ctx.fillStyle='#7a4020';ctx.fillRect(icx-60,icy+56,120,10);
+    const glow=ctx.createRadialGradient(icx,icy,5,icx,icy,70);glow.addColorStop(0,'rgba(255,230,80,0.25)');glow.addColorStop(1,'rgba(255,230,80,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(icx,icy,70,0,Math.PI*2);ctx.fill();
+    drawItemIcon(icx,icy,h.item);
+    ctx.fillStyle='rgba(0,0,0,0.75)';ctx.fillRect(icx-185,canvas.height-115,370,44);ctx.fillStyle='#ffd700';ctx.font='bold 21px Arial';ctx.textAlign='center';ctx.fillText('Press E to pick up: '+h.item,icx,canvas.height-86);ctx.textAlign='left';
+  }else if(h.item&&h.itemTaken){ctx.fillStyle='#aaa';ctx.font='22px Arial';ctx.textAlign='center';ctx.fillText('(Item already taken)',icx,icy);ctx.textAlign='left';}
+  else{ctx.fillStyle='#aaa';ctx.font='22px Arial';ctx.textAlign='center';ctx.fillText('This house is empty.',icx,icy);ctx.textAlign='left';}
+  ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(10,canvas.height-55,215,38);ctx.fillStyle='white';ctx.font='18px Arial';ctx.fillText('J = Exit House',20,canvas.height-29);
+  ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(canvas.width/2-90,10,180,38);ctx.fillStyle='white';ctx.font='bold 20px Arial';ctx.textAlign='center';ctx.fillText('House '+(inHouseIndex+1),canvas.width/2,36);ctx.textAlign='left';
+  drawInventory();drawHealthBar();
 }
 function drawItemIcon(x,y,item){
-    ctx.save(); ctx.translate(x,y);
-    if (item==='Pickaxe'){
-        ctx.rotate(-Math.PI/5);
-        ctx.fillStyle='#8b4513'; ctx.fillRect(-7,-55,14,95);
-        ctx.fillStyle='#bbbbbb';
-        ctx.beginPath(); ctx.moveTo(-25,-55); ctx.lineTo(25,-55); ctx.lineTo(20,-30); ctx.lineTo(-20,-30); ctx.closePath(); ctx.fill();
-        ctx.strokeStyle='#888'; ctx.lineWidth=2; ctx.stroke();
-        ctx.fillStyle='#dddddd';
-        ctx.beginPath(); ctx.moveTo(20,-55); ctx.lineTo(42,-76); ctx.lineTo(33,-43); ctx.closePath(); ctx.fill();
-        ctx.fillStyle='#aaa';
-        ctx.beginPath(); ctx.moveTo(-20,-55); ctx.lineTo(-34,-62); ctx.lineTo(-20,-30); ctx.closePath(); ctx.fill();
-    } else if (item==='Axe'){
-        ctx.rotate(-Math.PI/5);
-        ctx.fillStyle='#8b4513'; ctx.fillRect(-7,-55,14,95);
-        ctx.fillStyle='#bbbbbb';
-        ctx.beginPath(); ctx.moveTo(0,-52); ctx.lineTo(50,-68); ctx.lineTo(50,-18); ctx.lineTo(0,-28); ctx.closePath(); ctx.fill();
-        ctx.strokeStyle='#888'; ctx.lineWidth=2; ctx.stroke();
-        ctx.strokeStyle='#eee'; ctx.lineWidth=4;
-        ctx.beginPath(); ctx.moveTo(50,-68); ctx.lineTo(56,-43); ctx.lineTo(50,-18); ctx.stroke();
-        ctx.fillStyle='#aaa';
-        ctx.beginPath(); ctx.moveTo(0,-48); ctx.lineTo(-22,-56); ctx.lineTo(0,-30); ctx.closePath(); ctx.fill();
-    } else if (item==='Apple'){
-        ctx.fillStyle='#dd2222'; ctx.beginPath(); ctx.arc(0,0,32,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#ff5555'; ctx.beginPath(); ctx.arc(-10,-10,14,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#aa1010'; ctx.beginPath(); ctx.arc(12,10,16,0,Math.PI*2); ctx.fill();
-        ctx.strokeStyle='#5c3010'; ctx.lineWidth=5; ctx.lineCap='round';
-        ctx.beginPath(); ctx.moveTo(0,-32); ctx.lineTo(6,-50); ctx.stroke();
-        ctx.fillStyle='#228822'; ctx.beginPath();
-        ctx.save(); ctx.translate(6,-50); ctx.rotate(0.5);
-        ctx.ellipse(12,0,16,8,0,0,Math.PI*2); ctx.fill(); ctx.restore();
-    }
-    ctx.restore();
+  ctx.save();ctx.translate(x,y);
+  if(item==='Pickaxe'){ctx.rotate(-Math.PI/5);ctx.fillStyle='#8b4513';ctx.fillRect(-7,-55,14,95);ctx.fillStyle='#bbbbbb';ctx.beginPath();ctx.moveTo(-25,-55);ctx.lineTo(25,-55);ctx.lineTo(20,-30);ctx.lineTo(-20,-30);ctx.closePath();ctx.fill();ctx.strokeStyle='#888';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#dddddd';ctx.beginPath();ctx.moveTo(20,-55);ctx.lineTo(42,-76);ctx.lineTo(33,-43);ctx.closePath();ctx.fill();ctx.fillStyle='#aaa';ctx.beginPath();ctx.moveTo(-20,-55);ctx.lineTo(-34,-62);ctx.lineTo(-20,-30);ctx.closePath();ctx.fill();}
+  else if(item==='Axe'){ctx.rotate(-Math.PI/5);ctx.fillStyle='#8b4513';ctx.fillRect(-7,-55,14,95);ctx.fillStyle='#bbbbbb';ctx.beginPath();ctx.moveTo(0,-52);ctx.lineTo(50,-68);ctx.lineTo(50,-18);ctx.lineTo(0,-28);ctx.closePath();ctx.fill();ctx.strokeStyle='#888';ctx.lineWidth=2;ctx.stroke();ctx.strokeStyle='#eee';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(50,-68);ctx.lineTo(56,-43);ctx.lineTo(50,-18);ctx.stroke();ctx.fillStyle='#aaa';ctx.beginPath();ctx.moveTo(0,-48);ctx.lineTo(-22,-56);ctx.lineTo(0,-30);ctx.closePath();ctx.fill();}
+  else if(item==='Apple'){ctx.fillStyle='#dd2222';ctx.beginPath();ctx.arc(0,0,32,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ff5555';ctx.beginPath();ctx.arc(-10,-10,14,0,Math.PI*2);ctx.fill();ctx.fillStyle='#aa1010';ctx.beginPath();ctx.arc(12,10,16,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#5c3010';ctx.lineWidth=5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(0,-32);ctx.lineTo(6,-50);ctx.stroke();ctx.fillStyle='#228822';ctx.beginPath();ctx.save();ctx.translate(6,-50);ctx.rotate(0.5);ctx.ellipse(12,0,16,8,0,0,Math.PI*2);ctx.fill();ctx.restore();}
+  ctx.restore();
 }
 
 // ===== SHARED UI =====
-function drawHealthBar() {
-    const barW=200,barH=20,x=canvas.width-barW-20,y=20;
-    const pct=player.health/player.maxHealth;
-    ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(x-10,y-8,barW+20,barH+16);
-    ctx.fillStyle='#555'; ctx.fillRect(x,y,barW,barH);
-    const r=Math.floor(255*(1-pct)),g=Math.floor(255*pct);
-    ctx.fillStyle=`rgb(${r},${g},0)`; ctx.fillRect(x,y,barW*pct,barH);
-    ctx.strokeStyle='white'; ctx.lineWidth=1.5; ctx.strokeRect(x,y,barW,barH);
-    ctx.fillStyle='white'; ctx.font='bold 13px Arial'; ctx.textAlign='right';
-    ctx.fillText(`HP  ${player.health} / ${player.maxHealth}`,x+barW,y-4); ctx.textAlign='left';
+function drawHealthBar(){
+  const barW=200,barH=20,x=canvas.width-barW-20,y=20,pct=player.health/player.maxHealth;
+  ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(x-10,y-8,barW+20,barH+16);ctx.fillStyle='#555';ctx.fillRect(x,y,barW,barH);
+  const r=Math.floor(255*(1-pct)),g=Math.floor(255*pct);
+  ctx.fillStyle=`rgb(${r},${g},0)`;ctx.fillRect(x,y,barW*pct,barH);
+  ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.strokeRect(x,y,barW,barH);ctx.fillStyle='white';ctx.font='bold 13px Arial';ctx.textAlign='right';ctx.fillText(`HP  ${player.health} / ${player.maxHealth}`,x+barW,y-4);ctx.textAlign='left';
 }
-function drawInventory() {
-    const slots=10,size=60,spacing=8;
-    const totalW=slots*(size+spacing);
-    const startX=(canvas.width-totalW)/2, y=canvas.height-90;
-    for (let i=0;i<slots;i++){
-        const item=inventory[i], sx=startX+i*(size+spacing);
-        if (item==='Note') ctx.fillStyle='rgba(180,140,40,0.85)';
-        else if (item==='Sword') ctx.fillStyle='rgba(40,100,200,0.85)';
-        else if (item==='Pickaxe') ctx.fillStyle='rgba(100,75,45,0.9)';
-        else if (item==='Axe') ctx.fillStyle='rgba(75,75,75,0.9)';
-        else if (item==='Apple') ctx.fillStyle='rgba(150,30,30,0.85)';
-        else ctx.fillStyle='rgba(68,68,68,0.85)';
-        ctx.fillRect(sx,y,size,size);
-        ctx.strokeStyle='white'; ctx.lineWidth=1; ctx.strokeRect(sx,y,size,size);
-        if (item){
-            ctx.save(); ctx.translate(sx+size/2, y+size/2-8); ctx.scale(0.3,0.3);
-            if (item==='Pickaxe'||item==='Axe'||item==='Apple') drawItemIcon(0,0,item);
-            ctx.restore();
-            if (item==='Sword'){
-                ctx.save(); ctx.translate(sx+size/2,y+size/2-8); ctx.rotate(Math.PI/4);
-                ctx.fillStyle='#aaa'; ctx.fillRect(-4,-28,8,48);
-                ctx.fillStyle='#ddd'; ctx.fillRect(-4,-28,8,36);
-                ctx.fillStyle='#d4a020'; ctx.fillRect(-13,4,26,7);
-                ctx.fillStyle='#8b4513'; ctx.fillRect(-4,11,8,16); ctx.restore();
-            }
-            if (item==='Map'){
-                ctx.save(); ctx.translate(sx+size/2,y+size/2-8);
-                ctx.fillStyle='#f5e6c8'; ctx.fillRect(-14,-16,28,26);
-                ctx.strokeStyle='#8b6914'; ctx.lineWidth=2; ctx.strokeRect(-14,-16,28,26);
-                ctx.fillStyle='red'; ctx.beginPath(); ctx.arc(3,-8,4,0,Math.PI*2); ctx.fill();
-                ctx.restore();
-            }
-            if (item==='Note'){
-                ctx.save(); ctx.translate(sx+size/2,y+size/2-8);
-                ctx.fillStyle='#f5e6c8'; ctx.fillRect(-13,-17,26,28);
-                ctx.strokeStyle='#8b6914'; ctx.lineWidth=2; ctx.strokeRect(-13,-17,26,28);
-                ctx.strokeStyle='#8b6914'; ctx.lineWidth=1;
-                for (let ly=-10;ly<12;ly+=7){ ctx.beginPath(); ctx.moveTo(-9,ly); ctx.lineTo(9,ly); ctx.stroke(); }
-                ctx.restore();
-            }
-            ctx.fillStyle='white'; ctx.font='10px Arial'; ctx.textAlign='center';
-            ctx.fillText(item, sx+size/2, y+size-5); ctx.textAlign='left';
-        }
+function drawInventory(){
+  const slots=10,size=60,spacing=8,totalW=slots*(size+spacing),startX=(canvas.width-totalW)/2,y=canvas.height-90;
+  for(let i=0;i<slots;i++){
+    const item=inventory[i],sx=startX+i*(size+spacing);
+    if(item==='Note')ctx.fillStyle='rgba(180,140,40,0.85)';
+    else if(item==='Sword')ctx.fillStyle='rgba(40,100,200,0.85)';
+    else if(item==='Pickaxe')ctx.fillStyle='rgba(100,75,45,0.9)';
+    else if(item==='Axe')ctx.fillStyle='rgba(75,75,75,0.9)';
+    else if(item==='Apple')ctx.fillStyle='rgba(150,30,30,0.85)';
+    else if(item==='Key')ctx.fillStyle='rgba(160,120,10,0.9)';
+    else if(item==='FirePotion')ctx.fillStyle='rgba(160,50,10,0.9)';
+    else ctx.fillStyle='rgba(68,68,68,0.85)';
+    ctx.fillRect(sx,y,size,size);ctx.strokeStyle='white';ctx.lineWidth=1;ctx.strokeRect(sx,y,size,size);
+    if(item){
+      ctx.save();ctx.translate(sx+size/2,y+size/2-8);ctx.scale(0.3,0.3);
+      if(item==='Pickaxe'||item==='Axe'||item==='Apple')drawItemIcon(0,0,item);
+      ctx.restore();
+      if(item==='Sword'){ctx.save();ctx.translate(sx+size/2,y+size/2-8);ctx.rotate(Math.PI/4);ctx.fillStyle='#aaa';ctx.fillRect(-4,-28,8,48);ctx.fillStyle='#ddd';ctx.fillRect(-4,-28,8,36);ctx.fillStyle='#d4a020';ctx.fillRect(-13,4,26,7);ctx.fillStyle='#8b4513';ctx.fillRect(-4,11,8,16);ctx.restore();}
+      if(item==='Map'){ctx.save();ctx.translate(sx+size/2,y+size/2-8);ctx.fillStyle='#f5e6c8';ctx.fillRect(-14,-16,28,26);ctx.strokeStyle='#8b6914';ctx.lineWidth=2;ctx.strokeRect(-14,-16,28,26);ctx.fillStyle='red';ctx.beginPath();ctx.arc(3,-8,4,0,Math.PI*2);ctx.fill();ctx.restore();}
+      if(item==='Note'){ctx.save();ctx.translate(sx+size/2,y+size/2-8);ctx.fillStyle='#f5e6c8';ctx.fillRect(-13,-17,26,28);ctx.strokeStyle='#8b6914';ctx.lineWidth=2;ctx.strokeRect(-13,-17,26,28);ctx.strokeStyle='#8b6914';ctx.lineWidth=1;for(let ly=-10;ly<12;ly+=7){ctx.beginPath();ctx.moveTo(-9,ly);ctx.lineTo(9,ly);ctx.stroke();}ctx.restore();}
+      if(item==='Key'){ctx.save();ctx.translate(sx+size/2,y+size/2-8);ctx.strokeStyle='#d4a020';ctx.lineWidth=3.5;ctx.lineCap='round';ctx.beginPath();ctx.arc(-5,-5,9,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(3,-5);ctx.lineTo(18,-5);ctx.stroke();ctx.beginPath();ctx.moveTo(12,-5);ctx.lineTo(12,2);ctx.stroke();ctx.beginPath();ctx.moveTo(16,-5);ctx.lineTo(16,2);ctx.stroke();ctx.restore();}
+      if(item==='FirePotion'){ctx.save();ctx.translate(sx+size/2,y+size/2-8);ctx.fillStyle='#ff6600';ctx.beginPath();ctx.ellipse(0,5,9,13,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffaa00';ctx.beginPath();ctx.arc(0,-2,6,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ff2200';ctx.beginPath();ctx.moveTo(0,-8);ctx.lineTo(5,-20);ctx.lineTo(-5,-20);ctx.closePath();ctx.fill();ctx.fillStyle='#888';ctx.fillRect(-3,-26,6,6);ctx.restore();}
+      ctx.fillStyle='white';ctx.font='9px Arial';ctx.textAlign='center';ctx.fillText(item,sx+size/2,y+size-4);ctx.textAlign='left';
     }
+  }
 }
-function drawWorldHUD() {
-    const lines=['WASD = Move','M = Map','E = Interact','N = Read Note'];
-    if (hasItem('Sword')) lines.push('Q = Use Sword');
-    if (hasItem('Pickaxe')) lines.push('R = Swing Pickaxe');
-    const h=26*lines.length+20;
-    ctx.fillStyle='rgba(0,0,0,0.55)'; ctx.fillRect(10,10,205,h);
-    ctx.fillStyle='white'; ctx.font='17px Arial';
-    lines.forEach((l,i)=>ctx.fillText(l,20,34+i*26));
+function drawWorldHUD(){
+  const lines=['WASD = Move','M = Map','E = Interact','N = Read Note'];
+  if(hasItem('Sword'))lines.push('Q = Use Sword');if(hasItem('Pickaxe'))lines.push('R = Swing Pickaxe');
+  const h=26*lines.length+20;ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(10,10,205,h);ctx.fillStyle='white';ctx.font='17px Arial';lines.forEach((l,i)=>ctx.fillText(l,20,34+i*26));
 }
-function drawAppleMessage() {
-    if (Date.now()>appleMessageExpiry) return;
-    ctx.fillStyle='rgba(0,0,0,0.8)'; ctx.fillRect(canvas.width/2-270,12,540,50);
-    ctx.fillStyle='#ff5555'; ctx.font='bold 21px Arial'; ctx.textAlign='center';
-    ctx.fillText('🍎  Apples help regenerate health faster!', canvas.width/2,45);
-    ctx.textAlign='left';
+function drawAppleMessage(){
+  if(Date.now()>appleMessageExpiry)return;
+  ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(canvas.width/2-270,12,540,50);ctx.fillStyle='#ff5555';ctx.font='bold 21px Arial';ctx.textAlign='center';ctx.fillText('🍎  Apples help regenerate health faster!',canvas.width/2,45);ctx.textAlign='left';
 }
 
 // ===== MAP =====
-function drawMap() {
-    mapCtx.clearRect(0,0,mapCanvas.width,mapCanvas.height);
-    mapCtx.fillStyle='#87ceeb'; mapCtx.fillRect(0,0,mapCanvas.width,mapCanvas.height);
-    mapCtx.fillStyle='#0f5f0f'; mapCtx.fillRect(80,80,mapCanvas.width-160,mapCanvas.height-160);
-    mapCtx.fillStyle='#3498db';
-    const rmx=80+(river.x/canvas.width)*(mapCanvas.width-160);
-    const rmw=(river.width/canvas.width)*(mapCanvas.width-160);
-    mapCtx.fillRect(rmx,80,rmw,mapCanvas.height-160);
-    drawMountains(mapCtx,mapCanvas.width,mapCanvas.height);
-    for (const t of trees){
-        const tx=80+(t.x/canvas.width)*(mapCanvas.width-160);
-        const ty=80+(t.y/canvas.height)*(mapCanvas.height-160);
-        mapCtx.fillStyle='#5c3b1e'; mapCtx.fillRect(tx-2,ty,4,8);
-        mapCtx.fillStyle='#145214'; mapCtx.beginPath(); mapCtx.arc(tx,ty-2,8,0,Math.PI*2); mapCtx.fill();
-    }
-    const vmx=80+(worldVillage.x/canvas.width)*(mapCanvas.width-160);
-    const vmy=80+(worldVillage.y/canvas.height)*(mapCanvas.height-160);
-    mapCtx.fillStyle='#c2a878'; mapCtx.fillRect(vmx,vmy,80,55);
-    mapCtx.fillStyle='#8b4513';
-    for (let i=0;i<3;i++) mapCtx.fillRect(vmx+8+i*24,vmy+12,16,16);
-    mapCtx.fillStyle='white'; mapCtx.font='20px Arial'; mapCtx.fillText('Village',vmx-5,vmy-8);
-    const cmx=80+(cave.x/canvas.width)*(mapCanvas.width-160);
-    const cmy=80+(cave.y/canvas.height)*(mapCanvas.height-160);
-    mapCtx.fillStyle='#4a4a4a'; mapCtx.beginPath(); mapCtx.arc(cmx+20,cmy+15,18,0,Math.PI*2); mapCtx.fill();
-    mapCtx.fillStyle='#111'; mapCtx.beginPath(); mapCtx.arc(cmx+20,cmy+20,9,0,Math.PI); mapCtx.fill();
-    mapCtx.fillStyle='white'; mapCtx.font='16px Arial'; mapCtx.fillText('Cave',cmx+2,cmy-5);
-    const px=80+(player.x/canvas.width)*(mapCanvas.width-160);
-    const py=80+(player.y/canvas.height)*(mapCanvas.height-160);
-    mapCtx.fillStyle='red'; mapCtx.beginPath(); mapCtx.arc(px,py,8,0,Math.PI*2); mapCtx.fill();
-    mapCtx.fillStyle='rgba(0,0,0,0.6)'; mapCtx.fillRect(10,10,100,40);
-    mapCtx.fillStyle='white'; mapCtx.font='28px Arial'; mapCtx.fillText('MAP',20,40);
-    mapCtx.fillStyle='rgba(0,0,0,0.6)'; mapCtx.fillRect(mapCanvas.width-160,10,150,35);
-    mapCtx.fillStyle='white'; mapCtx.font='18px Arial'; mapCtx.fillText('M = Close Map',mapCanvas.width-155,33);
+function drawMap(){
+  mapCtx.clearRect(0,0,mapCanvas.width,mapCanvas.height);mapCtx.fillStyle='#87ceeb';mapCtx.fillRect(0,0,mapCanvas.width,mapCanvas.height);mapCtx.fillStyle='#0f5f0f';mapCtx.fillRect(80,80,mapCanvas.width-160,mapCanvas.height-160);
+  mapCtx.fillStyle='#3498db';const rmx=80+(river.x/canvas.width)*(mapCanvas.width-160),rmw=(river.width/canvas.width)*(mapCanvas.width-160);mapCtx.fillRect(rmx,80,rmw,mapCanvas.height-160);
+  drawMountains(mapCtx,mapCanvas.width,mapCanvas.height);
+  for(const t of trees){const tx2=80+(t.x/canvas.width)*(mapCanvas.width-160),ty2=80+(t.y/canvas.height)*(mapCanvas.height-160);mapCtx.fillStyle='#5c3b1e';mapCtx.fillRect(tx2-2,ty2,4,8);mapCtx.fillStyle='#145214';mapCtx.beginPath();mapCtx.arc(tx2,ty2-2,8,0,Math.PI*2);mapCtx.fill();}
+  const vmx=80+(worldVillage.x/canvas.width)*(mapCanvas.width-160),vmy=80+(worldVillage.y/canvas.height)*(mapCanvas.height-160);
+  mapCtx.fillStyle='#c2a878';mapCtx.fillRect(vmx,vmy,80,55);mapCtx.fillStyle='white';mapCtx.font='20px Arial';mapCtx.fillText('Village',vmx-5,vmy-8);
+  const cmx=80+(cave.x/canvas.width)*(mapCanvas.width-160),cmy=80+(cave.y/canvas.height)*(mapCanvas.height-160);
+  mapCtx.fillStyle='#4a4a4a';mapCtx.beginPath();mapCtx.arc(cmx+20,cmy+15,18,0,Math.PI*2);mapCtx.fill();mapCtx.fillStyle='white';mapCtx.font='16px Arial';mapCtx.fillText('Cave',cmx+2,cmy-5);
+  const wmx=80+(witchHut.cx/canvas.width)*(mapCanvas.width-160),wmy=80+(witchHut.y/canvas.height)*(mapCanvas.height-160);
+  mapCtx.fillStyle='#2a1040';mapCtx.fillRect(wmx-18,wmy-10,36,30);mapCtx.fillStyle='#aa88ff';mapCtx.font='12px Arial';mapCtx.fillText("Witch's Hut",wmx-22,wmy-14);
+  const px=80+(player.x/canvas.width)*(mapCanvas.width-160),py=80+(player.y/canvas.height)*(mapCanvas.height-160);
+  mapCtx.fillStyle='red';mapCtx.beginPath();mapCtx.arc(px,py,8,0,Math.PI*2);mapCtx.fill();
+  mapCtx.fillStyle='rgba(0,0,0,0.6)';mapCtx.fillRect(10,10,100,40);mapCtx.fillStyle='white';mapCtx.font='28px Arial';mapCtx.fillText('MAP',20,40);
+  mapCtx.fillStyle='rgba(0,0,0,0.6)';mapCtx.fillRect(mapCanvas.width-160,10,150,35);mapCtx.fillStyle='white';mapCtx.font='18px Arial';mapCtx.fillText('M = Close Map',mapCanvas.width-155,33);
 }
 
 // ===== DEATH SCREEN =====
-function drawDeathScreen() {
-    ctx.fillStyle='rgba(0,0,0,0.9)'; ctx.fillRect(0,0,canvas.width,canvas.height);
-    // Skull icon area
-    ctx.fillStyle='#ff2222'; ctx.font='bold 80px Georgia'; ctx.textAlign='center';
-    ctx.fillText('☠  YOU DIED', canvas.width/2, canvas.height/2 - 55);
-    ctx.fillStyle='#ffaaaa'; ctx.font='22px Arial';
-    ctx.fillText('Your tools have been returned to the village.', canvas.width/2, canvas.height/2 + 5);
-    deathButton = { x: canvas.width/2 - 135, y: canvas.height/2 + 45, w: 270, h: 62 };
-    ctx.fillStyle='#2a0000'; ctx.fillRect(deathButton.x, deathButton.y, deathButton.w, deathButton.h);
-    ctx.strokeStyle='#ff4444'; ctx.lineWidth=3; ctx.strokeRect(deathButton.x, deathButton.y, deathButton.w, deathButton.h);
-    ctx.fillStyle='white'; ctx.font='bold 28px Arial';
-    ctx.fillText('▶  Play Again', canvas.width/2, deathButton.y + 41);
-    ctx.textAlign='left';
+function drawDeathScreen(){
+  ctx.fillStyle='rgba(0,0,0,0.9)';ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#ff2222';ctx.font='bold 80px Georgia';ctx.textAlign='center';ctx.fillText('☠  YOU DIED',canvas.width/2,canvas.height/2-55);
+  ctx.fillStyle='#ffaaaa';ctx.font='22px Arial';ctx.fillText('Your tools have been returned to the village.',canvas.width/2,canvas.height/2+5);
+  deathButton={x:canvas.width/2-135,y:canvas.height/2+45,w:270,h:62};
+  ctx.fillStyle='#2a0000';ctx.fillRect(deathButton.x,deathButton.y,deathButton.w,deathButton.h);
+  ctx.strokeStyle='#ff4444';ctx.lineWidth=3;ctx.strokeRect(deathButton.x,deathButton.y,deathButton.w,deathButton.h);
+  ctx.fillStyle='white';ctx.font='bold 28px Arial';ctx.fillText('▶  Play Again',canvas.width/2,deathButton.y+41);ctx.textAlign='left';
 }
 
 // ===== TITLE / MENU =====
-function showGenderMenu(){
-    document.getElementById('titleScreen').style.display='none';
-    document.getElementById('menu').style.display='flex';
-}
-function startGame(gender){
-    document.getElementById('menu').style.display='none';
-    player.color=gender==='male'?'#3498db':'#ff69b4';
-    gameStarted=true;
-    requestAnimationFrame(gameLoop);
-}
+function showGenderMenu(){document.getElementById('titleScreen').style.display='none';document.getElementById('menu').style.display='flex';}
+function startGame(gender){document.getElementById('menu').style.display='none';player.color=gender==='male'?'#3498db':'#ff69b4';gameStarted=true;requestAnimationFrame(gameLoop);}
 
 // ===== GAME LOOP =====
 function gameLoop(){
-    if (deathScreen) { drawDeathScreen(); requestAnimationFrame(gameLoop); return; }
-    if (!gameStarted) return;
+  if(deathScreen){drawDeathScreen();requestAnimationFrame(gameLoop);return;}
+  if(!gameStarted)return;
+  const now=Date.now();
 
-    const now = Date.now();
+  if(tradeActive&&(now-tradeStartTime)>=TRADE_DURATION){tradeActive=false;removeFromInventory('Axe');addToInventory('Sword');currentScene='world';player.x=savedWorldPos.x;player.y=savedWorldPos.y;showMap=false;mapCanvas.style.display='none';}
+  if(swordSlashActive&&(now-swordSlashStart)>=SWORD_SLASH_DURATION)swordSlashActive=false;
+  if(pickaxeSwingActive&&(now-pickaxeSwingStart)>=PICKAXE_SWING_DURATION)pickaxeSwingActive=false;
+  const ri=hasApple?700:4000;
+  if(now-lastRegenTime>ri){lastRegenTime=now;if(player.health<player.maxHealth)player.health=Math.min(player.maxHealth,player.health+1);}
 
-    // Trade completion
-    if (tradeActive && (now-tradeStartTime)>=TRADE_DURATION){
-        tradeActive=false;
-        removeFromInventory('Axe');
-        addToInventory('Sword');
-        currentScene='world'; player.x=savedWorldPos.x; player.y=savedWorldPos.y;
-        showMap=false; mapCanvas.style.display='none';
+  if(currentScene==='world'){
+    movePlayer();
+    drawForest();drawWorldVillage();drawCaveOnWorld();drawWitchHutWorld();drawDungeonEntranceWorld();drawPlayer();
+    if(swordSlashActive)drawSwordSlash();if(pickaxeSwingActive)drawPickaxeSwing();
+    drawHealthBar();drawWorldHUD();drawInventory();if(showMap)drawMap();drawAppleMessage();drawCaveWarning();
+
+  }else if(currentScene==='village'){
+    moveVillagePlayer();drawVillageScene();drawAppleMessage();
+
+  }else if(currentScene==='house'){
+    drawHouseInterior();drawAppleMessage();
+
+  }else if(currentScene==='witchHut'){
+    movePlayer();drawWitchHutScene();drawAppleMessage();
+
+  }else if(currentScene==='skeletonDungeon'){
+    movePlayer();
+    // Skeleton movement
+    for(const sk of dungeonSkeletons){
+      if(!sk.alive)continue;
+      const dist=Math.hypot(player.x-sk.x,player.y-sk.y);
+      if(dist>40&&dist<260){sk.x+=((player.x-sk.x)/dist)*0.7;sk.y+=((player.y-sk.y)/dist)*0.7;}
     }
-    if (swordSlashActive && (now-swordSlashStart)>=SWORD_SLASH_DURATION) swordSlashActive=false;
-    if (pickaxeSwingActive && (now-pickaxeSwingStart)>=PICKAXE_SWING_DURATION) pickaxeSwingActive=false;
-
-    const regenInterval=hasApple?700:4000;
-    if (now-lastRegenTime>regenInterval){
-        lastRegenTime=now;
-        if (player.health<player.maxHealth) player.health=Math.min(player.maxHealth,player.health+1);
+    // Skeleton attacks (10 dmg, 5 sec intervals, first attack immediate)
+    for(const sk of dungeonSkeletons){
+      if(!sk.alive)continue;
+      const dist=Math.hypot(player.x-sk.x,player.y-sk.y);
+      if(dist<68){
+        if(!sk.firstAttackDone){player.health=Math.max(0,player.health-10);sk.firstAttackDone=true;sk.lastAttackTime=now;damageFlash=now+600;}
+        else if(now-sk.lastAttackTime>=5000){player.health=Math.max(0,player.health-10);sk.lastAttackTime=now;damageFlash=now+600;}
+      }
     }
+    if(player.health<=0){player.health=0;villageHouses.forEach(h=>{h.itemTaken=false;});triggerDeath();}
+    drawSkeletonDungeonScene();
 
-    // ===== SCENES =====
-    if (currentScene==='world'){
-        movePlayer();
-        drawForest(); drawWorldVillage(); drawCaveOnWorld(); drawPlayer();
-        if (swordSlashActive) drawSwordSlash();
-        if (pickaxeSwingActive) drawPickaxeSwing();
-        drawHealthBar(); drawWorldHUD(); drawInventory();
-        if (showMap) drawMap();
-        drawAppleMessage(); drawCaveWarning();
-
-    } else if (currentScene==='village'){
-        moveVillagePlayer(); drawVillageScene(); drawAppleMessage();
-
-    } else if (currentScene==='house'){
-        drawHouseInterior(); drawAppleMessage();
-
-    } else if (currentScene==='cave'){
-        movePlayer();
-
-        // ---- Snake movement (slowly drift toward player) ----
-        const spikeX = getSpikeX();
-        for (const snake of caveSnakes) {
-            if (!snake.alive) continue;
-            const dist = Math.hypot(player.x - snake.x, player.y - snake.y);
-            if (dist > 35 && dist < 220) {
-                const speed = 0.6;
-                snake.x += ((player.x - snake.x) / dist) * speed;
-                snake.y += ((player.y - snake.y) / dist) * speed;
-                // Don't let snakes cross back through spike wall
-                if (snake.x < spikeX + 50) snake.x = spikeX + 50;
-            }
-        }
-
-        // ---- Snake attack logic ----
-        for (const snake of caveSnakes) {
-            if (!snake.alive) continue;
-            const dist = Math.hypot(player.x - snake.x, player.y - snake.y);
-            if (dist < 60) { // attack range (contact range)
-                if (!snake.firstAttackDone) {
-                    // First attack: immediate on contact
-                    player.health = Math.max(0, player.health - 8);
-                    snake.firstAttackDone = true;
-                    snake.lastAttackTime = now;
-                    snakeBiteFlash = now + 600;
-                } else if (now - snake.lastAttackTime >= 5000) {
-                    // Subsequent attacks: every 5 seconds
-                    player.health = Math.max(0, player.health - 8);
-                    snake.lastAttackTime = now;
-                    snakeBiteFlash = now + 600;
-                }
-            }
-        }
-
-        // ---- Pickaxe breaks spikes ----
-        if (pickaxeSwingActive) {
-            for (const s of caveSpikes) {
-                if (!s.broken && Math.hypot(player.x - s.x, player.y - s.y) < 90) {
-                    s.broken = true;
-                }
-            }
-        }
-
-        // ---- Spike collision = instant death ----
-        for (const s of caveSpikes) {
-            if (!s.broken && Math.hypot(player.x - s.x, player.y - s.y) < 34) {
-                triggerDeath();
-                villageHouses.forEach(h => { h.itemTaken = false; });
-            }
-        }
-
-        // ---- Health death check ----
-        if (player.health <= 0) {
-            player.health = 0;
-            triggerDeath();
-            villageHouses.forEach(h => { h.itemTaken = false; });
-        }
-
-        drawCaveInterior();
+  }else if(currentScene==='cave'){
+    movePlayer();
+    // Snake movement
+    const lsx=getLavaStartX();
+    for(const sn of caveSnakes){
+      if(!sn.alive)continue;
+      const dist=Math.hypot(player.x-sn.x,player.y-sn.y);
+      if(dist>38&&dist<230){sn.x+=((player.x-sn.x)/dist)*0.6;sn.y+=((player.y-sn.y)/dist)*0.6;}
+      if(sn.x>lsx-55)sn.x=lsx-55;
     }
+    // Snake attacks (8 dmg, 5 sec intervals)
+    for(const sn of caveSnakes){
+      if(!sn.alive)continue;
+      const dist=Math.hypot(player.x-sn.x,player.y-sn.y);
+      if(dist<62){
+        if(!sn.firstAttackDone){player.health=Math.max(0,player.health-8);sn.firstAttackDone=true;sn.lastAttackTime=now;damageFlash=now+600;}
+        else if(now-sn.lastAttackTime>=5000){player.health=Math.max(0,player.health-8);sn.lastAttackTime=now;damageFlash=now+600;}
+      }
+    }
+    // Pickaxe breaks spikes
+    if(pickaxeSwingActive){for(const s of caveSpikes)if(!s.broken&&Math.hypot(player.x-s.x,player.y-s.y)<90)s.broken=true;}
+    // Spike collision = death
+    for(const s of caveSpikes){if(!s.broken&&Math.hypot(player.x-s.x,player.y-s.y)<34){villageHouses.forEach(h=>{h.itemTaken=false;});triggerDeath();}}
+    // Lava: block without potion, push back
+    if(player.x>lsx&&player.y>65&&player.y<canvas.height-65){
+      if(!hasItem('FirePotion')){player.x=lsx-5;lavaWarningExpiry=now+2500;}
+    }
+    // Health death
+    if(player.health<=0){player.health=0;villageHouses.forEach(h=>{h.itemTaken=false;});triggerDeath();}
+    drawCaveInterior();
+  }
 
-    requestAnimationFrame(gameLoop);
+  requestAnimationFrame(gameLoop);
 }
 </script>
 </body>
