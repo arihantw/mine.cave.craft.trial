@@ -607,7 +607,7 @@ function drawLava(){
 }
 function drawCavePlatform() {
   const lx = getLavaStartX();
-  const platformX = lx + 180;   // distance after lava
+  const platformX = lx + 420;   // distance after lava
   const platformW = 260;
   const platformY = 65;
   const platformH = canvas.height - 130;
@@ -938,7 +938,7 @@ function gameLoop(){
       if(!hasItem('FirePotion')){player.x=lsx-5;lavaWarningExpiry=now+2500;}
     }
     // Allow standing on platform after lava
-const platformX = lsx + 180;
+const platformX = lsx + 420;
 if (player.x > platformX) {
   // Safe zone — no pushback
 }
