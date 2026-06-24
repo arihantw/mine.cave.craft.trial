@@ -72,6 +72,8 @@ let appleMessageExpiry=0,hasApple=false,lastRegenTime=0;
 let caveWarningExpiry=0,lavaWarningExpiry=0;
 let deathScreen=false,deathButton=null;
 let damageFlash=0;
+let cavePlatformTreasureTaken=false,cavePlatformKeyTaken=false;
+let escapeMsgExpiry=0,escapePhase=0,escapeWhiteStart=0;
 
 // ===== PLAYER =====
 const player={x:300,y:300,size:30,color:'blue',speed:4,maxHealth:100,health:100};
@@ -127,6 +129,7 @@ const villageHouses=Array.from({length:10},(_,i)=>{
 let caveSpikes=[],caveSnakes=[];
 function getSpikeX(){return canvas.width/2+80;}
 function getLavaStartX(){return canvas.width*0.79;}
+function getLavaEndX(){return canvas.width*0.86;}
 
 function buildSpikes(){
   const spikes=[],sx=getSpikeX();
@@ -211,12 +214,27 @@ document.addEventListener('keydown',e=>{
         addToInventory('Key');dungeonKey.taken=true;
       }
     }
+    else if(currentScene==='cave'){
+      const lxEnd=getLavaEndX(),ppx=lxEnd+8,ppw=canvas.width-lxEnd-32;
+      const platY=canvas.height*0.35,platH=canvas.height*0.30;
+      const chestX=ppx+ppw*0.3,chestY=platY+platH*0.5;
+      const cKeyX=ppx+ppw*0.7,cKeyY=platY+platH*0.5;
+      if(!cavePlatformTreasureTaken&&Math.hypot(player.x-chestX,player.y-chestY)<75){
+        addToInventory('Treasure');cavePlatformTreasureTaken=true;
+      }
+      if(!cavePlatformKeyTaken&&Math.hypot(player.x-cKeyX,player.y-cKeyY)<75){
+        addToInventory('EscapeKey');cavePlatformKeyTaken=true;
+      }
+    }
   }
 
   if(key==='j'){
     if(currentScene==='house'){currentScene='village';inHouseIndex=-1;}
     else if(currentScene==='village'&&!tradeActive)exitVillage();
-    else if(currentScene==='cave'){currentScene='world';player.x=savedWorldPos.x;player.y=savedWorldPos.y;}
+    else if(currentScene==='cave'){
+      currentScene='world';player.x=savedWorldPos.x;player.y=savedWorldPos.y;
+      if(hasItem('EscapeKey')&&hasItem('Treasure'))escapeMsgExpiry=Date.now()+15000;
+    }
     else if(currentScene==='witchHut'){currentScene='world';player.x=savedWorldPos.x;player.y=savedWorldPos.y;}
     else if(currentScene==='skeletonDungeon'){currentScene='world';player.x=savedWorldPos.x;player.y=savedWorldPos.y;}
   }
@@ -232,6 +250,12 @@ document.addEventListener('keydown',e=>{
         for(const s of dungeonSkeletons)if(s.alive&&Math.hypot(player.x-s.x,player.y-s.y)<105){s.hp--;s.hitFlash=Date.now()+350;if(s.hp<=0)s.alive=false;}
       }
     }
+  }
+  // V = ESCAPE at river bottom
+  if(key==='v'&&currentScene==='world'&&hasItem('EscapeKey')&&hasItem('Treasure')&&escapePhase===0){
+    const atRiver=player.x>river.x-40&&player.x<river.x+river.width+40;
+    const atBottom=player.y>canvas.height-120;
+    if(atRiver&&atBottom){escapePhase=1;escapeWhiteStart=Date.now();}
   }
   // PICKAXE (R)
   if(key==='r'&&(currentScene==='world'||currentScene==='cave')&&hasItem('Pickaxe')&&!showNote&&!showMap){
@@ -252,7 +276,7 @@ canvas.addEventListener('click',e=>{
   if(mx>deathButton.x&&mx<deathButton.x+deathButton.w&&my>deathButton.y&&my<deathButton.y+deathButton.h){
     inventory.fill('');inventory[0]='Map';inventory[1]='Note';
     villageHouses.forEach(h=>{h.itemTaken=false;});
-    caveSpikes=[];caveSnakes=[];dungeonSkeletons=[];dungeonKey={x:0,y:0,taken:false};
+    caveSpikes=[];caveSnakes=[];dungeonSkeletons=[];dungeonKey={x:0,y:0,taken:false};cavePlatformTreasureTaken=false;cavePlatformKeyTaken=false;escapePhase=0;escapeMsgExpiry=0;
     player.health=player.maxHealth;player.x=300;player.y=300;
     hasApple=false;damageFlash=0;deathScreen=false;currentScene='world';
     document.getElementById('menu').style.display='flex';gameStarted=false;
@@ -583,7 +607,7 @@ function drawSkeletonDungeonScene(){
 
 // ===== LAVA =====
 function drawLava(){
-  const lx=getLavaStartX(),now=Date.now(),lw=canvas.width-lx-28,ly=65,lh=canvas.height-130;
+  const lx=getLavaStartX(),lxEnd=getLavaEndX(),now=Date.now(),lw=lxEnd-lx,ly=65,lh=canvas.height-130;
   ctx.fillStyle='#8b1a00';ctx.fillRect(lx,ly,lw,lh);
   for(let row=ly+22;row<ly+lh-22;row+=44)for(let col=lx+15;col<lx+lw-15;col+=55){
     const w=Math.sin(now/500+col*0.03+row*0.02)*0.5+0.5;
@@ -605,31 +629,66 @@ function drawLava(){
   else{ctx.fillStyle='#ff8800';ctx.fillText('⚠ LAVA — Need Fire Resistance Potion!',cx2,canvas.height/2-5);ctx.font='14px Arial';ctx.fillStyle='#ffcc88';ctx.fillText("Visit the Witch's Hut for a potion.",cx2,canvas.height/2+18);}
   ctx.textAlign='left';
 }
-function drawCavePlatform() {
-  const lx = getLavaStartX();
-  const platformX = lx + 420;   // distance after lava
-  const platformW = 260;
-  const platformY = 65;
-  const platformH = canvas.height - 130;
 
-  // Ground
-  ctx.fillStyle = '#3a3a3a';
-  ctx.fillRect(platformX, platformY, platformW, platformH);
 
-  // Stone texture
-  ctx.fillStyle = '#4a4a4a';
-  for (let x = platformX + 10; x < platformX + platformW - 10; x += 40) {
-    for (let y = platformY + 10; y < platformY + platformH - 10; y += 40) {
-      ctx.fillRect(x, y, 28, 28);
-    }
+// ===== CAVE PLATFORM =====
+function drawTreasureChest(x,y){
+  const glow=Math.sin(Date.now()/400)*0.3+0.7;
+  ctx.fillStyle=`rgba(255,215,0,${glow*0.38})`;ctx.beginPath();ctx.arc(x,y,44,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#8b4513';ctx.fillRect(x-30,y-10,60,38);
+  ctx.fillStyle='#a0522d';ctx.fillRect(x-30,y-28,60,20);
+  ctx.beginPath();ctx.ellipse(x,y-28,30,11,0,Math.PI,0);ctx.fill();
+  ctx.fillStyle='#d4a020';
+  ctx.fillRect(x-32,y-12,64,4);ctx.fillRect(x-32,y-30,64,4);ctx.fillRect(x-32,y+26,64,4);
+  ctx.fillRect(x-32,y-30,4,60);ctx.fillRect(x+28,y-30,4,60);
+  ctx.fillStyle='#f0c040';ctx.beginPath();ctx.arc(x,y-2,9,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#8b4513';ctx.fillRect(x-5,-2+y,10,11);
+  ctx.fillStyle='white';ctx.font='bold 12px Arial';ctx.textAlign='center';ctx.fillText('TREASURE',x,y+54);ctx.textAlign='left';
+}
+function drawCaveKeyItem(x,y){
+  const glow=Math.sin(Date.now()/500)*0.3+0.7;
+  ctx.fillStyle=`rgba(255,215,0,${glow*0.4})`;ctx.beginPath();ctx.arc(x,y,38,0,Math.PI*2);ctx.fill();
+  ctx.save();ctx.translate(x,y);
+  ctx.strokeStyle='#f0c030';ctx.lineWidth=7;ctx.lineCap='round';
+  ctx.beginPath();ctx.arc(-12,-4,17,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(5,-4);ctx.lineTo(34,-4);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(24,-4);ctx.lineTo(24,8);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(32,-4);ctx.lineTo(32,8);ctx.stroke();
+  ctx.fillStyle='#ffe050';ctx.beginPath();ctx.arc(-12,-4,8,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+  ctx.fillStyle='white';ctx.font='bold 12px Arial';ctx.textAlign='center';ctx.fillText('KEY',x,y+50);ctx.textAlign='left';
+}
+function drawCavePlatform(){
+  const lxEnd=getLavaEndX(),ppx=lxEnd+8,ppw=canvas.width-lxEnd-40;
+  const platY=canvas.height*0.33,platH=canvas.height*0.34;
+  // Stone platform
+  ctx.fillStyle='#3a3a4a';ctx.fillRect(ppx,platY,ppw,platH);
+  ctx.fillStyle='#4a4a5a';
+  for(let ty=platY;ty<platY+platH;ty+=36)for(let tx=ppx;tx<ppx+ppw;tx+=56){const ox=(Math.floor((ty-platY)/36)%2)*28;ctx.fillRect(tx+ox,ty,54,34);}
+  ctx.strokeStyle='#2a2a3a';ctx.lineWidth=2;
+  for(let ty=platY;ty<platY+platH;ty+=36)for(let tx=ppx;tx<ppx+ppw;tx+=56){const ox=(Math.floor((ty-platY)/36)%2)*28;ctx.strokeRect(tx+ox,ty,54,34);}
+  // Gold trim
+  ctx.fillStyle='#c8a820';
+  ctx.fillRect(ppx,platY,ppw,5);ctx.fillRect(ppx,platY+platH-5,ppw,5);ctx.fillRect(ppx,platY,5,platH);
+  // Pillars on left edge
+  ctx.fillStyle='#5a5a6a';ctx.fillRect(ppx,platY-20,18,platH+20);ctx.fillStyle='#7a7a8a';ctx.fillRect(ppx+2,platY-20,8,platH+20);
+  ctx.fillStyle='#c8a820';ctx.fillRect(ppx-2,platY-24,22,8);ctx.fillRect(ppx-2,platY+platH-4,22,8);
+  // Glow from lava onto platform
+  const eg=ctx.createLinearGradient(lxEnd,0,ppx+30,0);eg.addColorStop(0,'rgba(255,100,0,0.25)');eg.addColorStop(1,'rgba(255,100,0,0)');ctx.fillStyle=eg;ctx.fillRect(ppx,platY,50,platH);
+  // Items
+  const chestX=ppx+ppw*0.32,chestY=platY+platH*0.5;
+  const ckX=ppx+ppw*0.72,ckY=platY+platH*0.5;
+  if(!cavePlatformTreasureTaken)drawTreasureChest(chestX,chestY);
+  if(!cavePlatformKeyTaken)drawCaveKeyItem(ckX,ckY);
+  // Prompts
+  if(!cavePlatformTreasureTaken&&Math.hypot(player.x-chestX,player.y-chestY)<80){
+    ctx.fillStyle='rgba(0,0,0,0.78)';ctx.fillRect(chestX-105,chestY-68,210,36);
+    ctx.fillStyle='#ffd700';ctx.font='bold 17px Arial';ctx.textAlign='center';ctx.fillText('E = Grab Treasure',chestX,chestY-44);ctx.textAlign='left';
   }
-
-  // Label
-  ctx.fillStyle = 'white';
-  ctx.font = '20px Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText('End of Cave', platformX + platformW / 2, platformY + 30);
-  ctx.textAlign = 'left';
+  if(!cavePlatformKeyTaken&&Math.hypot(player.x-ckX,player.y-ckY)<80){
+    ctx.fillStyle='rgba(0,0,0,0.78)';ctx.fillRect(ckX-95,ckY-68,190,36);
+    ctx.fillStyle='#ffd700';ctx.font='bold 17px Arial';ctx.textAlign='center';ctx.fillText('E = Grab Key',ckX,ckY-44);ctx.textAlign='left';
+  }
 }
 
 // ===== CAVE INTERIOR =====
@@ -660,6 +719,7 @@ function drawCaveInterior(){
   for(const sn of caveSnakes)drawSnake(sn);
   // Lava
   drawLava();
+  // Platform at end
   drawCavePlatform();
   drawPlayer();
   if(swordSlashActive)drawSwordSlash();if(pickaxeSwingActive)drawPickaxeSwing();
@@ -805,6 +865,8 @@ function drawInventory(){
     else if(item==='Apple')ctx.fillStyle='rgba(150,30,30,0.85)';
     else if(item==='Key')ctx.fillStyle='rgba(160,120,10,0.9)';
     else if(item==='FirePotion')ctx.fillStyle='rgba(160,50,10,0.9)';
+    else if(item==='Treasure')ctx.fillStyle='rgba(160,130,0,0.92)';
+    else if(item==='EscapeKey')ctx.fillStyle='rgba(180,150,10,0.92)';
     else ctx.fillStyle='rgba(68,68,68,0.85)';
     ctx.fillRect(sx,y,size,size);ctx.strokeStyle='white';ctx.lineWidth=1;ctx.strokeRect(sx,y,size,size);
     if(item){
@@ -816,6 +878,8 @@ function drawInventory(){
       if(item==='Note'){ctx.save();ctx.translate(sx+size/2,y+size/2-8);ctx.fillStyle='#f5e6c8';ctx.fillRect(-13,-17,26,28);ctx.strokeStyle='#8b6914';ctx.lineWidth=2;ctx.strokeRect(-13,-17,26,28);ctx.strokeStyle='#8b6914';ctx.lineWidth=1;for(let ly=-10;ly<12;ly+=7){ctx.beginPath();ctx.moveTo(-9,ly);ctx.lineTo(9,ly);ctx.stroke();}ctx.restore();}
       if(item==='Key'){ctx.save();ctx.translate(sx+size/2,y+size/2-8);ctx.strokeStyle='#d4a020';ctx.lineWidth=3.5;ctx.lineCap='round';ctx.beginPath();ctx.arc(-5,-5,9,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(3,-5);ctx.lineTo(18,-5);ctx.stroke();ctx.beginPath();ctx.moveTo(12,-5);ctx.lineTo(12,2);ctx.stroke();ctx.beginPath();ctx.moveTo(16,-5);ctx.lineTo(16,2);ctx.stroke();ctx.restore();}
       if(item==='FirePotion'){ctx.save();ctx.translate(sx+size/2,y+size/2-8);ctx.fillStyle='#ff6600';ctx.beginPath();ctx.ellipse(0,5,9,13,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffaa00';ctx.beginPath();ctx.arc(0,-2,6,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ff2200';ctx.beginPath();ctx.moveTo(0,-8);ctx.lineTo(5,-20);ctx.lineTo(-5,-20);ctx.closePath();ctx.fill();ctx.fillStyle='#888';ctx.fillRect(-3,-26,6,6);ctx.restore();}
+      if(item==='Treasure'){ctx.save();ctx.translate(sx+size/2,y+size/2-8);ctx.fillStyle='#8b4513';ctx.fillRect(-14,-6,28,18);ctx.fillStyle='#a0522d';ctx.fillRect(-14,-16,28,10);ctx.fillStyle='#d4a020';ctx.fillRect(-15,-17,30,3);ctx.fillRect(-15,11,30,3);ctx.fillStyle='#f0c040';ctx.beginPath();ctx.arc(0,-2,5,0,Math.PI*2);ctx.fill();ctx.restore();}
+      if(item==='EscapeKey'){ctx.save();ctx.translate(sx+size/2,y+size/2-8);ctx.strokeStyle='#f0c030';ctx.lineWidth=3.5;ctx.lineCap='round';ctx.beginPath();ctx.arc(-6,-6,10,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(4,-6);ctx.lineTo(20,-6);ctx.stroke();ctx.beginPath();ctx.moveTo(14,-6);ctx.lineTo(14,2);ctx.stroke();ctx.beginPath();ctx.moveTo(19,-6);ctx.lineTo(19,2);ctx.stroke();ctx.fillStyle='#f0c030';ctx.beginPath();ctx.arc(-6,-6,4,0,Math.PI*2);ctx.fill();ctx.restore();}
       ctx.fillStyle='white';ctx.font='9px Arial';ctx.textAlign='center';ctx.fillText(item,sx+size/2,y+size-4);ctx.textAlign='left';
     }
   }
@@ -828,6 +892,37 @@ function drawWorldHUD(){
 function drawAppleMessage(){
   if(Date.now()>appleMessageExpiry)return;
   ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(canvas.width/2-270,12,540,50);ctx.fillStyle='#ff5555';ctx.font='bold 21px Arial';ctx.textAlign='center';ctx.fillText('🍎  Apples help regenerate health faster!',canvas.width/2,45);ctx.textAlign='left';
+}
+
+
+// ===== ESCAPE SEQUENCE UI =====
+function drawEscapePrompt(){
+  if(currentScene!=='world')return;
+  // "Hidden door" message for 15s after exiting cave with items
+  if(Date.now()<escapeMsgExpiry){
+    const msg='There must be a hidden door somewhere to escape this place using the key. I must find it.';
+    const bw=780,bh=50,bx=canvas.width/2-bw/2,by=12;
+    ctx.fillStyle='rgba(0,0,0,0.85)';ctx.fillRect(bx,by,bw,bh);
+    ctx.strokeStyle='#d4a020';ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);
+    ctx.fillStyle='#ffd700';ctx.font='bold 16px Arial';ctx.textAlign='center';ctx.fillText(msg,canvas.width/2,by+32);ctx.textAlign='left';
+  }
+  // V prompt when at river bottom with both items
+  if(hasItem('EscapeKey')&&hasItem('Treasure')){
+    const atRiver=player.x>river.x-45&&player.x<river.x+river.width+45;
+    const atBottom=player.y>canvas.height-120;
+    if(atRiver&&atBottom){
+      // Glowing portal effect in river
+      const glow=Math.sin(Date.now()/300)*0.3+0.7;
+      ctx.fillStyle=`rgba(100,200,255,${glow*0.35})`;
+      ctx.beginPath();ctx.ellipse(river.x+river.width/2,canvas.height-80,river.width/2+10,25,0,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle=`rgba(150,230,255,${glow*0.9})`;ctx.lineWidth=3;
+      ctx.beginPath();ctx.ellipse(river.x+river.width/2,canvas.height-80,river.width/2+10,25,0,0,Math.PI*2);ctx.stroke();
+      // Prompt box
+      ctx.fillStyle='rgba(0,20,40,0.88)';ctx.fillRect(canvas.width/2-160,canvas.height/2-40,320,54);
+      ctx.strokeStyle='#88eeff';ctx.lineWidth=2;ctx.strokeRect(canvas.width/2-160,canvas.height/2-40,320,54);
+      ctx.fillStyle='#88eeff';ctx.font='bold 22px Arial';ctx.textAlign='center';ctx.fillText('Press V to escape!',canvas.width/2,canvas.height/2-4);ctx.textAlign='left';
+    }
+  }
 }
 
 // ===== MAP =====
@@ -865,6 +960,18 @@ function startGame(gender){document.getElementById('menu').style.display='none';
 
 // ===== GAME LOOP =====
 function gameLoop(){
+  // Escape win sequence
+  if(escapePhase===1){
+    if(Date.now()-escapeWhiteStart>=5000)escapePhase=2;
+    ctx.fillStyle='white';ctx.fillRect(0,0,canvas.width,canvas.height);
+    requestAnimationFrame(gameLoop);return;
+  }
+  if(escapePhase===2){
+    ctx.fillStyle='black';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='white';ctx.font='bold 90px Georgia';ctx.textAlign='center';ctx.fillText('You Won! 🎉',canvas.width/2,canvas.height/2-20);
+    ctx.font='28px Arial';ctx.fillStyle='#aaaaaa';ctx.fillText('You escaped the caves!',canvas.width/2,canvas.height/2+50);
+    ctx.textAlign='left';requestAnimationFrame(gameLoop);return;
+  }
   if(deathScreen){drawDeathScreen();requestAnimationFrame(gameLoop);return;}
   if(!gameStarted)return;
   const now=Date.now();
@@ -879,7 +986,7 @@ function gameLoop(){
     movePlayer();
     drawForest();drawWorldVillage();drawCaveOnWorld();drawWitchHutWorld();drawDungeonEntranceWorld();drawPlayer();
     if(swordSlashActive)drawSwordSlash();if(pickaxeSwingActive)drawPickaxeSwing();
-    drawHealthBar();drawWorldHUD();drawInventory();if(showMap)drawMap();drawAppleMessage();drawCaveWarning();
+    drawHealthBar();drawWorldHUD();drawInventory();if(showMap)drawMap();drawAppleMessage();drawCaveWarning();drawEscapePrompt();
 
   }else if(currentScene==='village'){
     moveVillagePlayer();drawVillageScene();drawAppleMessage();
@@ -934,15 +1041,9 @@ function gameLoop(){
     // Spike collision = death
     for(const s of caveSpikes){if(!s.broken&&Math.hypot(player.x-s.x,player.y-s.y)<34){villageHouses.forEach(h=>{h.itemTaken=false;});triggerDeath();}}
     // Lava: block without potion, push back
-    if(player.x>lsx&&player.y>65&&player.y<canvas.height-65){
+    if(player.x>lsx&&player.x<getLavaEndX()+5&&player.y>65&&player.y<canvas.height-65){
       if(!hasItem('FirePotion')){player.x=lsx-5;lavaWarningExpiry=now+2500;}
     }
-    // Allow standing on platform after lava
-const platformX = lsx + 210;
-if (player.x > platformX) {
-  // Safe zone — no pushback
-}
-
     // Health death
     if(player.health<=0){player.health=0;villageHouses.forEach(h=>{h.itemTaken=false;});triggerDeath();}
     drawCaveInterior();
