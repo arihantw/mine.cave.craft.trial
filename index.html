@@ -68,7 +68,7 @@ let swordSlashActive=false,swordSlashStart=0;
 const SWORD_SLASH_DURATION=500;
 let pickaxeSwingActive=false,pickaxeSwingStart=0;
 const PICKAXE_SWING_DURATION=500;
-let appleMessageExpiry=0,hasApple=false,lastRegenTime=0;
+let appleMessageExpiry=0,ateApple=false,hasApple=false,lastRegenTime=0;
 let caveWarningExpiry=0,lavaWarningExpiry=0;
 let deathScreen=false,deathButton=null;
 let damageFlash=0;
@@ -205,7 +205,7 @@ document.addEventListener('keydown',e=>{
     }
     else if(currentScene==='house'){
       const h=villageHouses[inHouseIndex];
-      if(h.item&&!h.itemTaken){addToInventory(h.item);h.itemTaken=true;if(h.item==='Apple'){appleMessageExpiry=Date.now()+15000;hasApple=true;}}
+      if(h.item&&!h.itemTaken){addToInventory(h.item);h.itemTaken=true;if(h.item==='Apple'){appleMessageExpiry=Date.now()+15000;hasApple=true;ateApple=false;}}
     }
     else if(currentScene==='witchHut'){
       const witchX=canvas.width*0.62,witchY=canvas.height*0.42;
@@ -260,6 +260,14 @@ document.addEventListener('keydown',e=>{
     const atRiver=player.x>river.x-40&&player.x<river.x+river.width+40;
     const atBottom=player.y>canvas.height-120;
     if(atRiver&&atBottom){escapePhase=1;escapeWhiteStart=Date.now();}
+  }
+  // EAT APPLE (F)
+  if(key==='f'&&hasItem('Apple')){
+    player.health=Math.min(player.maxHealth,player.health+20);
+    removeFromInventory('Apple');
+    hasApple=false;
+    ateApple=true;
+    appleMessageExpiry=Date.now()+3000;
   }
   // PICKAXE (R)
   if(key==='r'&&(currentScene==='world'||currentScene==='cave')&&hasItem('Pickaxe')&&!showNote&&!showMap){
@@ -598,6 +606,7 @@ function drawSkeletonDungeonScene(){
   const alive=dungeonSkeletons.filter(s=>s.alive).length;
   const lines=['WASD = Move','J = Exit Dungeon'];
   if(hasItem('Sword'))lines.push('Q = Sword (5 hits)');
+  if(hasItem('Apple'))lines.push('F = Eat Apple (+20 HP)');
   const hudH=26*lines.length+20;
   ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(10,10,240,hudH);ctx.fillStyle='white';ctx.font='17px Arial';lines.forEach((l,i)=>ctx.fillText(l,20,34+i*26));
   if(alive>0){
@@ -734,6 +743,7 @@ function drawCaveInterior(){
   const lines=['WASD = Move','J = Exit Cave'];
   if(hasItem('Sword'))lines.push('Q = Sword (kills snakes)');
   if(hasItem('Pickaxe'))lines.push('R = Break Spikes');
+  if(hasItem('Apple'))lines.push('F = Eat Apple (+20 HP)');
   const hudH=26*lines.length+20;
   ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(10,10,245,hudH);ctx.fillStyle='white';ctx.font='17px Arial';lines.forEach((l,i)=>ctx.fillText(l,20,34+i*26));
   if(snakeAlive>0){ctx.fillStyle='rgba(0,0,0,0.65)';ctx.fillRect(canvas.width-205,55,190,36);ctx.fillStyle='#ff6666';ctx.font='bold 17px Arial';ctx.textAlign='right';ctx.fillText(`🐍 Snakes: ${snakeAlive}/10`,canvas.width-20,79);ctx.textAlign='left';}
@@ -892,12 +902,16 @@ function drawInventory(){
 }
 function drawWorldHUD(){
   const lines=['WASD = Move','M = Map','E = Interact','N = Read Note'];
-  if(hasItem('Sword'))lines.push('Q = Use Sword');if(hasItem('Pickaxe'))lines.push('R = Swing Pickaxe');
+  if(hasItem('Sword'))lines.push('Q = Use Sword');if(hasItem('Pickaxe'))lines.push('R = Swing Pickaxe');if(hasItem('Apple'))lines.push('F = Eat Apple (+20 HP)');
   const h=26*lines.length+20;ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(10,10,205,h);ctx.fillStyle='white';ctx.font='17px Arial';lines.forEach((l,i)=>ctx.fillText(l,20,34+i*26));
 }
 function drawAppleMessage(){
   if(Date.now()>appleMessageExpiry)return;
-  ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(canvas.width/2-270,12,540,50);ctx.fillStyle='#ff5555';ctx.font='bold 21px Arial';ctx.textAlign='center';ctx.fillText('🍎  Apples help regenerate health faster!',canvas.width/2,45);ctx.textAlign='left';
+  ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(canvas.width/2-280,12,560,50);
+  ctx.textAlign='center';ctx.font='bold 21px Arial';
+  if(ateApple){ctx.fillStyle='#88ff88';ctx.fillText('🍎  +20 HP restored!  Press F to eat an apple.',canvas.width/2,45);}
+  else{ctx.fillStyle='#ff5555';ctx.fillText('🍎  Apple collected! Press F to eat it (+20 HP instantly).',canvas.width/2,45);}
+  ctx.textAlign='left';
 }
 
 
